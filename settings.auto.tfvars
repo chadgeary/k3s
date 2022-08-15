@@ -15,11 +15,10 @@ urls = {
 
 ## Instances
 # Instance types @ https://instances.vantage.sh/
-# For k3s, use an odd number
 instances = {
   scaling_count = {
-    min = "0"
-    max = "0"
+    min = "1"
+    max = "1"
   }
   volume = {
     gb   = "20"
@@ -45,22 +44,15 @@ instances = {
 # Hint: pass PREFIX and SUFFIX with an SSM playbook
 # Warn: Keep this terraform state file secure!
 secrets = {
-  K3S_TOKEN = "change_me_please!"
-  DB_PASS   = "also_change_me!"
+  K3S_TOKEN = "Change_me_please_1"
+  DB_PASS   = "also_Change_me_2"
 }
 
 ## AMI
-# The (Ubuntu) AMI name string and account number.
+# The Amazon Linux AMI name string and account number.
 # To find your region's AMI, replace us-east-1 with your region, then run the command:
-
-# For ARM:
-# AWS_REGION=us-east-1 && aws ec2 describe-images --region $AWS_REGION --owners 099720109477 --filters 'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*' 'Name=state,Values=available' --query 'sort_by(Images, &CreationDate)[-1].Name'
-
-# For x86_64 (non-ARM):
-# AWS_REGION=us-east-1 && aws ec2 describe-images --region $AWS_REGION --owners 099720109477 --filters 'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*' 'Name=state,Values=available' --query 'sort_by(Images, &CreationDate)[-1].Name'
-
-vendor_ami_name_string    = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
-vendor_ami_account_number = "099720109477"
+# AWS_REGION=us-east-1 && aws ec2 describe-images --region $AWS_REGION --owners 099720109477 --filters 'Name=name,Values=amzn2-ami-hvm-*-x86_64-ebs' 'Name=state,Values=available' --query 'sort_by(Images, &CreationDate)[-1].Name'
+vendor_ami_name_string = "amzn2-ami-hvm-*-x86_64-ebs"
 
 ## VPC
 # Subnet used by the VPC and split across the associated subnets

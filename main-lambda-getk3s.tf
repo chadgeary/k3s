@@ -12,7 +12,7 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
   kms_key_arn      = aws_kms_key.cloudk3s["lambda"].arn
   memory_size      = 256
   handler          = "main-lambda-getk3s.lambda_handler"
-  runtime          = "python3.8"
+  runtime          = "python3.7"
   timeout          = 600
   environment {
     variables = {
@@ -25,11 +25,11 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
   }
 }
 
-#data "aws_lambda_invocation" "cloudk3s-getk3s" {
-#  function_name = aws_lambda_function.cloudk3s-getk3s.function_name
-#  input         = <<JSON
-#{
-#  "terraform": "terraform"
-#}
-#JSON
-#}
+data "aws_lambda_invocation" "cloudk3s-getk3s" {
+  function_name = aws_lambda_function.cloudk3s-getk3s.function_name
+  input         = <<JSON
+{
+ "terraform": "terraform"
+}
+JSON
+}

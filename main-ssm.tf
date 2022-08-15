@@ -40,8 +40,7 @@ resource "aws_ssm_document" "cloudk3s" {
       "type": "String",
       "description": "(Optional) Additional variables to pass to Ansible at runtime. Enter key/value pairs separated by a space. For example: color=red flavor=cherry",
       "default": "",
-      "displayType": "textarea",
-      "allowedPattern": "^$|^\\w+\\=[^\\s|:();&]+(\\s\\w+\\=[^\\s|:();&]+)*$"
+      "displayType": "textarea"
     },
     "Verbose": {
       "type": "String",
@@ -70,13 +69,11 @@ resource "aws_ssm_document" "cloudk3s" {
       "inputs": {
       "runCommand": [
         "#!/bin/bash",
-        "# Ensure ansible and unzip are installed",
-        "export DEBIAN_FRONTEND=noninteractive",
-        "sudo apt-get update",
-        "sudo apt-get -o 'Dpkg::Options::=--force-confold' install python3-pip unzip -q -y",
-        "sudo pip3 install --upgrade pip",
-        "sudo pip3 install --upgrade ansible botocore boto3",
-        "sudo ansible-galaxy collection install community.aws",
+        "# Fetch ansible from s3",
+        "aws s3 sync s3://k3s-i43rg/data/downloads/ ~/downloads/",
+        "pip3 install --user --no-index --find-links ~/downloads/ansible ansible",
+        "pip3 install --user --no-index --find-links ~/downloads/boto3 boto3",
+        "pip3 install --user --no-index --find-links ~/downloads/botocore botocore",
         "echo \"Running Ansible in `pwd`\"",
         "for zip in $(find -iname '*.zip'); do",
         "  unzip -o $zip",
@@ -86,7 +83,7 @@ resource "aws_ssm_document" "cloudk3s" {
         "   echo \"The specified Playbook file doesn't exist in the downloaded bundle. Please review the relative path and file name.\" >&2",
         "   exit 2",
         "fi",
-        "export AWS_DEFAULT_REGION=${var.aws_region} && export AWS_REGION=${var.aws_region} && ansible-playbook -i \"localhost,\" -c local -e \"{{ExtraVariables}}\" \"{{Verbose}}\" \"$${PlaybookFile}\""
+        "export AWS_DEFAULT_REGION=${var.aws_region} && export AWS_REGION=${var.aws_region} && ~/.local/bin/ansible-playbook -i \"localhost,\" -c local -e \"{{ExtraVariables}}\" \"{{Verbose}}\" \"$${PlaybookFile}\""
       ]
       }
     }
@@ -108,7 +105,7 @@ resource "aws_ssm_association" "cloudk3s" {
     s3_key_prefix  = "ssm"
   }
   parameters = {
-    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443"
+    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint}"
     PlaybookFile   = "cloudk3s.yaml"
     SourceInfo     = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/playbooks/cloudk3s/\"}"
     SourceType     = "S3"

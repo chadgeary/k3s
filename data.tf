@@ -12,7 +12,7 @@ data "aws_partition" "cloudk3s" {
 ## AMI
 data "aws_ami" "cloudk3s" {
   most_recent = true
-  owners      = [var.vendor_ami_account_number]
+  owners      = ["amazon"]
   filter {
     name   = "name"
     values = [var.vendor_ami_name_string]
@@ -23,7 +23,7 @@ data "aws_ami" "cloudk3s" {
   }
   filter {
     name   = "architecture"
-    values = ["arm64", "x86_64"]
+    values = ["x86_64"]
   }
   filter {
     name   = "root-device-type"

@@ -51,11 +51,17 @@ data "aws_iam_policy_document" "cloudk3s-s3" {
     sid    = "Lambda Put"
     effect = "Allow"
     actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:ListBucketMultipartUploads",
+      "s3:ListMultipartUploadParts",
       "s3:PutObject",
       "s3:PutObjectAcl",
-      "s3:AbortMultipartUpload"
+      "s3:PutObjectTagging",
     ]
     resources = [
+      aws_s3_bucket.cloudk3s.arn,
       "${aws_s3_bucket.cloudk3s.arn}/data/*"
     ]
     principals {

@@ -16,11 +16,6 @@ variable "aws_region" {
 }
 
 # ami
-variable "vendor_ami_account_number" {
-  type        = string
-  description = "The account number of the vendor supplying the base AMI"
-}
-
 variable "vendor_ami_name_string" {
   type        = string
   description = "The search string for the name of the AMI from the AMI Vendor"

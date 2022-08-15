@@ -3,7 +3,37 @@
   hosts: localhost
   become: true
   become_user: root
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
+
+    - name: check k3s binary exists
+      stat:
+        path: /usr/local/bin/k3s
+      register: K3S_BIN
+
+    - name: get k3s bin from s3 if not downloaded
+      aws_s3:
+        region: "{{ REGION }}"
+        mode: get
+        bucket: "{{ PREFIX }}-{{ SUFFIX }}"
+        object: "data/downloads/k3s/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+      with_items:
+        - k3s
+      when:
+        - K3S_BIN.stat.exists == false
+      retries: 10
+      delay: 1
+
+    - name: k3s bin file
+      file:
+        path: "/usr/local/bin/{{ item }}"
+        state: file
+        mode: 0750
+        owner: root
+      with_items:
+        - k3s
 
     - name: k3s directories
       file:
@@ -13,36 +43,17 @@
       with_items:
         - /var/lib/rancher/k3s/agent/images/
 
-    - name: check k3s binary exists
-      stat:
-        path: /usr/local/bin/k3s
-      register: K3S_BIN
-
     - name: check k3s tar exists
       stat:
         path: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar
       register: K3S_TAR
 
-    - name: get k3s bin from s3 if not downloaded
-      aws_s3:
-        region: "{{ aws_region }}"
-        mode: get
-        bucket: "{{ s3_bucket }}"
-        object: "data/k3s/downloads/{{ item }}"
-        dest: "/usr/local/bin/{{ item }}"
-      with_items:
-        - k3s
-      when:
-        - K3S_BIN.stat.exists == false
-      retries: 10
-      delay: 1
-
     - name: get k3s tar from s3 if not downloaded
       aws_s3:
-        region: "{{ aws_region }}"
+        region: "{{ REGION }}"
         mode: get
-        bucket: "{{ s3_bucket }}"
-        object: "data/k3s/downloads/{{ item }}"
+        bucket: "{{ PREFIX }}-{{ SUFFIX }}"
+        object: "data/downloads/k3s/{{ item }}"
         dest: "/var/lib/rancher/k3s/agent/images/{{ item }}"
       with_items:
         - k3s-airgap-images-amd64.tar
@@ -65,10 +76,11 @@
       shell: |
          ./install.sh
       environment:
+        K3S_DATASTORE_ENDPOINT: "postgres://{{ PREFIX }}{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}/{{ PREFIX }}{{ SUFFIX }}"
         K3S_TOKEN: "{{ K3S_TOKEN }}"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
         INSTALL_K3S_EXEC: "server"
-        K3S_DATASTORE_ENDPOINT: "postgresql://{{ PREFIX }}{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}:5432/{{ PREFIX }}{{ SUFFIX }}"
+
 
     - name: s3 put kubeconfig
       aws_s3:

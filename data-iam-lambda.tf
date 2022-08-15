@@ -25,24 +25,18 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
   statement {
     sid = "ListBucket"
     actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetBucketLocation",
       "s3:ListBucket",
       "s3:ListBucketMultipartUploads",
-      "s3:ListMultipartUploadParts"
-    ]
-    effect    = "Allow"
-    resources = [aws_s3_bucket.cloudk3s.arn]
-  }
-
-  statement {
-    sid = "PutBucketObjects"
-    actions = [
+      "s3:ListMultipartUploadParts",
       "s3:PutObject",
       "s3:PutObjectAcl",
       "s3:PutObjectTagging",
-      "s3:AbortMultipartUpload"
     ]
     effect = "Allow"
     resources = [
+      aws_s3_bucket.cloudk3s.arn,
       "${aws_s3_bucket.cloudk3s.arn}/data/*"
     ]
   }
