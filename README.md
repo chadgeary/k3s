@@ -6,4 +6,4 @@ Deploys a scalable, private K3s cluster on AWS.
 * Managed (RDS) HA DB for K3s
 * SSM for kube API interaction w/ included script
 
-![Output][k3s.png]
+![Output](k3s.png)
