@@ -23,6 +23,7 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
       KEY         = aws_kms_key.cloudk3s["s3"].arn
     }
   }
+  depends_on = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
 }
 
 data "aws_lambda_invocation" "cloudk3s-getk3s" {
@@ -32,4 +33,5 @@ data "aws_lambda_invocation" "cloudk3s-getk3s" {
  "terraform": "terraform"
 }
 JSON
+  depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
 }

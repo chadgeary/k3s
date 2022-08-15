@@ -1,2 +1,9 @@
-# k3s on aws via terraform
-The resources required to automate deployment of an autoscaling k3s cluster on aws with a managed backend (rds) for ha.
+# K3s Cluster on AWS
+Deploys a scalable, private K3s cluster on AWS.
+
+# Features
+* Offline installation, cluster has no internet access
+* Managed (RDS) HA DB for K3s
+* SSM for kube API interaction w/ included script
+
+![Output][k3s.png]

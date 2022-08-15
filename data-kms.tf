@@ -36,7 +36,10 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       condition {
         test     = "ArnEquals"
         variable = "kms:EncryptionContext:aws:logs:arn"
-        values   = ["arn:${data.aws_partition.cloudk3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.cloudk3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}"]
+        values = [
+          "arn:${data.aws_partition.cloudk3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.cloudk3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
+          "arn:${data.aws_partition.cloudk3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.cloudk3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
+        ]
       }
     }
   }

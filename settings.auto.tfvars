@@ -17,8 +17,8 @@ urls = {
 # Instance types @ https://instances.vantage.sh/
 instances = {
   scaling_count = {
-    min = "1"
-    max = "1"
+    min = "3"
+    max = "3"
   }
   volume = {
     gb   = "20"

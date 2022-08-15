@@ -85,5 +85,5 @@ resource "aws_autoscaling_group" "cloudk3s" {
     }
   }
 
-  depends_on = [aws_iam_user_policy_attachment.cloudk3s-ec2-passrole, aws_s3_bucket_policy.cloudk3s, aws_cloudwatch_log_group.cloudk3s, aws_s3_object.files, aws_iam_role_policy_attachment.cloudk3s-ec2, aws_iam_role_policy_attachment.cloudk3s-ec2-managed, aws_route53_zone.cloudk3s, aws_route53_record.cloudk3s-private, aws_lb.cloudk3s-private]
+  depends_on = [aws_iam_user_policy_attachment.cloudk3s-ec2-passrole, aws_s3_bucket_policy.cloudk3s, aws_cloudwatch_log_group.cloudk3s-ec2, aws_s3_object.files, aws_iam_role_policy_attachment.cloudk3s-ec2, aws_iam_role_policy_attachment.cloudk3s-ec2-managed, aws_route53_zone.cloudk3s, aws_route53_record.cloudk3s-private, aws_lb.cloudk3s-private]
 }

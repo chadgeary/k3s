@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
       "logs:PutLogEvents"
     ]
     effect    = "Allow"
-    resources = [aws_cloudwatch_log_group.cloudk3s.arn]
+    resources = [aws_cloudwatch_log_group.cloudk3s-ec2.arn]
   }
 
   statement {
