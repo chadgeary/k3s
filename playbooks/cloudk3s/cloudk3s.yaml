@@ -1,0 +1,83 @@
+---
+- name: cloudk3s.yaml
+  hosts: localhost
+  become: true
+  become_user: root
+  tasks:
+
+    - name: k3s directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0750
+      with_items:
+        - /var/lib/rancher/k3s/agent/images/
+
+    - name: check k3s binary exists
+      stat:
+        path: /usr/local/bin/k3s
+      register: K3S_BIN
+
+    - name: check k3s tar exists
+      stat:
+        path: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar
+      register: K3S_TAR
+
+    - name: get k3s bin from s3 if not downloaded
+      aws_s3:
+        region: "{{ aws_region }}"
+        mode: get
+        bucket: "{{ s3_bucket }}"
+        object: "data/k3s/downloads/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+      with_items:
+        - k3s
+      when:
+        - K3S_BIN.stat.exists == false
+      retries: 10
+      delay: 1
+
+    - name: get k3s tar from s3 if not downloaded
+      aws_s3:
+        region: "{{ aws_region }}"
+        mode: get
+        bucket: "{{ s3_bucket }}"
+        object: "data/k3s/downloads/{{ item }}"
+        dest: "/var/lib/rancher/k3s/agent/images/{{ item }}"
+      with_items:
+        - k3s-airgap-images-amd64.tar
+      when:
+        - K3S_TAR.stat.exists == false
+      retries: 10
+      delay: 1
+
+    - name: get K3S_TOKEN ssm parameter
+      set_fact:
+        K3S_TOKEN: "{{ lookup('aws_ssm', '/' + PREFIX + '-' + SUFFIX + '/' + 'K3S_TOKEN', decrypt=true, region=REGION) }}"
+      no_log: true
+
+    - name: get DB_PASS ssm parameter
+      set_fact:
+        DB_PASS: "{{ lookup('aws_ssm', '/' + PREFIX + '-' + SUFFIX + '/' + 'DB_PASS', decrypt=true, region=REGION) }}"
+      no_log: true
+
+    - name: exec rancher script
+      shell: |
+         ./install.sh
+      environment:
+        K3S_TOKEN: "{{ K3S_TOKEN }}"
+        INSTALL_K3S_SKIP_DOWNLOAD: "true"
+        INSTALL_K3S_EXEC: "server"
+        K3S_DATASTORE_ENDPOINT: "postgresql://{{ PREFIX }}-{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}:5432/{{ PREFIX }}{{ SUFFIX }}"
+
+    - name: s3 put kubeconfig
+      aws_s3:
+        region: "{{ REGION }}"
+        mode: put
+        bucket: "{{ PREFIX }}-{{ SUFFIX }}"
+        object: "data/k3s/k3s.yaml"
+        src: "/etc/rancher/k3s/k3s.yaml"
+      retries: 10
+      delay: 1
+      register: s3_put_kubeconfig
+      until: s3_put_kubeconfig is not failed
