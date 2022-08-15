@@ -81,5 +81,5 @@ resource "aws_vpc_endpoint_subnet_association" "cloudk3s-ssm" {
 
   subnet_id       = each.value.subnet
   vpc_endpoint_id = each.value.vpce
-  depends_on = [aws_lb.cloudk3s-private]
+  depends_on      = [aws_lb.cloudk3s-private]
 }
