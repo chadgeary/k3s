@@ -1,3 +1,24 @@
+data "aws_iam_policy_document" "cloudk3s-ec2-passrole" {
+  statement {
+    sid = "AdminPassRole"
+    actions = [
+      "iam:PassRole"
+    ]
+    effect    = "Allow"
+    resources = [aws_iam_service_linked_role.cloudk3s.arn]
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["autoscaling.amazonaws.com"]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "iam:AssociatedResourceArn"
+      values   = ["arn:${data.aws_partition.cloudk3s.partition}:autoscaling:${var.aws_region}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}"]
+    }
+  }
+}
+
 data "aws_iam_policy" "cloudk3s-ec2-managed" {
   arn = "arn:${data.aws_partition.cloudk3s.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

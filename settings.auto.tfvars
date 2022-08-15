@@ -4,7 +4,7 @@ prefix = "k3s"
 
 ## AWS
 aws_profile = "default"
-aws_region  = "us-east-2"
+aws_region  = "us-east-1"
 
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
@@ -18,8 +18,8 @@ urls = {
 # For k3s, use an odd number
 instances = {
   scaling_count = {
-    min = "1"
-    max = "1"
+    min = "0"
+    max = "0"
   }
   volume = {
     gb   = "20"

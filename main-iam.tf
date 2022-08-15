@@ -4,6 +4,17 @@ resource "aws_iam_service_linked_role" "cloudk3s" {
   custom_suffix    = "${local.prefix}-${local.suffix}"
 }
 
+resource "aws_iam_policy" "cloudk3s-ec2-passrole" {
+  name   = "${local.prefix}-${local.suffix}-ec2-passrole"
+  path   = "/"
+  policy = data.aws_iam_policy_document.cloudk3s-ec2-passrole.json
+}
+
+resource "aws_iam_user_policy_attachment" "cloudk3s-ec2-passrole" {
+  user       = element(split("/", data.aws_caller_identity.cloudk3s.arn), 1)
+  policy_arn = aws_iam_policy.cloudk3s-ec2-passrole.arn
+}
+
 ## instances
 resource "aws_iam_role" "cloudk3s-ec2" {
   name               = "${local.prefix}-${local.suffix}-ec2"

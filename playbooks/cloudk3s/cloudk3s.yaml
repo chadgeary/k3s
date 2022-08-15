@@ -68,7 +68,7 @@
         K3S_TOKEN: "{{ K3S_TOKEN }}"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
         INSTALL_K3S_EXEC: "server"
-        K3S_DATASTORE_ENDPOINT: "postgresql://{{ PREFIX }}-{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}:5432/{{ PREFIX }}{{ SUFFIX }}"
+        K3S_DATASTORE_ENDPOINT: "postgresql://{{ PREFIX }}{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}:5432/{{ PREFIX }}{{ SUFFIX }}"
 
     - name: s3 put kubeconfig
       aws_s3:

@@ -7,19 +7,19 @@ resource "aws_launch_template" "cloudk3s" {
   }
   ebs_optimized = true
   image_id      = data.aws_ami.cloudk3s.id
-  instance_requirements {
-    burstable_performance = var.instances.burstable_performance
-    local_storage         = var.instances.local_storage
-    instance_generations  = var.instances.generations
-    memory_mib {
-      min = var.instances.memory_mib.min
-      max = var.instances.memory_mib.max
-    }
-    vcpu_count {
-      min = var.instances.vcpu_count.min
-      max = var.instances.vcpu_count.max
-    }
-  }
+  # instance_requirements {
+  #   burstable_performance = var.instances.burstable_performance
+  #   local_storage         = var.instances.local_storage
+  #   instance_generations  = var.instances.generations
+  #   memory_mib {
+  #     min = var.instances.memory_mib.min
+  #     max = var.instances.memory_mib.max
+  #   }
+  #   vcpu_count {
+  #     min = var.instances.vcpu_count.min
+  #     max = var.instances.vcpu_count.max
+  #   }
+  # }
   block_device_mappings {
     device_name = data.aws_ami.cloudk3s.root_device_name
     ebs {
@@ -46,6 +46,21 @@ resource "aws_autoscaling_group" "cloudk3s" {
         launch_template_id = aws_launch_template.cloudk3s.id
         version            = "$Latest"
       }
+      override {
+        instance_requirements {
+          burstable_performance = var.instances.burstable_performance
+          local_storage         = var.instances.local_storage
+          instance_generations  = var.instances.generations
+          memory_mib {
+            min = var.instances.memory_mib.min
+            max = var.instances.memory_mib.max
+          }
+          vcpu_count {
+            min = var.instances.vcpu_count.min
+            max = var.instances.vcpu_count.max
+          }
+        }
+      }
     }
   }
   target_group_arns         = [aws_lb_target_group.cloudk3s-private.arn]
@@ -70,5 +85,5 @@ resource "aws_autoscaling_group" "cloudk3s" {
     }
   }
 
-  depends_on = [aws_s3_bucket_policy.cloudk3s, aws_cloudwatch_log_group.cloudk3s, aws_s3_object.files, aws_iam_role_policy_attachment.cloudk3s-ec2, aws_iam_role_policy_attachment.cloudk3s-ec2-managed, aws_route53_zone.cloudk3s, aws_route53_record.cloudk3s-private, aws_lb.cloudk3s-private]
+  depends_on = [aws_iam_user_policy_attachment.cloudk3s-ec2-passrole, aws_s3_bucket_policy.cloudk3s, aws_cloudwatch_log_group.cloudk3s, aws_s3_object.files, aws_iam_role_policy_attachment.cloudk3s-ec2, aws_iam_role_policy_attachment.cloudk3s-ec2-managed, aws_route53_zone.cloudk3s, aws_route53_record.cloudk3s-private, aws_lb.cloudk3s-private]
 }

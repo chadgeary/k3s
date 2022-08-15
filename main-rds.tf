@@ -8,13 +8,13 @@ resource "aws_db_subnet_group" "cloudk3s" {
 }
 
 resource "aws_db_instance" "cloudk3s" {
-  allocated_storage       = 1
+  allocated_storage       = 5
   availability_zone       = data.aws_availability_zones.cloudk3s.names[0]
   engine                  = "postgres"
   engine_version          = "14.3"
   instance_class          = "db.t3.micro"
   db_name                 = "${local.prefix}${local.suffix}"
-  username                = "${local.prefix}-${local.suffix}"
+  username                = "${local.prefix}${local.suffix}"
   password                = var.secrets.DB_PASS
   port                    = 5432
   publicly_accessible     = false
