@@ -1,11 +1,11 @@
 # K3s Cluster on AWS
-Deploys a scalable, private K3s cluster on AWS.
+Deploys a low-cost, scalable, private K3s cluster on AWS.
 
-# Requirements
+## Requirements
 * aws account
 * terraform v1+
 
-# Deploy
+## Deploy
 ```shell
 # customize/edit settings.auto.tfvars
 
@@ -14,7 +14,7 @@ terraform init --upgrade
 terraform apply
 ```
 
-# Features
+## Features
 * offline
   * cluster has no direct internet access
   * saves costs on NAT gateways for development
