@@ -13,7 +13,7 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
   memory_size      = 256
   handler          = "main-lambda-getk3s.lambda_handler"
   runtime          = "python3.7"
-  timeout          = 600
+  timeout          = 900
   environment {
     variables = {
       K3S_BIN_URL = var.urls.k3s_bin
@@ -26,11 +26,22 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
   depends_on = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
 }
 
-data "aws_lambda_invocation" "cloudk3s-getk3s" {
+# this should bring runtime < 15 minutes
+data "aws_lambda_invocation" "cloudk3s-getk3s-k3s" {
   function_name = aws_lambda_function.cloudk3s-getk3s.function_name
   input         = <<JSON
 {
- "terraform": "terraform"
+ "files":"k3s"
+}
+JSON
+  depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
+}
+
+data "aws_lambda_invocation" "cloudk3s-getk3s-python" {
+  function_name = aws_lambda_function.cloudk3s-getk3s.function_name
+  input         = <<JSON
+{
+ "files":"python"
 }
 JSON
   depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]

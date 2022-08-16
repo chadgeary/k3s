@@ -37,6 +37,15 @@ resource "aws_security_group_rule" "cloudk3s-ec2-ingress-self-lb" {
   cidr_blocks       = [for net in aws_subnet.cloudk3s-private : net.cidr_block]
 }
 
+resource "aws_security_group_rule" "cloudk3s-ec2-egress-self-lb" {
+  type              = "egress"
+  from_port         = "6443"
+  to_port           = "6443"
+  protocol          = "tcp"
+  security_group_id = aws_security_group.cloudk3s-ec2.id
+  cidr_blocks       = [for net in aws_subnet.cloudk3s-private : net.cidr_block]
+}
+
 resource "aws_security_group_rule" "cloudk3s-ec2-egress-s3" {
   type              = "egress"
   from_port         = "443"

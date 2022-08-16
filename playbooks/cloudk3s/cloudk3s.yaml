@@ -42,6 +42,7 @@
         mode: 0750
       with_items:
         - /var/lib/rancher/k3s/agent/images/
+        - /etc/rancher/k3s/
 
     - name: check k3s tar exists
       stat:
@@ -78,18 +79,60 @@
       environment:
         K3S_DATASTORE_ENDPOINT: "postgres://{{ PREFIX }}{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}/{{ PREFIX }}{{ SUFFIX }}"
         K3S_TOKEN: "{{ K3S_TOKEN }}"
+        K3S_URL: "{% if K3S_ROLE == 'master' %}{% elif K3S_ROLE == 'worker' %}{{ K3S_URL }}{% endif %}"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
-        INSTALL_K3S_EXEC: "server"
+        INSTALL_K3S_EXEC: "{% if K3S_ROLE == 'master' %}server{% elif K3S_ROLE == 'worker' %}agent{% endif %}"
 
-
-    - name: s3 put kubeconfig
+    - name: s3 put kubeconfig - masters
       aws_s3:
         region: "{{ REGION }}"
         mode: put
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
         object: "data/k3s/k3s.yaml"
         src: "/etc/rancher/k3s/k3s.yaml"
-      retries: 10
+      retries: 60
       delay: 1
       register: s3_put_kubeconfig
       until: s3_put_kubeconfig is not failed
+      when:
+        - K3S_ROLE == 'master'
+
+    - name: s3 get kubeconfig - workers
+      aws_s3:
+        region: "{{ REGION }}"
+        mode: get
+        bucket: "{{ PREFIX }}-{{ SUFFIX }}"
+        object: "data/k3s/k3s.yaml"
+        dest: "/etc/rancher/k3s/k3s.yaml"
+      retries: 60
+      delay: 1
+      register: s3_put_kubeconfig
+      until: s3_put_kubeconfig is not failed
+      when:
+        - K3S_ROLE == 'worker'
+
+    - name: set kubeconfig - workers
+      file:
+        path: /etc/rancher/k3s/k3s.yaml
+        state: file
+        mode: 0600
+        owner: root
+
+    - name: label self - worker
+      shell: |
+         /usr/local/bin/k3s kubectl --server {{ K3S_URL }} --kubeconfig /etc/rancher/k3s/k3s.yaml label node {{ ansible_hostname }}.{{ PREFIX }}-{{ SUFFIX }}.internal node-role.kubernetes.io/agent=true
+      retries: 60
+      delay: 1
+      register: label_self
+      until: label_self is not failed
+      when:
+        - K3S_ROLE == 'worker'
+
+    - name: rm kubeconfig - workers
+      file:
+        path: /etc/rancher/k3s/k3s.yaml
+        state: absent
+        mode: 0600
+        owner: root
+      when:
+        - K3S_ROLE == 'worker'

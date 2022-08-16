@@ -70,7 +70,7 @@ resource "aws_ssm_document" "cloudk3s" {
       "runCommand": [
         "#!/bin/bash",
         "# Fetch ansible from s3",
-        "aws s3 sync s3://k3s-i43rg/data/downloads/ ~/downloads/",
+        "aws s3 sync s3://${local.prefix}-${local.suffix}/data/downloads/ ~/downloads/",
         "pip3 install --user --no-index --find-links ~/downloads/ansible ansible",
         "pip3 install --user --no-index --find-links ~/downloads/boto3 boto3",
         "pip3 install --user --no-index --find-links ~/downloads/botocore botocore",
@@ -92,20 +92,42 @@ resource "aws_ssm_document" "cloudk3s" {
 DOC
 }
 
-# association (playbook)
-resource "aws_ssm_association" "cloudk3s" {
-  association_name = "${local.prefix}-${local.suffix}"
+## association (playbook)
+# master
+resource "aws_ssm_association" "cloudk3s-master" {
+  association_name = "${local.prefix}-${local.suffix}-master"
   name             = aws_ssm_document.cloudk3s.name
   targets {
     key    = "tag:Cluster"
-    values = ["${local.prefix}-${local.suffix}"]
+    values = ["${local.prefix}-${local.suffix}-master"]
   }
   output_location {
     s3_bucket_name = aws_s3_bucket.cloudk3s.id
     s3_key_prefix  = "ssm"
   }
   parameters = {
-    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint}"
+    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_ROLE=master K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
+    PlaybookFile   = "cloudk3s.yaml"
+    SourceInfo     = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/playbooks/cloudk3s/\"}"
+    SourceType     = "S3"
+    Verbose        = "-vvv"
+  }
+}
+
+# worker
+resource "aws_ssm_association" "cloudk3s-worker" {
+  association_name = "${local.prefix}-${local.suffix}-worker"
+  name             = aws_ssm_document.cloudk3s.name
+  targets {
+    key    = "tag:Cluster"
+    values = ["${local.prefix}-${local.suffix}-worker"]
+  }
+  output_location {
+    s3_bucket_name = aws_s3_bucket.cloudk3s.id
+    s3_key_prefix  = "ssm"
+  }
+  parameters = {
+    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_ROLE=worker K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
     PlaybookFile   = "cloudk3s.yaml"
     SourceInfo     = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/playbooks/cloudk3s/\"}"
     SourceType     = "S3"

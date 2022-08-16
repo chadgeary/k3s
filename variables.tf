@@ -29,7 +29,7 @@ variable "urls" {
 
 # instances
 variable "instances" {
-  type = object(
+  type = map(object(
     {
       scaling_count         = map(any),
       volume                = map(any),
@@ -38,10 +38,15 @@ variable "instances" {
       burstable_performance = string
       local_storage         = string
       generations           = list(string)
-      log_retention_in_days = number
-    }
+    })
   )
   description = "Instance configuration"
+}
+
+# logs (cloudwatch)
+variable "log_retention_in_days" {
+  type        = number
+  description = "cloudwatch log retention days"
 }
 
 # secrets

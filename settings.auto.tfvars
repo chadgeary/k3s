@@ -1,6 +1,6 @@
 ## Project
 # A label attached to resource names, stick with a short alphanumeric string
-prefix = "k3s"
+prefix = "k3"
 
 ## AWS
 aws_profile = "default"
@@ -16,27 +16,52 @@ urls = {
 ## Instances
 # Instance types @ https://instances.vantage.sh/
 instances = {
-  scaling_count = {
-    min = "3"
-    max = "3"
+  master = {
+    scaling_count = {
+      min = 2
+      max = 2
+    }
+    volume = {
+      gb   = 20
+      type = "gp3"
+    }
+    memory_mib = {
+      min = 1024
+      max = 1024
+    }
+    vcpu_count = {
+      min = 2
+      max = 2
+    }
+    burstable_performance = "included"
+    local_storage         = "excluded"
+    generations           = ["current"]
   }
-  volume = {
-    gb   = "20"
-    type = "gp3"
+  worker = {
+    scaling_count = {
+      min = 2
+      max = 2
+    }
+    volume = {
+      gb   = 20
+      type = "gp3"
+    }
+    memory_mib = {
+      min = 2048
+      max = 2048
+    }
+    vcpu_count = {
+      min = 2
+      max = 2
+    }
+    burstable_performance = "included"
+    local_storage         = "excluded"
+    generations           = ["current"]
   }
-  memory_mib = {
-    min = "2048"
-    max = "2048"
-  }
-  vcpu_count = {
-    min = "2"
-    max = "2"
-  }
-  burstable_performance = "included"
-  local_storage         = "excluded"
-  generations           = ["current"]
-  log_retention_in_days = 1
 }
+
+## Logs
+log_retention_in_days = 1
 
 ## Secrets
 # Stored encrypted in SSM Parameter Store, usable by instances

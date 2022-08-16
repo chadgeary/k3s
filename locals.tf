@@ -4,15 +4,28 @@ locals {
 }
 
 locals {
-  cloudk3s-tags = [
+  cloudk3s-tags-master = [
     {
       key                 = "Name"
-      value               = "node.${local.prefix}-${local.suffix}.internal"
+      value               = "master.${local.prefix}-${local.suffix}.internal"
       propagate_at_launch = true
     },
     {
       key                 = "Cluster"
-      value               = "${local.prefix}-${local.suffix}"
+      value               = "${local.prefix}-${local.suffix}-master"
+      propagate_at_launch = true
+    }
+  ]
+
+  cloudk3s-tags-worker = [
+    {
+      key                 = "Name"
+      value               = "worker.${local.prefix}-${local.suffix}.internal"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Cluster"
+      value               = "${local.prefix}-${local.suffix}-worker"
       propagate_at_launch = true
     }
   ]
@@ -32,4 +45,9 @@ locals {
       zone = az
     }
   }
+
+  vpces = toset(["ec2messages", "kms", "logs", "ssm", "ssmmessages"])
+
+  subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.cloudk3s-ssm : [for subnet in aws_subnet.cloudk3s-private : "${endpoint.id}+${subnet.id}"]]))
+
 }
