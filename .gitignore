@@ -32,5 +32,8 @@ override.tf.json
 # kubeconfig
 *.kubeconfig.yaml
 
+# script via tf template
+*kubeconfig-and-ssmproxy.sh
+
 # zip
 *.zip
