@@ -70,7 +70,7 @@ resource "aws_ssm_document" "cloudk3s" {
       "runCommand": [
         "#!/bin/bash",
         "# Fetch ansible from s3",
-        "aws s3 sync s3://${local.prefix}-${local.suffix}/data/downloads/ ~/downloads/",
+        "aws --region ${var.aws_region} s3 sync s3://${local.prefix}-${local.suffix}/data/downloads/ ~/downloads/",
         "pip3 install --user --no-index --find-links ~/downloads/ansible ansible",
         "pip3 install --user --no-index --find-links ~/downloads/boto3 boto3",
         "pip3 install --user --no-index --find-links ~/downloads/botocore botocore",

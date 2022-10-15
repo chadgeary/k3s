@@ -18,9 +18,9 @@
         mode: get
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
         object: "data/downloads/k3s/{{ item }}"
-        dest: "/usr/local/bin/{{ item }}"
+        dest: "/usr/local/bin/k3s"
       with_items:
-        - k3s
+        - k3s{% if ansible_architecture == "x86_64" %}{% else %}-arm64{% endif %}
       when: not K3S_BIN.stat.exists
       retries: 10
       delay: 1

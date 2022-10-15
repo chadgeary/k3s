@@ -32,7 +32,14 @@ terraform apply
   * 6 independent kms keys (cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key policies
   * tailored bucket policy / iam policies (ec2, lambda)
+* arm or x86 based nodes
+  * save cost using ARM-based EC2 instances for master group
 
 ![Output](k3s.png)
 
 [Contact Me](https://discord.gg/zmu6GVnPnj)
+
+## TODO
+* switch to bash from ansible for bootstrap
+  * ansible arm/x86 package requirements differ
+  * affects govcloud as [ARM-based lambdas are not available](https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-lambda.html)

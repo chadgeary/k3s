@@ -30,7 +30,7 @@ override.tf.json
 # example: *tfplan*
 
 # kubeconfig
-*.kubeconfig.yaml
+*kube.config
 
 # script via tf template
 *kubeconfig-and-ssmproxy.sh
