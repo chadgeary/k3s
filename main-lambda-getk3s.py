@@ -17,7 +17,9 @@ def lambda_handler(event, context):
     if event["files"] == "k3s-x86_64":
 
         urls = {
-            "data/downloads/k3s/k3s-airgap-images-amd64.tar": os.environ["K3S_TAR_URL_X86_64"],
+            "data/downloads/k3s/k3s-airgap-images-amd64.tar": os.environ[
+                "K3S_TAR_URL_X86_64"
+            ],
         }
         for key in urls:
             s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))
@@ -41,7 +43,9 @@ def lambda_handler(event, context):
     if event["files"] == "k3s-arm64":
 
         urls = {
-            "data/downloads/k3s/k3s-airgap-images-arm64.tar": os.environ["K3S_TAR_URL_ARM64"],
+            "data/downloads/k3s/k3s-airgap-images-arm64.tar": os.environ[
+                "K3S_TAR_URL_ARM64"
+            ],
         }
         for key in urls:
             s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))
