@@ -19,6 +19,7 @@ urls = {
 # Instance types @ https://instances.vantage.sh/
 instances = {
   master = {
+    arch = "arm64"
     scaling_count = {
       min = 1
       max = 1
@@ -39,6 +40,7 @@ instances = {
     local_storage         = "excluded"
   }
   worker = {
+    arch = "x86_64"
     scaling_count = {
       min = 2
       max = 2

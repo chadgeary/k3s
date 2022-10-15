@@ -37,6 +37,7 @@ variable "urls" {
 variable "instances" {
   type = map(object(
     {
+      arch                  = string,
       scaling_count         = map(any),
       volume                = map(any),
       memory_mib            = map(any),

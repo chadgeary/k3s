@@ -6,9 +6,9 @@ resource "aws_launch_template" "cloudk3s-master" {
     arn = aws_iam_instance_profile.cloudk3s-ec2.arn
   }
   ebs_optimized = true
-  image_id      = data.aws_ami.cloudk3s-arm64.id
+  image_id      = var.instances.master.arch == "arm64" ? data.aws_ami.cloudk3s-arm64.id : data.aws_ami.cloudk3s-x86_64.id
   block_device_mappings {
-    device_name = data.aws_ami.cloudk3s-arm64.root_device_name
+    device_name = var.instances.master.arch == "arm64" ? data.aws_ami.cloudk3s-arm64.root_device_name : data.aws_ami.cloudk3s-x86_64.root_device_name
     ebs {
       volume_size           = var.instances.master.volume.gb
       volume_type           = var.instances.master.volume.type
@@ -82,9 +82,9 @@ resource "aws_launch_template" "cloudk3s-worker" {
     arn = aws_iam_instance_profile.cloudk3s-ec2.arn
   }
   ebs_optimized = true
-  image_id      = data.aws_ami.cloudk3s-x86_64.id
+  image_id      = var.instances.master.arch == "arm64" ? data.aws_ami.cloudk3s-arm64.id : data.aws_ami.cloudk3s-x86_64.id
   block_device_mappings {
-    device_name = data.aws_ami.cloudk3s-x86_64.root_device_name
+    device_name = var.instances.master.arch == "arm64" ? data.aws_ami.cloudk3s-arm64.root_device_name : data.aws_ami.cloudk3s-x86_64.root_device_name
     ebs {
       volume_size           = var.instances.worker.volume.gb
       volume_type           = var.instances.worker.volume.type
