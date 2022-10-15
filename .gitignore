@@ -35,5 +35,8 @@ override.tf.json
 # script via tf template
 *kubeconfig-and-ssmproxy.sh
 
+# k3s install script
+*install.sh
+
 # zip
 *.zip
