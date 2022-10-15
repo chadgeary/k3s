@@ -30,3 +30,12 @@ data "aws_ami" "cloudk3s" {
     values = ["ebs"]
   }
 }
+
+## k3s' install.sh
+data "http" "k3s-install-sh" {
+  url = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+
+  request_headers = {
+    Accept = "text/plain"
+  }
+}

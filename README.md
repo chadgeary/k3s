@@ -2,7 +2,7 @@
 Deploys a low-cost, scalable, private K3s cluster on AWS.
 
 ## Requirements
-* aws account
+* aws account, [awscli v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), [ssm plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-linux)
 * terraform v1+
 
 ## Deploy

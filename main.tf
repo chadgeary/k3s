@@ -17,3 +17,9 @@ resource "local_file" "cloudk3s" {
     }
   )
 }
+
+resource "local_file" "k3s-install-sh" {
+  filename        = "./playbooks/cloudk3s/install.sh"
+  file_permission = "0700"
+  content         = tostring(data.http.k3s-install-sh.body)
+}
