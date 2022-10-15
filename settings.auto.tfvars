@@ -9,8 +9,9 @@ aws_region  = "us-east-2"
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
 urls = {
-  k3s_bin = "https://github.com/k3s-io/k3s/releases/download/v1.24.3%2Bk3s1/k3s"
-  k3s_tar = "https://github.com/k3s-io/k3s/releases/download/v1.24.3%2Bk3s1/k3s-airgap-images-amd64.tar"
+  k3s_bin        = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
+  k3s_tar-x86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
+  k3s_tar-arm64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
 }
 
 ## Instances
@@ -35,7 +36,6 @@ instances = {
     }
     burstable_performance = "included"
     local_storage         = "excluded"
-    generations           = ["current"]
   }
   worker = {
     scaling_count = {
@@ -56,7 +56,6 @@ instances = {
     }
     burstable_performance = "included"
     local_storage         = "excluded"
-    generations           = ["current"]
   }
 }
 

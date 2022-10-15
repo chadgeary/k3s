@@ -16,22 +16,43 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
   timeout          = 900
   environment {
     variables = {
-      K3S_BIN_URL = var.urls.k3s_bin
-      K3S_TAR_URL = var.urls.k3s_tar
-      BUCKET      = aws_s3_bucket.cloudk3s.id
-      REGION      = var.aws_region
-      KEY         = aws_kms_key.cloudk3s["s3"].arn
+      K3S_BIN_URL        = var.urls.k3s_bin
+      K3S_TAR_URL_X86_64 = var.urls.k3s_tar-x86_64
+      K3S_TAR_URL_ARM64  = var.urls.k3s_tar-arm64
+      BUCKET             = aws_s3_bucket.cloudk3s.id
+      REGION             = var.aws_region
+      KEY                = aws_kms_key.cloudk3s["s3"].arn
     }
   }
   depends_on = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
 }
 
 # this should bring runtime < 15 minutes
-data "aws_lambda_invocation" "cloudk3s-getk3s-k3s" {
+data "aws_lambda_invocation" "cloudk3s-getk3s-k3s-x86_64" {
   function_name = aws_lambda_function.cloudk3s-getk3s.function_name
   input         = <<JSON
 {
- "files":"k3s"
+ "files":"k3s-x86_64"
+}
+JSON
+  depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
+}
+
+data "aws_lambda_invocation" "cloudk3s-getk3s-k3s-arm64" {
+  function_name = aws_lambda_function.cloudk3s-getk3s.function_name
+  input         = <<JSON
+{
+ "files":"k3s-arm64"
+}
+JSON
+  depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]
+}
+
+data "aws_lambda_invocation" "cloudk3s-getk3s-k3s-bin" {
+  function_name = aws_lambda_function.cloudk3s-getk3s.function_name
+  input         = <<JSON
+{
+ "files":"k3s-bin"
 }
 JSON
   depends_on    = [aws_cloudwatch_log_group.cloudk3s-lambda-getk3s]

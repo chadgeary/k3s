@@ -37,7 +37,6 @@ resource "aws_autoscaling_group" "cloudk3s-master" {
         instance_requirements {
           burstable_performance = var.instances.master.burstable_performance
           local_storage         = var.instances.master.local_storage
-          instance_generations  = var.instances.master.generations
           memory_mib {
             min = var.instances.master.memory_mib.min
             max = var.instances.master.memory_mib.max
@@ -114,7 +113,6 @@ resource "aws_autoscaling_group" "cloudk3s-worker" {
         instance_requirements {
           burstable_performance = var.instances.worker.burstable_performance
           local_storage         = var.instances.worker.local_storage
-          instance_generations  = var.instances.worker.generations
           memory_mib {
             min = var.instances.worker.memory_mib.min
             max = var.instances.worker.memory_mib.max

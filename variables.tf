@@ -41,9 +41,8 @@ variable "instances" {
       volume                = map(any),
       memory_mib            = map(any),
       vcpu_count            = map(any),
-      burstable_performance = string
+      burstable_performance = string,
       local_storage         = string
-      generations           = list(string)
     })
   )
   description = "Instance configuration"

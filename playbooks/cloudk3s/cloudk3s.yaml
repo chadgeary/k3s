@@ -1,5 +1,5 @@
 ---
-- name: cloudk3s.yaml
+- name: Install k3s
   hosts: localhost
   become: true
   become_user: root
@@ -7,13 +7,13 @@
     ansible_python_interpreter: /usr/bin/python3
   tasks:
 
-    - name: check k3s binary exists
-      stat:
+    - name: Check k3s binary exists
+      ansible.builtin.stat:
         path: /usr/local/bin/k3s
       register: K3S_BIN
 
-    - name: get k3s bin from s3 if not downloaded
-      aws_s3:
+    - name: Get k3s bin from s3 if not downloaded
+      amazon.aws.aws_s3:
         region: "{{ REGION }}"
         mode: get
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
@@ -21,13 +21,12 @@
         dest: "/usr/local/bin/{{ item }}"
       with_items:
         - k3s
-      when:
-        - K3S_BIN.stat.exists == false
+      when: not K3S_BIN.stat.exists
       retries: 10
       delay: 1
 
-    - name: k3s bin file
-      file:
+    - name: Mode k3s bin file
+      ansible.builtin.file:
         path: "/usr/local/bin/{{ item }}"
         state: file
         mode: 0750
@@ -35,8 +34,8 @@
       with_items:
         - k3s
 
-    - name: k3s directories
-      file:
+    - name: Mode k3s directories
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         mode: 0750
@@ -44,37 +43,37 @@
         - /var/lib/rancher/k3s/agent/images/
         - /etc/rancher/k3s/
 
-    - name: check k3s tar exists
-      stat:
-        path: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar
+    - name: Check k3s tar exists
+      ansible.builtin.stat:
+        path: /var/lib/rancher/k3s/agent/images/k3s-airgap-images-{% if ansible_architecture == "x86_64" %}amd64{% else %}arm64{% endif %}.tar
       register: K3S_TAR
 
-    - name: get k3s tar from s3 if not downloaded
-      aws_s3:
+    - name: Get k3s tar from s3 if not downloaded
+      amazon.aws.aws_s3:
         region: "{{ REGION }}"
         mode: get
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
         object: "data/downloads/k3s/{{ item }}"
         dest: "/var/lib/rancher/k3s/agent/images/{{ item }}"
       with_items:
-        - k3s-airgap-images-amd64.tar
+        - k3s-airgap-images-{% if ansible_architecture == "x86_64" %}amd64{% else %}arm64{% endif %}.tar
       when:
-        - K3S_TAR.stat.exists == false
+        - not K3S_TAR.stat.exists
       retries: 10
       delay: 1
 
-    - name: get K3S_TOKEN ssm parameter
-      set_fact:
+    - name: Get K3S_TOKEN ssm parameter
+      ansible.builtin.set_fact:
         K3S_TOKEN: "{{ lookup('aws_ssm', '/' + PREFIX + '-' + SUFFIX + '/' + 'K3S_TOKEN', decrypt=true, region=REGION) }}"
       no_log: true
 
-    - name: get DB_PASS ssm parameter
-      set_fact:
+    - name: Get DB_PASS ssm parameter
+      ansible.builtin.set_fact:
         DB_PASS: "{{ lookup('aws_ssm', '/' + PREFIX + '-' + SUFFIX + '/' + 'DB_PASS', decrypt=true, region=REGION) }}"
       no_log: true
 
-    - name: exec rancher script
-      shell: |
+    - name: Exec rancher script
+      ansible.builtin.shell: |
          ./install.sh
       environment:
         K3S_DATASTORE_ENDPOINT: "postgres://{{ PREFIX }}{{ SUFFIX }}:{{ DB_PASS }}@{{ DB_ENDPOINT }}/{{ PREFIX }}{{ SUFFIX }}"
@@ -82,9 +81,12 @@
         K3S_URL: "{% if K3S_ROLE == 'master' %}{% elif K3S_ROLE == 'worker' %}{{ K3S_URL }}{% endif %}"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
         INSTALL_K3S_EXEC: "{% if K3S_ROLE == 'master' %}server{% elif K3S_ROLE == 'worker' %}agent{% endif %}"
+      register: exec_rancher
+      changed_when: exec_rancher.rc == 0
+      failed_when: exec_rancher.rc != 0
 
-    - name: s3 put kubeconfig - masters
-      aws_s3:
+    - name: S3 put kubeconfig - masters
+      amazon.aws.aws_s3:
         region: "{{ REGION }}"
         mode: put
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
@@ -97,8 +99,8 @@
       when:
         - K3S_ROLE == 'master'
 
-    - name: s3 get kubeconfig - workers
-      aws_s3:
+    - name: S3 get kubeconfig - workers
+      amazon.aws.aws_s3:
         region: "{{ REGION }}"
         mode: get
         bucket: "{{ PREFIX }}-{{ SUFFIX }}"
@@ -111,16 +113,18 @@
       when:
         - K3S_ROLE == 'worker'
 
-    - name: set kubeconfig - workers
-      file:
+    - name: Set kubeconfig - workers
+      ansible.builtin.file:
         path: /etc/rancher/k3s/k3s.yaml
         state: file
         mode: 0600
         owner: root
 
-    - name: label self - worker
-      shell: |
-         /usr/local/bin/k3s kubectl --server {{ K3S_URL }} --kubeconfig /etc/rancher/k3s/k3s.yaml label node {{ ansible_hostname }}.{{ PREFIX }}-{{ SUFFIX }}.internal node-role.kubernetes.io/agent=true
+    - name: Label self - worker
+      ansible.builtin.shell: >
+         /usr/local/bin/k3s kubectl --server {{ K3S_URL }}
+         --kubeconfig /etc/rancher/k3s/k3s.yaml label node
+         {{ ansible_hostname }}.{{ PREFIX }}-{{ SUFFIX }}.internal node-role.kubernetes.io/agent=true
       retries: 60
       delay: 1
       register: label_self
@@ -128,8 +132,8 @@
       when:
         - K3S_ROLE == 'worker'
 
-    - name: rm kubeconfig - workers
-      file:
+    - name: Clear (rm) kubeconfig - workers
+      ansible.builtin.file:
         path: /etc/rancher/k3s/k3s.yaml
         state: absent
         mode: 0600
