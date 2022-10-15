@@ -4,7 +4,7 @@ prefix = "k3"
 
 ## AWS
 aws_profile = "default"
-aws_region  = "us-east-1"
+aws_region  = "us-east-2"
 
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
@@ -18,8 +18,8 @@ urls = {
 instances = {
   master = {
     scaling_count = {
-      min = 2
-      max = 2
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 20
@@ -43,7 +43,7 @@ instances = {
       max = 2
     }
     volume = {
-      gb   = 20
+      gb   = 100
       type = "gp3"
     }
     memory_mib = {
@@ -75,9 +75,13 @@ secrets = {
 
 ## AMI
 # The Amazon Linux AMI name string and account number.
-# To find your region's AMI, replace us-east-1 with your region, then run the command:
-# AWS_REGION=us-east-1 && aws ec2 describe-images --region $AWS_REGION --owners 099720109477 --filters 'Name=name,Values=amzn2-ami-hvm-*-x86_64-ebs' 'Name=state,Values=available' --query 'sort_by(Images, &CreationDate)[-1].Name'
-vendor_ami_name_string = "amzn2-ami-hvm-*-x86_64-ebs"
+# ARM equivalent instances cost less and are used by the control plane (and RDS)
+# To find your region's AMI, replace us-east-2 with your region, then run the command:
+# AWS_REGION=us-east-2 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $AWS_REGION
+# AWS_REGION=us-east-2 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $AWS_REGION
+vendor_ami_name_string_arm64  = "amzn2-ami-hvm-*-arm64-gp2"
+vendor_ami_name_string_x86_64 = "amzn2-ami-hvm-*-x86_64-gp2"
+
 
 ## VPC
 # Subnet used by the VPC and split across the associated subnets

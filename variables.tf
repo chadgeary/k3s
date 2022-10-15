@@ -16,10 +16,16 @@ variable "aws_region" {
 }
 
 # ami
-variable "vendor_ami_name_string" {
+variable "vendor_ami_name_string_arm64" {
   type        = string
-  description = "The search string for the name of the AMI from the AMI Vendor"
+  description = "The search string for the name of the ARM AMI from the AMI Vendor"
 }
+
+variable "vendor_ami_name_string_x86_64" {
+  type        = string
+  description = "The search string for the name of the x86 AMI from the AMI Vendor"
+}
+
 
 # urls
 variable "urls" {

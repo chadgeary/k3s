@@ -10,24 +10,21 @@ data "aws_partition" "cloudk3s" {
 }
 
 ## AMI
-data "aws_ami" "cloudk3s" {
+data "aws_ami" "cloudk3s-arm64" {
   most_recent = true
   owners      = ["amazon"]
   filter {
     name   = "name"
-    values = [var.vendor_ami_name_string]
+    values = [var.vendor_ami_name_string_arm64]
   }
+}
+
+data "aws_ami" "cloudk3s-x86_64" {
+  most_recent = true
+  owners      = ["amazon"]
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
+    name   = "name"
+    values = [var.vendor_ami_name_string_x86_64]
   }
 }
 
