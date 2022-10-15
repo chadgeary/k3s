@@ -1,5 +1,5 @@
 ## Project
-# A label attached to resource names, stick with a short alphanumeric string
+# A label attached to resource names, use a short alphanumeric string
 prefix = "k3"
 
 ## AWS
