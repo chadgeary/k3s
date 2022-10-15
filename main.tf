@@ -8,7 +8,7 @@ resource "local_file" "cloudk3s" {
   filename        = "kubeconfig-and-ssmproxy.sh"
   file_permission = "0700"
   content = templatefile(
-    "kubeconfig-and-ssmproxy.tmpl",
+    "kubeconfig-and-ssmproxy.tftpl",
     {
       aws_profile = var.aws_profile
       aws_region  = var.aws_region

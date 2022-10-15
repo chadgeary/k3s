@@ -1,9 +1,10 @@
-import boto3
 import json
 import os
 import subprocess
 import sys
 from urllib.request import urlopen
+
+import boto3
 import urllib3
 
 
