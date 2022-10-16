@@ -14,7 +14,7 @@ resource "aws_ssm_document" "cloudk3s" {
   content       = <<DOC
   {
     "schemaVersion": "2.2",
-    "description": "Ansible Playbooks via SSM",
+    "description": "Shell Script via SSM",
     "parameters": {
     "SourceType": {
       "description": "(Optional) Specify the source type.",
@@ -30,28 +30,17 @@ resource "aws_ssm_document" "cloudk3s" {
       "displayType": "textarea",
       "default": {}
     },
-    "PlaybookFile": {
+    "ShellScriptFile": {
       "type": "String",
-      "description": "(Optional) The Playbook file to run (including relative path). If the main Playbook file is located in the ./automation directory, then specify automation/playbook.yml.",
-      "default": "hello-world-playbook.yml",
-      "allowedPattern": "[(a-z_A-Z0-9\\-)/]+(.yml|.yaml)$"
+      "description": "(Optional) The shell script to run (including relative path). If the main file is located in the ./automation directory, then specify automation/script.sh.",
+      "default": "hello-world.sh",
+      "allowedPattern": "[(a-z_A-Z0-9\\-)/]+(.sh|.yaml)$"
     },
-    "ExtraVariables": {
+    "EnvVars": {
       "type": "String",
-      "description": "(Optional) Additional variables to pass to Ansible at runtime. Enter key/value pairs separated by a space. For example: color=red flavor=cherry",
+      "description": "(Optional) Additional variables to pass at runtime. Enter key/value pairs separated by a space. For example: color=red flavor=cherry",
       "default": "",
       "displayType": "textarea"
-    },
-    "Verbose": {
-      "type": "String",
-      "description": "(Optional) Set the verbosity level for logging Playbook executions. Specify -v for low verbosity, -vv or vvv for medium verbosity, and -vvvv for debug level.",
-      "allowedValues": [
-      "-v",
-      "-vv",
-      "-vvv",
-      "-vvvv"
-      ],
-      "default": "-v"
     }
     },
     "mainSteps": [
@@ -65,25 +54,21 @@ resource "aws_ssm_document" "cloudk3s" {
     },
     {
       "action": "aws:runShellScript",
+      "maxAttempts": 10,
       "name": "runShellScript",
       "inputs": {
       "runCommand": [
         "#!/bin/bash",
-        "# Fetch ansible from s3",
-        "aws --region ${var.aws_region} s3 sync s3://${local.prefix}-${local.suffix}/data/downloads/ ~/downloads/",
-        "pip3 install --user --no-index --find-links ~/downloads/ansible ansible",
-        "pip3 install --user --no-index --find-links ~/downloads/boto3 boto3",
-        "pip3 install --user --no-index --find-links ~/downloads/botocore botocore",
-        "echo \"Running Ansible in `pwd`\"",
         "for zip in $(find -iname '*.zip'); do",
         "  unzip -o $zip",
         "done",
-        "PlaybookFile=\"{{PlaybookFile}}\"",
-        "if [ ! -f  \"$${PlaybookFile}\" ] ; then",
-        "   echo \"The specified Playbook file doesn't exist in the downloaded bundle. Please review the relative path and file name.\" >&2",
+        "ShellScriptFile=\"{{ShellScriptFile}}\"",
+        "export {{EnvVars}}",
+        "if [ ! -f  \"$${ShellScriptFile}\" ] ; then",
+        "   echo \"The specified ShellScript file doesn't exist in the downloaded bundle. Please review the relative path and file name.\" >&2",
         "   exit 2",
         "fi",
-        "export AWS_DEFAULT_REGION=${var.aws_region} && export AWS_REGION=${var.aws_region} && ~/.local/bin/ansible-playbook -i \"localhost,\" -c local -e \"{{ExtraVariables}}\" \"{{Verbose}}\" \"$${PlaybookFile}\""
+        "chmod +x \"$${ShellScriptFile}\" && /bin/bash ./\"$${ShellScriptFile}\""
       ]
       }
     }
@@ -92,45 +77,23 @@ resource "aws_ssm_document" "cloudk3s" {
 DOC
 }
 
-## association (playbook)
-# master
-resource "aws_ssm_association" "cloudk3s-master" {
-  association_name = "${local.prefix}-${local.suffix}-master"
+## association (cloudk3s.sh)
+resource "aws_ssm_association" "cloudk3s" {
+  for_each         = var.nodegroups
+  association_name = "${local.prefix}-${local.suffix}-${each.key}"
   name             = aws_ssm_document.cloudk3s.name
   targets {
-    key    = "tag:Cluster"
-    values = ["${local.prefix}-${local.suffix}-master"]
+    key    = "tag:Name"
+    values = ["${each.key}.${local.prefix}-${local.suffix}.internal"]
   }
   output_location {
     s3_bucket_name = aws_s3_bucket.cloudk3s.id
-    s3_key_prefix  = "ssm"
+    s3_key_prefix  = "ssm/${each.key}"
   }
   parameters = {
-    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_ROLE=master K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
-    PlaybookFile   = "cloudk3s.yaml"
-    SourceInfo     = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/playbooks/cloudk3s/\"}"
-    SourceType     = "S3"
-    Verbose        = "-vvv"
-  }
-}
-
-# worker
-resource "aws_ssm_association" "cloudk3s-worker" {
-  association_name = "${local.prefix}-${local.suffix}-worker"
-  name             = aws_ssm_document.cloudk3s.name
-  targets {
-    key    = "tag:Cluster"
-    values = ["${local.prefix}-${local.suffix}-worker"]
-  }
-  output_location {
-    s3_bucket_name = aws_s3_bucket.cloudk3s.id
-    s3_key_prefix  = "ssm"
-  }
-  parameters = {
-    ExtraVariables = "PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} K3S_API_PORT=6443 DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_ROLE=worker K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
-    PlaybookFile   = "cloudk3s.yaml"
-    SourceInfo     = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/playbooks/cloudk3s/\"}"
-    SourceType     = "S3"
-    Verbose        = "-vvv"
+    EnvVars         = "AWS_REGION=${var.aws_region} PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
+    ShellScriptFile = "cloudk3s.sh"
+    SourceInfo      = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/scripts/\"}"
+    SourceType      = "S3"
   }
 }

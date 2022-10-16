@@ -4,31 +4,6 @@ locals {
 }
 
 locals {
-  cloudk3s-tags-master = [
-    {
-      key                 = "Name"
-      value               = "master.${local.prefix}-${local.suffix}.internal"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Cluster"
-      value               = "${local.prefix}-${local.suffix}-master"
-      propagate_at_launch = true
-    }
-  ]
-
-  cloudk3s-tags-worker = [
-    {
-      key                 = "Name"
-      value               = "worker.${local.prefix}-${local.suffix}.internal"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Cluster"
-      value               = "${local.prefix}-${local.suffix}-worker"
-      propagate_at_launch = true
-    }
-  ]
 
   azs = slice(data.aws_availability_zones.cloudk3s.names, 0, var.azs)
 

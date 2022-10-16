@@ -46,9 +46,9 @@ resource "aws_s3_bucket_public_access_block" "cloudk3s" {
 
 # s3 objects (playbook)
 resource "aws_s3_object" "files" {
-  for_each       = fileset("playbooks/cloudk3s/", "*")
+  for_each       = fileset("scripts/", "*")
   bucket         = aws_s3_bucket.cloudk3s.id
-  key            = "playbooks/cloudk3s/${each.value}"
-  content_base64 = base64encode(file("${path.module}/playbooks/cloudk3s/${each.value}"))
+  key            = "scripts/${each.value}"
+  content_base64 = base64encode(file("${path.module}/scripts/${each.value}"))
   kms_key_id     = aws_kms_key.cloudk3s["s3"].arn
 }

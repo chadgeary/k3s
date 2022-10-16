@@ -15,17 +15,11 @@ variable "aws_region" {
   description = "The aws region to deploy the service"
 }
 
-# ami
-variable "vendor_ami_name_string_arm64" {
-  type        = string
-  description = "The search string for the name of the ARM AMI from the AMI Vendor"
+# amis
+variable "amis" {
+  type        = map(string)
+  description = "AMI key:values for node groups to reference"
 }
-
-variable "vendor_ami_name_string_x86_64" {
-  type        = string
-  description = "The search string for the name of the x86 AMI from the AMI Vendor"
-}
-
 
 # urls
 variable "urls" {
@@ -33,17 +27,14 @@ variable "urls" {
   description = "Location K3s bin/tar are downloaded from via lambda"
 }
 
-# instances
-variable "instances" {
+# nodegroups (ec2 autoscaling groups)
+variable "nodegroups" {
   type = map(object(
     {
-      arch                  = string,
-      scaling_count         = map(any),
-      volume                = map(any),
-      memory_mib            = map(any),
-      vcpu_count            = map(any),
-      burstable_performance = string,
-      local_storage         = string
+      ami            = string,
+      scaling_count  = map(any),
+      volume         = map(any),
+      instance_types = list(string)
     })
   )
   description = "Instance configuration"

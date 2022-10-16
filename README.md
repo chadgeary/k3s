@@ -40,6 +40,4 @@ terraform apply
 [Contact Me](https://discord.gg/zmu6GVnPnj)
 
 ## TODO
-* switch to bash from ansible for bootstrap
-  * ansible arm/x86 package requirements differ
-  * affects govcloud as [ARM-based lambdas are not available](https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-lambda.html)
+* charts
