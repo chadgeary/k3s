@@ -3,14 +3,7 @@ resource "aws_lb" "cloudk3s-private" {
   load_balancer_type               = "network"
   internal                         = true
   enable_cross_zone_load_balancing = true
-
-  dynamic "subnet_mapping" {
-    for_each = { for key, value in aws_subnet.cloudk3s-private : key => { id = value.id, ip = cidrhost(value.cidr_block, 8) } }
-    content {
-      subnet_id            = subnet_mapping.value.id
-      private_ipv4_address = subnet_mapping.value.ip
-    }
-  }
+  subnets                          = [ for key, value in aws_subnet.cloudk3s-private : value.id ]
 
   tags = {
     Name = "${local.prefix}-${local.suffix}-private"

@@ -58,7 +58,7 @@ resource "aws_vpc_endpoint" "cloudk3s-s3" {
 }
 
 # ssm endpoints for private instance(s)
-resource "aws_vpc_endpoint" "cloudk3s-ssm" {
+resource "aws_vpc_endpoint" "cloudk3s-vpces" {
   for_each            = local.vpces
   vpc_id              = aws_vpc.cloudk3s.id
   service_name        = "com.amazonaws.${var.aws_region}.${each.key}"
@@ -70,13 +70,11 @@ resource "aws_vpc_endpoint" "cloudk3s-ssm" {
   }
 }
 
-resource "aws_vpc_endpoint_subnet_association" "cloudk3s-ssm" {
-  # variable azs count requires setting the number of resources this creates on hard values
+resource "aws_vpc_endpoint_subnet_association" "cloudk3s-vpces" {
+  # variable azs requires setting the number of resources this creates on hard values
   count = length(local.vpces) * var.azs
 
   subnet_id       = element(split("+", local.subnet-vpc[count.index]), 1)
   vpc_endpoint_id = element(split("+", local.subnet-vpc[count.index]), 0)
 
-  # ensure lb gets .8
-  depends_on = [aws_lb.cloudk3s-private]
 }

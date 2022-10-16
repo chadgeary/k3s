@@ -58,8 +58,8 @@ nodegroups = {
   generalpurpose = {
     ami = "x86_64"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 0
+      max = 0
     }
     volume = {
       gb   = 100
@@ -89,6 +89,5 @@ log_retention_in_days = 1
 # The number of subnets is 2*(azs), one private and one public per az
 # Because subnets are based on the assumption the vpc_cidr is a /20 and the subnets will be a /24, keep it a /20
 # or edit locals.tf - especially the cidrsubnet() function
-# private internal load balancer is .8
 vpc_cidr = "172.16.0.0/20"
 azs      = 2
