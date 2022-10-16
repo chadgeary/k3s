@@ -3,7 +3,7 @@ resource "aws_lb" "cloudk3s-private" {
   load_balancer_type               = "network"
   internal                         = true
   enable_cross_zone_load_balancing = true
-  subnets                          = [ for key, value in aws_subnet.cloudk3s-private : value.id ]
+  subnets                          = [for key, value in aws_subnet.cloudk3s-private : value.id]
 
   tags = {
     Name = "${local.prefix}-${local.suffix}-private"
