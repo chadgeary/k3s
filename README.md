@@ -22,9 +22,9 @@ terraform apply
   * optional tf for public access
     * replace `main-vpc.tf` with `main-vpc.tf-with-public`
 * independently scalable
-  * control-plane (masters)
-  * agent (workers)
+  * node groups
   * datastore (RDS postgres)
+  * availability zones
 * interact with cluster via SSM PortForwardSession
   * script included, see image below
   * works with kubectl, helm, lens, etc.
@@ -32,7 +32,7 @@ terraform apply
   * 6 independent kms keys (cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key policies
   * tailored bucket policy / iam policies (ec2, lambda)
-* arm or x86 based nodes
+* arm, x86, gpu based nodes
   * save cost using ARM-based EC2 instances for master group
 
 ![Output](k3s.png)
