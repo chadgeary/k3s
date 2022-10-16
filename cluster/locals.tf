@@ -23,6 +23,6 @@ locals {
 
   vpces = toset(["ec2messages", "kms", "logs", "ssm", "ssmmessages"])
 
-  subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.cloudk3s-ssm : [for subnet in aws_subnet.cloudk3s-private : "${endpoint.id}+${subnet.id}"]]))
+  subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.cloudk3s-vpces : [for subnet in aws_subnet.cloudk3s-private : "${endpoint.id}+${subnet.id}"]]))
 
 }
