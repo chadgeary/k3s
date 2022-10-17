@@ -43,7 +43,7 @@ fi
 # k3s install exec
 if [ "$K3S_NODEGROUP" == "master" ]; then
     echo "running installer (master/server)"
-    INSTALL_K3S_EXEC="server"
+    INSTALL_K3S_EXEC="server --kube-apiserver-arg anonymous-auth=true"
     export INSTALL_K3S_EXEC
     "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 

@@ -19,7 +19,7 @@ resource "local_file" "cloudk3s" {
 }
 
 resource "local_file" "k3s-install-sh" {
-  filename        = "./scripts/install.sh"
+  filename        = "./../scripts/install.sh"
   file_permission = "0700"
   content         = tostring(data.http.k3s-install-sh.response_body)
 }
