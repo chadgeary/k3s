@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ARCH=$(uname -m)
-DB_PASS=$(aws ssm get-parameter --region "$AWS_REGION" --with-decryption --name /"$PREFIX"-"$SUFFIX"/DB_PASS --query Parameter.Value --output text)
-K3S_TOKEN=$(aws ssm get-parameter --region "$AWS_REGION" --with-decryption --name /"$PREFIX"-"$SUFFIX"/K3S_TOKEN --query Parameter.Value --output text)
+DB_PASS=$(aws --region "$AWS_REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/DB_PASS --query Parameter.Value --output text)
+K3S_TOKEN=$(aws --region "$AWS_REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/K3S_TOKEN --query Parameter.Value --output text)
 K3S_BIN_PATH="/usr/local/bin"
 K3S_BIN_FILE="k3s"
 K3S_TAR_PATH="/var/lib/rancher/k3s/agent/images"
@@ -17,7 +17,7 @@ export ARCH DB_PASS K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FIL
 if [ -f "$K3S_BIN_PATH/$K3S_BIN_FILE" ]; then
     echo "bin exists, skipping"
 else
-    aws s3 cp s3://"$PREFIX"-"$SUFFIX"/data/downloads/k3s/"$K3S_BIN_FILE"-"$ARCH" "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
+    aws --region "$AWS_REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"/data/downloads/k3s/"$K3S_BIN_FILE"-"$ARCH" "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
     chmod +x "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
 fi
 
@@ -29,14 +29,14 @@ chmod 750 /etc/rancher/k3s /var/lib/rancher/k3s/agent/images
 if [ -f "$K3S_TAR_PATH/$K3S_TAR_FILE".tar ]; then
     echo "tar exists, skipping"
 else
-    aws s3 cp s3://"$PREFIX"-"$SUFFIX"/data/downloads/k3s/"$K3S_TAR_FILE"-"$ARCH".tar "$K3S_TAR_PATH"/"$K3S_TAR_FILE".tar
+    aws --region "$AWS_REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"/data/downloads/k3s/"$K3S_TAR_FILE"-"$ARCH".tar "$K3S_TAR_PATH"/"$K3S_TAR_FILE".tar
 fi
 
 # k3s install
 if [ -f "$K3S_INSTALL_PATH/$K3S_INSTALL_FILE" ]; then
     echo "bin exists, skipping"
 else
-    aws s3 cp s3://"$PREFIX"-"$SUFFIX"/scripts/"$K3S_INSTALL_FILE" "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
+    aws --region "$AWS_REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"/scripts/"$K3S_INSTALL_FILE" "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
     chmod +x "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 fi
 
@@ -50,7 +50,7 @@ if [ "$K3S_NODEGROUP" == "master" ]; then
     echo "copying kube config to s3"
     for i in {1..120}; do
         echo -n "."
-        aws s3 cp /etc/rancher/k3s/k3s.yaml s3://"$PREFIX"-"$SUFFIX"/data/k3s/config && echo "" && break || sleep 1
+        aws --region "$AWS_REGION" s3 cp /etc/rancher/k3s/k3s.yaml s3://"$PREFIX"-"$SUFFIX"/data/k3s/config && echo "" && break || sleep 1
     done
 else
     echo "running installer ($K3S_NODEGROUP/agent)"
@@ -60,7 +60,7 @@ else
     echo "copying kube config from s3"
     for i in {1..120}; do
         echo -n "."
-        aws s3 cp s3://"$PREFIX"-"$SUFFIX"/data/k3s/config /etc/rancher/k3s/k3s.yaml && echo "" && break || sleep 1
+        aws --region "$AWS_REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"/data/k3s/config /etc/rancher/k3s/k3s.yaml && echo "" && break || sleep 1
     done
     chmod 600 /etc/rancher/k3s/k3s.yaml
 
