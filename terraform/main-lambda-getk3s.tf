@@ -30,7 +30,7 @@ resource "aws_lambda_function" "cloudk3s-getk3s" {
 }
 
 data "aws_lambda_invocation" "cloudk3s-getk3s" {
-for_each = toset(["k3s-bin","k3s-arm64","k3s-x86_64"])
+  for_each      = toset(["k3s-bin", "k3s-arm64", "k3s-x86_64"])
   function_name = aws_lambda_function.cloudk3s-getk3s.function_name
   input         = <<JSON
 {
