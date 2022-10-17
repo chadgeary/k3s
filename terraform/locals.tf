@@ -1,6 +1,6 @@
 locals {
   prefix = var.prefix
-  suffix = random_string.suffix.result
+  suffix = coalesce(var.suffix, random_string.suffix.result)
 }
 
 locals {
@@ -9,14 +9,14 @@ locals {
 
   private_nets = { for az in local.azs : az =>
     {
-      cidr = cidrsubnet(var.vpc_cidr, 4, index(local.azs, az))
+      cidr = cidrsubnet(cidrsubnet(var.vpc_cidr, 1, 0), var.azs, index(local.azs, az))
       zone = az
     }
   }
 
   public_nets = { for az in local.azs : az =>
     {
-      cidr = cidrsubnet(var.vpc_cidr, 4, index(local.azs, az) + 8)
+      cidr = cidrsubnet(cidrsubnet(var.vpc_cidr, 1, 1), var.azs, index(local.azs, az))
       zone = az
     }
   }

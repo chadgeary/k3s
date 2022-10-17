@@ -5,4 +5,12 @@ output "cloudk3s" {
 # and open a tunnel to the k3s API
 ./kubeconfig-and-ssmproxy.sh
 EOT
+
+}
+
+output "nets" {
+  value = {
+    public  = local.public_nets
+    private = local.private_nets
+  }
 }

@@ -63,12 +63,13 @@ def lambda_handler(event, context):
                     )
                 print(key + " put to s3.")
 
-    # k3s binary
+    # k3s binary and install.sh
     if event["files"] == "k3s-bin":
 
         urls = {
             "data/downloads/k3s/k3s-x86_64": os.environ["K3S_BIN_URL_X86_64"],
             "data/downloads/k3s/k3s-aarch64": os.environ["K3S_BIN_URL_ARM64"],
+            "scripts/install.sh": os.environ["K3S_INSTALL"],
         }
         for key in urls:
             s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))

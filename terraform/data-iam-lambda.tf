@@ -37,7 +37,8 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
     effect = "Allow"
     resources = [
       aws_s3_bucket.cloudk3s.arn,
-      "${aws_s3_bucket.cloudk3s.arn}/data/*"
+      "${aws_s3_bucket.cloudk3s.arn}/data/*",
+      "${aws_s3_bucket.cloudk3s.arn}/scripts/*"
     ]
   }
 

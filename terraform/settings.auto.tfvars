@@ -1,10 +1,21 @@
 ## Project
-# A label attached to resource names, use a short alphanumeric string
-prefix = "k3"
+# Labels attached to resource names, use a short lower alphanumeric string
+# If suffix is empty, a random two character suffix is generated
+prefix = "k3s"
+suffix = "dev"
 
 ## AWS
 aws_profile = "default"
-aws_region  = "us-east-2"
+aws_region  = "us-east-1"
+
+## VPC
+# vpc_cidr is split across availability zones
+vpc_cidr = "172.16.0.0/16"
+azs      = 2
+
+## Logs
+# lambda, ec2
+log_retention_in_days = 30 # 0 = never expire
 
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
@@ -13,12 +24,12 @@ urls = {
   k3s_bin-x86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
   k3s_tar-arm64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
   k3s_tar-x86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
+  k3s_install    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
 }
 
 ## Secrets
-# Stored encrypted in SSM Parameter Store, usable by instances
+# Encrypted SSM parameters, available to EC2 instances
 # The path to each value is /${local.prefix}-${local.suffix}/<key>
-# Hint: pass PREFIX and SUFFIX with an SSM playbook
 # Warn: Keep this terraform state file secure!
 secrets = {
   K3S_TOKEN = "Change_me_please_1"
@@ -46,8 +57,8 @@ nodegroups = {
   master = {
     ami = "arm64"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 2
+      max = 2
     }
     volume = {
       gb   = 20
@@ -81,13 +92,12 @@ nodegroups = {
   }
 }
 
-## Logs
-log_retention_in_days = 1
-
-## VPC
-# Subnet used by the VPC and split across the associated subnets
-# The number of subnets is 2*(azs), one private and one public per az
-# Because subnets are based on the assumption the vpc_cidr is a /20 and the subnets will be a /24, keep it a /20
-# or edit locals.tf - especially the cidrsubnet() function
-vpc_cidr = "172.16.0.0/20"
-azs      = 2
+# k3s datastore storage
+rds = {
+  allocated_storage       = 5
+  backup_retention_period = 0
+  engine                  = "postgres"
+  engine_version          = "14.3"
+  instance_class          = "db.t3.micro"
+  storage_type            = "standard"
+}
