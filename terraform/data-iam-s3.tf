@@ -115,4 +115,17 @@ data "aws_iam_policy_document" "k3s-s3-public" {
     }
   }
 
+  statement {
+    sid = "PublicDeny"
+    effect = "Deny"
+    actions = [
+      "s3:*",
+    ]
+    not_resources = ["${aws_s3_bucket.k3s-public.arn}/oidc/*"]
+    not_principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.k3s.arn, aws_iam_role.k3s-ec2.arn]
+    }
+  }
+
 }
