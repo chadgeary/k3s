@@ -1,16 +1,9 @@
-output "cloudk3s" {
+output "k3s" {
   value = <<EOT
 
 # To fetch the kubeconfig from s3
 # and open a tunnel to the k3s API
-./kubeconfig-and-ssmproxy.sh
+./connect.sh
 EOT
 
-}
-
-output "nets" {
-  value = {
-    public  = local.public_nets
-    private = local.private_nets
-  }
 }

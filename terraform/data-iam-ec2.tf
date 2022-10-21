@@ -1,11 +1,11 @@
-data "aws_iam_policy_document" "cloudk3s-ec2-passrole" {
+data "aws_iam_policy_document" "k3s-ec2-passrole" {
   statement {
     sid = "AdminPassRole"
     actions = [
       "iam:PassRole"
     ]
     effect    = "Allow"
-    resources = [aws_iam_service_linked_role.cloudk3s.arn]
+    resources = [aws_iam_service_linked_role.k3s.arn]
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
@@ -14,16 +14,16 @@ data "aws_iam_policy_document" "cloudk3s-ec2-passrole" {
     condition {
       test     = "StringLike"
       variable = "iam:AssociatedResourceArn"
-      values   = ["arn:${data.aws_partition.cloudk3s.partition}:autoscaling:${var.aws_region}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}"]
+      values   = ["arn:${data.aws_partition.k3s.partition}:autoscaling:${var.aws_region}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}"]
     }
   }
 }
 
-data "aws_iam_policy" "cloudk3s-ec2-managed" {
-  arn = "arn:${data.aws_partition.cloudk3s.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+data "aws_iam_policy" "k3s-ec2-managed" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-data "aws_iam_policy_document" "cloudk3s-ec2-trust" {
+data "aws_iam_policy_document" "k3s-ec2-trust" {
   statement {
     sid = "ForEc2Only"
     actions = [
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2-trust" {
   }
 }
 
-data "aws_iam_policy_document" "cloudk3s-ec2" {
+data "aws_iam_policy_document" "k3s-ec2" {
 
   statement {
     sid = "ListBucket"
@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
       "s3:ListMultipartUploadParts"
     ]
     effect    = "Allow"
-    resources = [aws_s3_bucket.cloudk3s.arn]
+    resources = [aws_s3_bucket.k3s-private.arn]
   }
 
   statement {
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
       "s3:GetObjectTagging"
     ]
     effect    = "Allow"
-    resources = [aws_s3_bucket.cloudk3s.arn, "${aws_s3_bucket.cloudk3s.arn}/*"]
+    resources = [aws_s3_bucket.k3s-private.arn, "${aws_s3_bucket.k3s-private.arn}/*"]
   }
 
   statement {
@@ -70,8 +70,8 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
     ]
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.cloudk3s.arn}/ssm/*",
-      "${aws_s3_bucket.cloudk3s.arn}/data/*"
+      "${aws_s3_bucket.k3s-private.arn}/ssm/*",
+      "${aws_s3_bucket.k3s-private.arn}/data/*"
     ]
   }
 
@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
       "kms:DescribeKey"
     ]
     effect    = "Allow"
-    resources = [aws_kms_key.cloudk3s["s3"].arn, aws_kms_key.cloudk3s["ssm"].arn]
+    resources = [aws_kms_key.k3s["s3"].arn, aws_kms_key.k3s["ssm"].arn]
   }
 
   statement {
@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "cloudk3s-ec2" {
       "logs:PutLogEvents"
     ]
     effect    = "Allow"
-    resources = [aws_cloudwatch_log_group.cloudk3s-ec2.arn]
+    resources = [aws_cloudwatch_log_group.k3s-ec2.arn]
   }
 
   statement {

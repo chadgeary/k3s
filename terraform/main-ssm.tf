@@ -1,14 +1,14 @@
 # Secrets
-resource "aws_ssm_parameter" "cloudk3s" {
+resource "aws_ssm_parameter" "k3s" {
   for_each = var.secrets
   name     = "/${local.prefix}-${local.suffix}/${each.key}"
   type     = "SecureString"
-  key_id   = aws_kms_key.cloudk3s["ssm"].key_id
+  key_id   = aws_kms_key.k3s["ssm"].key_id
   value    = each.value
 }
 
 # Document
-resource "aws_ssm_document" "cloudk3s" {
+resource "aws_ssm_document" "k3s" {
   name          = "${local.prefix}-${local.suffix}"
   document_type = "Command"
   content       = <<DOC
@@ -78,23 +78,23 @@ DOC
 }
 
 ## association (bootstrap.sh)
-resource "aws_ssm_association" "cloudk3s" {
+resource "aws_ssm_association" "k3s" {
   for_each         = var.nodegroups
   association_name = "${local.prefix}-${local.suffix}-${each.key}"
-  name             = aws_ssm_document.cloudk3s.name
+  name             = aws_ssm_document.k3s.name
   targets {
     key    = "tag:Name"
     values = ["${each.key}.${local.prefix}-${local.suffix}.internal"]
   }
   output_location {
-    s3_bucket_name = aws_s3_bucket.cloudk3s.id
+    s3_bucket_name = aws_s3_bucket.k3s-private.id
     s3_key_prefix  = "ssm/${each.key}"
   }
   parameters = {
-    EnvVars         = "AWS_REGION=${var.aws_region} PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} DB_ENDPOINT=${aws_db_instance.cloudk3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.cloudk3s-private.dns_name}:6443"
+    EnvVars         = "AWS_REGION=${var.aws_region} PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} DB_ENDPOINT=${aws_db_instance.k3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443"
     ShellScriptFile = "bootstrap.sh"
-    SourceInfo      = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.cloudk3s.id}/scripts/\"}"
+    SourceInfo      = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.k3s-private.id}/scripts/\"}"
     SourceType      = "S3"
   }
-  depends_on = [data.aws_lambda_invocation.cloudk3s-getk3s]
+  depends_on = [data.aws_lambda_invocation.k3s-getk3s]
 }

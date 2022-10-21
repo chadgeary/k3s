@@ -1,12 +1,12 @@
-data "aws_iam_policy" "cloudk3s-lambda-getk3s-managed-1" {
-  arn = "arn:${data.aws_partition.cloudk3s.partition}:iam::aws:policy/AmazonSSMFullAccess"
+data "aws_iam_policy" "k3s-lambda-getk3s-managed-1" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/AmazonSSMFullAccess"
 }
 
-data "aws_iam_policy" "cloudk3s-lambda-getk3s-managed-2" {
-  arn = "arn:${data.aws_partition.cloudk3s.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+data "aws_iam_policy" "k3s-lambda-getk3s-managed-2" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-data "aws_iam_policy_document" "cloudk3s-lambda-getk3s-trust" {
+data "aws_iam_policy_document" "k3s-lambda-getk3s-trust" {
   statement {
     sid = "ForLambdaOnly"
     actions = [
@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s-trust" {
   }
 }
 
-data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
+data "aws_iam_policy_document" "k3s-lambda-getk3s" {
 
   statement {
     sid = "ListBucket"
@@ -36,9 +36,9 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
     ]
     effect = "Allow"
     resources = [
-      aws_s3_bucket.cloudk3s.arn,
-      "${aws_s3_bucket.cloudk3s.arn}/data/*",
-      "${aws_s3_bucket.cloudk3s.arn}/scripts/*"
+      aws_s3_bucket.k3s-private.arn,
+      "${aws_s3_bucket.k3s-private.arn}/data/*",
+      "${aws_s3_bucket.k3s-private.arn}/scripts/*"
     ]
   }
 
@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
       "kms:DescribeKey"
     ]
     effect    = "Allow"
-    resources = [aws_kms_key.cloudk3s["lambda"].arn]
+    resources = [aws_kms_key.k3s["lambda"].arn]
   }
 
   statement {
@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "cloudk3s-lambda-getk3s" {
       "kms:DescribeKey"
     ]
     effect    = "Allow"
-    resources = [aws_kms_key.cloudk3s["s3"].arn]
+    resources = [aws_kms_key.k3s["s3"].arn]
   }
 
 }

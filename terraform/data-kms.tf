@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "cloudk3s-kms" {
+data "aws_iam_policy_document" "k3s-kms" {
   for_each = toset(["cw", "ec2", "lambda", "rds", "s3", "ssm"])
 
   ## all kms policies statement(s)
@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
     resources = ["*"]
     principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.cloudk3s.arn]
+      identifiers = [data.aws_caller_identity.k3s.arn]
     }
   }
 
@@ -37,8 +37,8 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
         test     = "ArnEquals"
         variable = "kms:EncryptionContext:aws:logs:arn"
         values = [
-          "arn:${data.aws_partition.cloudk3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.cloudk3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
-          "arn:${data.aws_partition.cloudk3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.cloudk3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
         ]
       }
     }
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_service_linked_role.cloudk3s.arn]
+        identifiers = [aws_iam_service_linked_role.k3s.arn]
       }
     }
   }
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_service_linked_role.cloudk3s.arn]
+        identifiers = [aws_iam_service_linked_role.k3s.arn]
       }
       condition {
         test     = "Bool"
@@ -100,12 +100,12 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.cloudk3s-lambda-getk3s.arn]
+        identifiers = [aws_iam_role.k3s-lambda-getk3s.arn]
       }
       condition {
         test     = "StringEquals"
         variable = "kms:CallerAccount"
-        values   = [data.aws_caller_identity.cloudk3s.account_id]
+        values   = [data.aws_caller_identity.k3s.account_id]
       }
       condition {
         test     = "StringEquals"
@@ -129,7 +129,7 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.cloudk3s-ec2.arn]
+        identifiers = [aws_iam_role.k3s-ec2.arn]
       }
     }
   }
@@ -148,7 +148,7 @@ data "aws_iam_policy_document" "cloudk3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.cloudk3s-ec2.arn, aws_iam_role.cloudk3s-lambda-getk3s.arn]
+        identifiers = [aws_iam_role.k3s-ec2.arn, aws_iam_role.k3s-lambda-getk3s.arn]
       }
     }
   }

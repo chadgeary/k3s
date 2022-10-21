@@ -4,7 +4,7 @@ resource "random_string" "suffix" {
   special = false
 }
 
-resource "local_file" "cloudk3s" {
+resource "local_file" "k3s" {
   filename        = "./connect.sh"
   file_permission = "0700"
   content = templatefile(

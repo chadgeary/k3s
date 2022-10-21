@@ -1,14 +1,14 @@
-data "aws_iam_policy_document" "cloudk3s-s3" {
+data "aws_iam_policy_document" "k3s-s3-private" {
 
   statement {
     sid = "CreatorAdmin"
     actions = [
       "s3:*"
     ]
-    resources = [aws_s3_bucket.cloudk3s.arn]
+    resources = [aws_s3_bucket.k3s-private.arn]
     principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.cloudk3s.arn]
+      identifiers = [data.aws_caller_identity.k3s.arn]
     }
   }
 
@@ -20,13 +20,13 @@ data "aws_iam_policy_document" "cloudk3s-s3" {
       "s3:GetObjectVersion"
     ]
     resources = [
-      aws_s3_bucket.cloudk3s.arn,
-      "${aws_s3_bucket.cloudk3s.arn}/data/*",
-      "${aws_s3_bucket.cloudk3s.arn}/scripts/*"
+      aws_s3_bucket.k3s-private.arn,
+      "${aws_s3_bucket.k3s-private.arn}/data/*",
+      "${aws_s3_bucket.k3s-private.arn}/scripts/*"
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.cloudk3s-ec2.arn]
+      identifiers = [aws_iam_role.k3s-ec2.arn]
     }
   }
 
@@ -38,12 +38,12 @@ data "aws_iam_policy_document" "cloudk3s-s3" {
       "s3:PutObjectAcl"
     ]
     resources = [
-      "${aws_s3_bucket.cloudk3s.arn}/data/*",
-      "${aws_s3_bucket.cloudk3s.arn}/ssm/*",
+      "${aws_s3_bucket.k3s-private.arn}/data/*",
+      "${aws_s3_bucket.k3s-private.arn}/ssm/*",
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.cloudk3s-ec2.arn]
+      identifiers = [aws_iam_role.k3s-ec2.arn]
     }
   }
 
@@ -61,13 +61,57 @@ data "aws_iam_policy_document" "cloudk3s-s3" {
       "s3:PutObjectTagging",
     ]
     resources = [
-      aws_s3_bucket.cloudk3s.arn,
-      "${aws_s3_bucket.cloudk3s.arn}/data/*",
-      "${aws_s3_bucket.cloudk3s.arn}/scripts/*"
+      aws_s3_bucket.k3s-private.arn,
+      "${aws_s3_bucket.k3s-private.arn}/data/*",
+      "${aws_s3_bucket.k3s-private.arn}/scripts/*"
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.cloudk3s-lambda-getk3s.arn]
+      identifiers = [aws_iam_role.k3s-lambda-getk3s.arn]
+    }
+  }
+
+}
+
+data "aws_iam_policy_document" "k3s-s3-public" {
+
+  statement {
+    sid = "CreatorAdmin"
+    actions = [
+      "s3:*"
+    ]
+    resources = [aws_s3_bucket.k3s-private.arn]
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.k3s.arn]
+    }
+  }
+
+  statement {
+    sid    = "Instance Put"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "${aws_s3_bucket.k3s-private.arn}/oidc/*",
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.k3s-ec2.arn]
+    }
+  }
+
+  statement {
+    sid = "PublicRead"
+    actions = [
+      "s3:GetObject",
+    ]
+    resources = ["${aws_s3_bucket.k3s-private.arn}/oidc/*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
     }
   }
 

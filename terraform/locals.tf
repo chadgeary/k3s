@@ -5,7 +5,7 @@ locals {
 
 locals {
 
-  azs = slice(data.aws_availability_zones.cloudk3s.names, 0, var.azs)
+  azs = slice(data.aws_availability_zones.k3s.names, 0, var.azs)
 
   private_nets = { for az in local.azs : az =>
     {
@@ -23,6 +23,6 @@ locals {
 
   vpces = toset(["ec2messages", "kms", "logs", "ssm", "ssmmessages"])
 
-  subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.cloudk3s-vpces : [for subnet in aws_subnet.cloudk3s-private : "${endpoint.id}+${subnet.id}"]]))
+  subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.k3s-vpces : [for subnet in aws_subnet.k3s-private : "${endpoint.id}+${subnet.id}"]]))
 
 }

@@ -9,7 +9,7 @@ aws_profile = "default"
 aws_region  = "us-east-1"
 
 ## VPC
-# vpc_cidr is split across availability zones
+# vpc_cidr is split across availability zones, minimum 2
 vpc_cidr = "172.16.0.0/16"
 azs      = 2
 
@@ -39,10 +39,10 @@ secrets = {
 ## AMIs
 # The Amazon Linux AMI name string and account number.
 # ARM equivalent instances cost less and are used by the control plane (and RDS)
-# To find your region's AMI, replace us-east-2 with your region, then run the command:
-# AWS_REGION=us-east-2 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $AWS_REGION
-# AWS_REGION=us-east-2 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $AWS_REGION
-# AWS_REGION=us-east-2 && aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended --region $AWS_REGION
+# To find your region's AMI, replace us-east-1 with your region, then run the command:
+# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $AWS_REGION
+# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $AWS_REGION
+# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended --region $AWS_REGION
 amis = {
   arm64  = "amzn2-ami-hvm-*-arm64-gp2"
   x86_64 = "amzn2-ami-hvm-*-x86_64-gp2"
@@ -57,8 +57,8 @@ nodegroups = {
   master = {
     ami = "arm64"
     scaling_count = {
-      min = 2
-      max = 2
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 20
@@ -98,6 +98,6 @@ rds = {
   backup_retention_period = 0
   engine                  = "postgres"
   engine_version          = "14.3"
-  instance_class          = "db.t3.micro"
+  instance_class          = "db.t4g.micro"
   storage_type            = "standard"
 }
