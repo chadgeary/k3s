@@ -71,3 +71,49 @@ resource "aws_iam_role_policy_attachment" "k3s-lambda-getk3s-managed-2" {
   role       = aws_iam_role.k3s-lambda-getk3s.name
   policy_arn = data.aws_iam_policy.k3s-lambda-getk3s-managed-2.arn
 }
+
+resource "aws_iam_role" "k3s-lambda-oidcprovider" {
+  name               = "${local.prefix}-${local.suffix}-lambda-oidcprovider"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-lambda-oidcprovider-trust.json
+}
+
+resource "aws_iam_policy" "k3s-lambda-oidcprovider" {
+  name   = "${local.prefix}-${local.suffix}-lambda-oidcprovider"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-lambda-oidcprovider.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-oidcprovider" {
+  role       = aws_iam_role.k3s-lambda-oidcprovider.name
+  policy_arn = aws_iam_policy.k3s-lambda-oidcprovider.arn
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-oidcprovider-managed-1" {
+  role       = aws_iam_role.k3s-lambda-oidcprovider.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-oidcprovider-managed-1.arn
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-oidcprovider-managed-2" {
+  role       = aws_iam_role.k3s-lambda-oidcprovider.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-oidcprovider-managed-2.arn
+}
+
+## irsa
+resource "aws_iam_role" "k3s-irsa" {
+  name               = "${local.prefix}-${local.suffix}-irsa"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-irsa-trust.json
+  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
+}
+
+resource "aws_iam_policy" "k3s-irsa" {
+  name   = "${local.prefix}-${local.suffix}-irsa"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-irsa.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-irsa" {
+  role       = aws_iam_role.k3s-irsa.name
+  policy_arn = aws_iam_policy.k3s-irsa.arn
+}

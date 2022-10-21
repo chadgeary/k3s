@@ -34,10 +34,14 @@ terraform apply
   * tailored bucket policy / iam policies (ec2, lambda)
 * arm, x86, gpu based nodes
   * save cost using ARM-based EC2 instances for master group
+* IRSA support
+  * public endpoint exposed via s3 bucket
+  * oidc data refreshes periodically
+  * lambda manages aws identity provider
 
 ![Output](k3s.png)
 
 [Contact Me](https://discord.gg/zmu6GVnPnj)
 
 ## TODO
-* charts
+* charts/container registry

@@ -37,6 +37,9 @@ data "aws_lambda_invocation" "k3s-getk3s" {
  "files":"${each.key}"
 }
 JSON
-  depends_on    = [aws_cloudwatch_log_group.k3s-lambda-getk3s]
+  depends_on = [
+    aws_iam_role_policy_attachment.k3s-lambda-getk3s,
+    aws_iam_role_policy_attachment.k3s-lambda-getk3s-managed-1,
+    aws_iam_role_policy_attachment.k3s-lambda-getk3s-managed-2
+  ]
 }
-

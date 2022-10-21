@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "k3s-kms" {
         variable = "kms:EncryptionContext:aws:logs:arn"
         values = [
           "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
-          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-*",
         ]
       }
     }
@@ -92,15 +92,12 @@ data "aws_iam_policy_document" "k3s-kms" {
     content {
       sid = "LambdaUse"
       actions = [
-        "kms:Encrypt",
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:DescribeKey"
+        "kms:Decrypt"
       ]
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-lambda-getk3s.arn]
+        identifiers = [aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
       }
       condition {
         test     = "StringEquals"
@@ -148,7 +145,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-ec2.arn, aws_iam_role.k3s-lambda-getk3s.arn]
+        identifiers = [aws_iam_role.k3s-ec2.arn, aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
       }
     }
   }

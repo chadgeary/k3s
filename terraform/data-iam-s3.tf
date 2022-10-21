@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
   }
 
   statement {
-    sid    = "Instance Get"
+    sid    = "InstanceGet"
     effect = "Allow"
     actions = [
       "s3:GetObject",
@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
   }
 
   statement {
-    sid    = "Instance Put"
+    sid    = "InstancePut"
     effect = "Allow"
     actions = [
       "s3:PutObject",
@@ -39,6 +39,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     ]
     resources = [
       "${aws_s3_bucket.k3s-private.arn}/data/*",
+      "${aws_s3_bucket.k3s-private.arn}/oidc/*",
       "${aws_s3_bucket.k3s-private.arn}/ssm/*",
     ]
     principals {
@@ -48,7 +49,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
   }
 
   statement {
-    sid    = "Lambda Put"
+    sid    = "LambdaPutGetK3s"
     effect = "Allow"
     actions = [
       "s3:AbortMultipartUpload",
@@ -71,6 +72,25 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     }
   }
 
+  statement {
+    sid    = "LambdaGetOidcProvider"
+    effect = "Allow"
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+    ]
+    resources = [
+      aws_s3_bucket.k3s-private.arn,
+      "${aws_s3_bucket.k3s-private.arn}/oidc/*",
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.k3s-lambda-oidcprovider.arn]
+    }
+  }
+
 }
 
 data "aws_iam_policy_document" "k3s-s3-public" {
@@ -88,18 +108,25 @@ data "aws_iam_policy_document" "k3s-s3-public" {
   }
 
   statement {
-    sid    = "Instance Put"
+    sid    = "LambdaPutOidcProvider"
     effect = "Allow"
     actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:ListBucketMultipartUploads",
+      "s3:ListMultipartUploadParts",
       "s3:PutObject",
-      "s3:PutObjectAcl"
+      "s3:PutObjectAcl",
+      "s3:PutObjectTagging",
     ]
     resources = [
+      aws_s3_bucket.k3s-public.arn,
       "${aws_s3_bucket.k3s-public.arn}/oidc/*",
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.k3s-ec2.arn]
+      identifiers = [aws_iam_role.k3s-lambda-oidcprovider.arn]
     }
   }
 
@@ -116,7 +143,7 @@ data "aws_iam_policy_document" "k3s-s3-public" {
   }
 
   statement {
-    sid = "PublicDeny"
+    sid    = "PublicDeny"
     effect = "Deny"
     actions = [
       "s3:*",
@@ -124,7 +151,7 @@ data "aws_iam_policy_document" "k3s-s3-public" {
     not_resources = ["${aws_s3_bucket.k3s-public.arn}/oidc/*"]
     not_principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.k3s.arn, aws_iam_role.k3s-ec2.arn]
+      identifiers = [data.aws_caller_identity.k3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
     }
   }
 

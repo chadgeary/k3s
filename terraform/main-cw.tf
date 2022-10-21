@@ -15,3 +15,12 @@ resource "aws_cloudwatch_log_group" "k3s-lambda-getk3s" {
     Name = "/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
   }
 }
+
+resource "aws_cloudwatch_log_group" "k3s-lambda-oidcprovider" {
+  name              = "/aws/lambda/${local.prefix}-${local.suffix}-oidcprovider"
+  retention_in_days = var.log_retention_in_days
+  kms_key_id        = aws_kms_key.k3s["cw"].arn
+  tags = {
+    Name = "/aws/lambda/${local.prefix}-${local.suffix}-oidcprovider"
+  }
+}

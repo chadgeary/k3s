@@ -43,7 +43,7 @@ fi
 # k3s install exec
 if [ "$K3S_NODEGROUP" == "master" ]; then
     echo "running installer (master/server)"
-    INSTALL_K3S_EXEC="server --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3-$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3-$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks"
+    INSTALL_K3S_EXEC="server --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks"
     export INSTALL_K3S_EXEC
     "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 
@@ -60,18 +60,24 @@ if [ "$K3S_NODEGROUP" == "master" ]; then
 
     echo "generating oidc script and systemd service+timer"
     tee /usr/local/bin/oidc << EOM
+#!/bin/bash
+
 echo "decoding x509"
-awk -F': ' '/client-certificate-data/ {print $2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.admin.pem && chmod 400 /etc/rancher/k3s/system.admin.pem
-awk -F': ' '/client-key-data/ {print $2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.admin.key && chmod 400 /etc/rancher/k3s/system.admin.key
-awk -F': ' '/certificate-authority-data/ {print $2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.ca.pem && chmod 400 /etc/rancher/k3s/system.ca.pem
+awk -F': ' '/client-certificate-data/ {print \$2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.admin.pem && chmod 400 /etc/rancher/k3s/system.admin.pem
+awk -F': ' '/client-key-data/ {print \$2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.admin.key && chmod 400 /etc/rancher/k3s/system.admin.key
+awk -F': ' '/certificate-authority-data/ {print \$2}' /etc/rancher/k3s/k3s.yaml | base64 -d > /etc/rancher/k3s/system.ca.pem && chmod 400 /etc/rancher/k3s/system.ca.pem
+
+echo "decoding thumbprint"
+openssl x509 -in /etc/rancher/k3s/system.ca.pem -fingerprint -noout | awk -F'=' 'gsub(/:/,"",\$0) { print \$2 }' > /etc/rancher/k3s/system.ca.thumbprint && chmod 400 /etc/rancher/k3s/system.ca.thumbprint
 
 echo "fetching oidc"
 curl --cert /etc/rancher/k3s/system.admin.pem --key /etc/rancher/k3s/system.admin.key --cacert /etc/rancher/k3s/system.ca.pem https://localhost:6443/.well-known/openid-configuration > /etc/rancher/k3s/oidc
 curl --cert /etc/rancher/k3s/system.admin.pem --key /etc/rancher/k3s/system.admin.key --cacert /etc/rancher/k3s/system.ca.pem https://localhost:6443/openid/v1/jwks > /etc/rancher/k3s/jwks
 
-echo "posting oidc to s3 (public), periodically"
-aws --region "$AWS_REGION" s3 cp /etc/rancher/k3s/oidc s3://"$PREFIX"-"$SUFFIX"-public/oidc/.well-known/openid-configuration
-aws --region "$AWS_REGION" s3 cp /etc/rancher/k3s/jwks s3://"$PREFIX"-"$SUFFIX"-public/oidc/openid/v1/jwks
+echo "posting oidc to s3 (private)"
+aws --region $AWS_REGION s3 cp /etc/rancher/k3s/system.ca.thumbprint s3://$PREFIX-$SUFFIX-private/oidc/thumbprint
+aws --region $AWS_REGION s3 cp /etc/rancher/k3s/oidc s3://$PREFIX-$SUFFIX-private/oidc/.well-known/openid-configuration
+aws --region $AWS_REGION s3 cp /etc/rancher/k3s/jwks s3://$PREFIX-$SUFFIX-private/oidc/openid/v1/jwks
 EOM
     chmod 500 /usr/local/bin/oidc
 

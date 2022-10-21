@@ -30,7 +30,7 @@ urls = {
 ## Secrets
 # Encrypted SSM parameters, available to EC2 instances
 # The path to each value is /${local.prefix}-${local.suffix}/<key>
-# Warn: Keep this terraform state file secure!
+# Warn: Keep this file and the terraform state file secure!
 secrets = {
   K3S_TOKEN = "Change_me_please_1"
   DB_PASS   = "also_Change_me_2"
@@ -49,8 +49,7 @@ amis = {
   gpu    = "amzn2-ami-ecs-gpu-hvm-*-x86_64-ebs"
 }
 
-## Node groups
-# k3s node groups (backed ec2 autoscaling groups)
+## Node groups via asgs
 # Instance types @ https://instances.vantage.sh/
 # at least one group must be named 'master'
 nodegroups = {
@@ -92,7 +91,7 @@ nodegroups = {
   }
 }
 
-# k3s datastore storage
+# k3s datastore via rds
 rds = {
   allocated_storage       = 5
   backup_retention_period = 0
