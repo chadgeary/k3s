@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "k3s-s3-public" {
     actions = [
       "s3:*"
     ]
-    resources = [aws_s3_bucket.k3s-private.arn]
+    resources = [aws_s3_bucket.k3s-public.arn]
     principals {
       type        = "AWS"
       identifiers = [data.aws_caller_identity.k3s.arn]
@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "k3s-s3-public" {
       "s3:PutObjectAcl"
     ]
     resources = [
-      "${aws_s3_bucket.k3s-private.arn}/oidc/*",
+      "${aws_s3_bucket.k3s-public.arn}/oidc/*",
     ]
     principals {
       type        = "AWS"
@@ -108,9 +108,9 @@ data "aws_iam_policy_document" "k3s-s3-public" {
     actions = [
       "s3:GetObject",
     ]
-    resources = ["${aws_s3_bucket.k3s-private.arn}/oidc/*"]
+    resources = ["${aws_s3_bucket.k3s-public.arn}/oidc/*"]
     principals {
-      type        = "AWS"
+      type        = "*"
       identifiers = ["*"]
     }
   }
