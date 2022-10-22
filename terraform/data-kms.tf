@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["cw", "ec2", "ecr", "lambda", "rds", "s3", "ssm"])
+  for_each = toset(["cw", "ec2", "lambda", "rds", "s3", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -108,33 +108,6 @@ data "aws_iam_policy_document" "k3s-kms" {
         test     = "StringEquals"
         variable = "kms:ViaService"
         values   = ["lambda.${var.aws_region}.amazonaws.com"]
-      }
-    }
-  }
-
-  ## ecr statement(s)
-  #
-  dynamic "statement" {
-    for_each = each.value == "ecr" ? [1] : []
-    content {
-      sid = "ECRAllow"
-      actions = [
-        "kms:*"
-      ]
-      resources = ["*"]
-      principals {
-        type        = "AWS"
-        identifiers = ["*"]
-      }
-      condition {
-        test     = "StringEquals"
-        variable = "kms:CallerAccount"
-        values   = [data.aws_caller_identity.k3s.account_id]
-      }
-      condition {
-        test     = "StringEquals"
-        variable = "kms:ViaService"
-        values   = ["ecr.${var.aws_region}.amazonaws.com"]
       }
     }
   }
