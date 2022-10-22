@@ -43,6 +43,3 @@ terraform apply
 ![Output](k3s.png)
 
 [Contact Me](https://discord.gg/zmu6GVnPnj)
-
-## TODO
-* charts
