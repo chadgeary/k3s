@@ -19,6 +19,7 @@ terraform apply
   * cluster has no direct internet access
   * saves costs on NAT gateways for development
   * lambda fetches external dependencies
+  * ecr pull through with [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
   * optional tf for public access
     * replace `main-vpc.tf` with `main-vpc.tf-with-public`
 * independently scalable
@@ -44,4 +45,4 @@ terraform apply
 [Contact Me](https://discord.gg/zmu6GVnPnj)
 
 ## TODO
-* charts/container registry
+* charts

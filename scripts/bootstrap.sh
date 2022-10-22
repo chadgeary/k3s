@@ -79,11 +79,11 @@ aws --region $AWS_REGION s3 cp /etc/rancher/k3s/system.ca.thumbprint s3://$PREFI
 aws --region $AWS_REGION s3 cp /etc/rancher/k3s/oidc s3://$PREFIX-$SUFFIX-private/oidc/.well-known/openid-configuration
 aws --region $AWS_REGION s3 cp /etc/rancher/k3s/jwks s3://$PREFIX-$SUFFIX-private/oidc/openid/v1/jwks
 EOM
-    chmod 500 /usr/local/bin/oidc
+    chmod 700 /usr/local/bin/oidc
 
     tee /etc/systemd/system/k3s-oidc.service << EOM
 [Unit]
-Description=Archives and copies pihole to backup
+Description=Generates oidc files from k3s api server and publishes to s3 every 24h
 After=network.target
 [Service]
 ExecStart=/usr/local/bin/oidc
@@ -108,6 +108,66 @@ EOM
     systemctl enable k3s-oidc.service k3s-oidc.timer
     systemctl start k3s-oidc.service k3s-oidc.timer
 
+    echo "generating registries script and systemd service+timer"
+    tee /usr/local/bin/registries << EOM
+#!/bin/bash
+
+echo "getting ecr password"
+ECR_PASSWORD=\$(aws --region "$AWS_REGION" ecr get-login-password)
+
+echo "rendering /etc/rancher/k3s/registries.yaml"
+tee /etc/rancher/k3s/registries.yaml << EOT > /dev/null
+mirrors:
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+    endpoint:
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr"
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+    endpoint:
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay"
+configs:
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+EOT
+
+echo "reloading k3s"
+systemctl restart k3s
+
+EOM
+    chmod 700 /usr/local/bin/registries
+
+    tee /etc/systemd/system/k3s-registries.service << EOM
+[Unit]
+Description=Generates registries files from k3s api server and publishes to s3 every 6h
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/registries
+Type=simple
+Restart=no
+[Install]
+WantedBy=multi-user.target
+EOM
+
+    tee /etc/systemd/system/k3s-registries.timer << EOM
+[Unit]
+Description=Generates registries files from k3s api server and publishes to s3 every 6h
+[Timer]
+OnUnitActiveSec=6h
+Unit=k3s-registries.service
+[Install]
+WantedBy=multi-user.target
+EOM
+
+    echo "activating registries script and systemd service+timer"
+    systemctl daemon-reload
+    systemctl enable k3s-registries.service k3s-registries.timer
+    systemctl start k3s-registries.service k3s-registries.timer
+
 else
     echo "running installer ($K3S_NODEGROUP/agent)"
     INSTALL_K3S_EXEC="agent"
@@ -127,4 +187,65 @@ else
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
         label --overwrite node "$(hostname -f)" \
         nodegroup="$K3S_NODEGROUP"
+
+    echo "generating registries script and systemd service+timer"
+    tee /usr/local/bin/registries << EOM
+#!/bin/bash
+
+echo "getting ecr password"
+ECR_PASSWORD=\$(aws --region "$AWS_REGION" ecr get-login-password)
+
+echo "rendering /etc/rancher/k3s/registries.yaml"
+tee /etc/rancher/k3s/registries.yaml << EOT > /dev/null
+mirrors:
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+    endpoint:
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr"
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+    endpoint:
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay"
+configs:
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+EOT
+
+echo "reloading k3s"
+systemctl restart k3s
+
+EOM
+    chmod 700 /usr/local/bin/registries
+
+    tee /etc/systemd/system/k3s-registries.service << EOM
+[Unit]
+Description=Generates registries files from k3s api server and publishes to s3 every 6h
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/registries
+Type=simple
+Restart=no
+[Install]
+WantedBy=multi-user.target
+EOM
+
+    tee /etc/systemd/system/k3s-registries.timer << EOM
+[Unit]
+Description=Generates registries files from k3s api server and publishes to s3 every 6h
+[Timer]
+OnUnitActiveSec=6h
+Unit=k3s-registries.service
+[Install]
+WantedBy=multi-user.target
+EOM
+
+    echo "activating registries script and systemd service+timer"
+    systemctl daemon-reload
+    systemctl enable k3s-registries.service k3s-registries.timer
+    systemctl start k3s-registries.service k3s-registries.timer
+
 fi

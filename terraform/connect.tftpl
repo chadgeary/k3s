@@ -4,7 +4,7 @@
 echo "Polling for kube.config (s3://${prefix}-${suffix}/data/k3s/k3s.yaml) via s3"
 until aws --profile ${aws_profile} --region ${aws_region} \
   s3 cp \
-  s3://${prefix}-${suffix}/data/k3s/config \
+  s3://${prefix}-${suffix}-private/data/k3s/config \
   ${prefix}-${suffix}.config 2>/dev/null
 do
   sleep 1

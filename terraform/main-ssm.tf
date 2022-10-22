@@ -91,7 +91,7 @@ resource "aws_ssm_association" "k3s" {
     s3_key_prefix  = "ssm/${each.key}"
   }
   parameters = {
-    EnvVars         = "AWS_REGION=${var.aws_region} PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} DB_ENDPOINT=${aws_db_instance.k3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443"
+    EnvVars         = "ACCOUNT=${data.aws_caller_identity.k3s.account_id} AWS_REGION=${var.aws_region} PREFIX=${local.prefix} SUFFIX=${local.suffix} REGION=${var.aws_region} DB_ENDPOINT=${aws_db_instance.k3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443"
     ShellScriptFile = "bootstrap.sh"
     SourceInfo      = "{\"path\":\"https://s3.${var.aws_region}.amazonaws.com/${aws_s3_bucket.k3s-private.id}/scripts/\"}"
     SourceType      = "S3"

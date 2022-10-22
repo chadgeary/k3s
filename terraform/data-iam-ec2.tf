@@ -97,9 +97,23 @@ data "aws_iam_policy_document" "k3s-ec2" {
   }
 
   statement {
-    sid = "Etc"
+    sid = "UseECR"
     actions = [
       "cloudwatch:PutMetricData",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchGetImage",
+      "ecr:BatchImportUpstreamImage",
+      "ecr:CreateRepository",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:GetAuthorizationToken"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "Etc"
+    actions = [
       "logs:DescribeLogStreams",
       "logs:DescribeLogGroups",
     ]
