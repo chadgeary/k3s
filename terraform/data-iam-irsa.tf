@@ -7,12 +7,12 @@ data "aws_iam_policy_document" "k3s-irsa-trust" {
     effect = "Allow"
     principals {
       type        = "Federated"
-      identifiers = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:oidc-provider/${aws_s3_bucket.k3s-public.id}.s3.${var.aws_region}.amazonaws.com/oidc"]
+      identifiers = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:oidc-provider/s3.${var.aws_region}.amazonaws.com/${local.prefix}-${local.suffix}-public/oidc"]
     }
     condition {
       test     = "ForAnyValue:StringEquals"
-      variable = "${aws_s3_bucket.k3s-public.id}.s3.${var.aws_region}.amazonaws.com/oidc:sub"
-      values   = ["system:serviceaccount:foo:bar"] # foo:bar = namespace:serviceaccount
+      variable = "s3.${var.aws_region}.amazonaws.com/${local.prefix}-${local.suffix}-public/oidc:sub"
+      values   = ["system:serviceaccount:${local.prefix}-${local.suffix}:irsa"] # system:serviceaccount:namespace:serviceaccountname
     }
   }
 }
@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "k3s-irsa" {
     effect = "Allow"
     resources = [
       aws_s3_bucket.k3s-private.arn,
-      "${aws_s3_bucket.k3s-private.arn}/foo/*",
+      "${aws_s3_bucket.k3s-private.arn}/irsa/*",
     ]
   }
 

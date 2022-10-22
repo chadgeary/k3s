@@ -6,7 +6,7 @@ suffix = "dev"
 
 ## AWS
 aws_profile = "default"
-aws_region  = "us-east-1"
+aws_region  = "us-east-2"
 
 ## VPC
 # vpc_cidr is split across availability zones, minimum 2
@@ -68,8 +68,8 @@ nodegroups = {
   generalpurpose = {
     ami = "x86_64"
     scaling_count = {
-      min = 0
-      max = 0
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 100

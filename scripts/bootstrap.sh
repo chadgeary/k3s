@@ -40,17 +40,32 @@ else
     chmod +x "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 fi
 
+# k3s dns
+grep nameserver /etc/resolv.conf > /etc/rancher/k3s/resolv.conf
+
 # k3s install exec
 if [ "$K3S_NODEGROUP" == "master" ]; then
     echo "running installer (master/server)"
-    INSTALL_K3S_EXEC="server --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks"
+    INSTALL_K3S_EXEC="server --resolv-conf=/etc/rancher/k3s/resolv.conf --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3.$AWS_REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks"
     export INSTALL_K3S_EXEC
     "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 
     echo "labeling node"
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite node "$(hostname -f)" \
+        label --overwrite=true node "$(hostname -f)" \
         nodegroup="$K3S_NODEGROUP"
+
+    echo "tainting node (node-role.kubernetes.io/control-plane:NoSchedule)"
+    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+        taint --overwrite=true node "$(hostname -f)" \
+        node-role.kubernetes.io/control-plane:NoSchedule
+
+    if [ "$ARCH" == "aarch64" ]; then
+        echo "tainting node (arm64:NoSchedule)"
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+        taint --overwrite=true node "$(hostname -f)" \
+        kubernetes.io/arch=arm64:NoSchedule
+    fi
 
     echo "copying kube config to s3 (private)"
     for i in {1..120}; do
@@ -118,18 +133,11 @@ ECR_PASSWORD=\$(aws --region "$AWS_REGION" ecr get-login-password)
 echo "rendering /etc/rancher/k3s/registries.yaml"
 tee /etc/rancher/k3s/registries.yaml << EOT > /dev/null
 mirrors:
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     endpoint:
-      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr"
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
-    endpoint:
-      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay"
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
 configs:
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
-    auth:
-      username: AWS
-      password: \$ECR_PASSWORD
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     auth:
       username: AWS
       password: \$ECR_PASSWORD
@@ -170,7 +178,7 @@ EOM
 
 else
     echo "running installer ($K3S_NODEGROUP/agent)"
-    INSTALL_K3S_EXEC="agent"
+    INSTALL_K3S_EXEC="agent --resolv-conf=/etc/rancher/k3s/resolv.conf"
     export INSTALL_K3S_EXEC
     "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
     echo "copying kube config from s3"
@@ -182,11 +190,18 @@ else
 
     echo "labeling node"
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite node "$(hostname -f)" \
+        label --overwrite=true node "$(hostname -f)" \
         node-role.kubernetes.io/agent=true
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite node "$(hostname -f)" \
+        label --overwrite=true node "$(hostname -f)" \
         nodegroup="$K3S_NODEGROUP"
+
+    if [ "$ARCH" == "aarch64" ]; then
+        echo "tainting node (arm64:NoSchedule)"
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+        taint --overwrite=true node "$(hostname -f)" \
+        kubernetes.io/arch=arm64:NoSchedule
+    fi
 
     echo "generating registries script and systemd service+timer"
     tee /usr/local/bin/registries << EOM
@@ -198,25 +213,18 @@ ECR_PASSWORD=\$(aws --region "$AWS_REGION" ecr get-login-password)
 echo "rendering /etc/rancher/k3s/registries.yaml"
 tee /etc/rancher/k3s/registries.yaml << EOT > /dev/null
 mirrors:
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     endpoint:
-      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr"
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
-    endpoint:
-      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay"
+      - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
 configs:
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-ecr":
-    auth:
-      username: AWS
-      password: \$ECR_PASSWORD
-  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/k3s-dev-quay":
+  "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     auth:
       username: AWS
       password: \$ECR_PASSWORD
 EOT
 
 echo "reloading k3s"
-systemctl restart k3s
+systemctl restart k3s-agent
 
 EOM
     chmod 700 /usr/local/bin/registries

@@ -8,12 +8,27 @@ resource "local_file" "k3s" {
   filename        = "./connect.sh"
   file_permission = "0700"
   content = templatefile(
-    "./connect.tftpl",
+    "./connect.sh.tftpl",
     {
-      aws_profile = var.aws_profile
-      aws_region  = var.aws_region
-      prefix      = local.prefix
-      suffix      = local.suffix
+      PROFILE = var.aws_profile
+      REGION  = var.aws_region
+      PREFIX  = local.prefix
+      SUFFIX  = local.suffix
+    }
+  )
+}
+
+resource "local_file" "irsa" {
+  filename        = "./manifests/irsa.yaml"
+  file_permission = "0600"
+  content = templatefile(
+    "./irsa.yaml.tftpl",
+    {
+      ACCOUNT  = data.aws_caller_identity.k3s.account_id
+      REGION   = var.aws_region
+      ROLE_ARN = aws_iam_role.k3s-irsa.arn
+      PREFIX   = local.prefix
+      SUFFIX   = local.suffix
     }
   )
 }

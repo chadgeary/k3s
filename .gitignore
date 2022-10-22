@@ -37,3 +37,6 @@ override.tf.json
 
 # zip
 *.zip
+
+# manifests
+**/manifests/*

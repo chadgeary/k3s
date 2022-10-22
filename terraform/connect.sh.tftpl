@@ -1,41 +1,41 @@
 #!/bin/bash
 
 # Get kubeconfig
-echo "Polling for kube.config (s3://${prefix}-${suffix}/data/k3s/k3s.yaml) via s3"
-until aws --profile ${aws_profile} --region ${aws_region} \
+echo "Polling for kube.config (s3://${ PREFIX }-${ SUFFIX }/data/k3s/k3s.yaml) via s3"
+until aws --profile ${ PROFILE } --region ${ REGION } \
   s3 cp \
-  s3://${prefix}-${suffix}-private/data/k3s/config \
-  ${prefix}-${suffix}.config 2>/dev/null
+  s3://${ PREFIX }-${ SUFFIX }-private/data/k3s/config \
+  ${ PREFIX }-${ SUFFIX }.config 2>/dev/null
 do
   sleep 1
   echo -n "."
 done
-chmod 0600 ${prefix}-${suffix}.config
+chmod 0600 ${ PREFIX }-${ SUFFIX }.config
 echo ""
 
 # Get an instance id
 echo "Polling for a running master to use as proxy"
-until aws --profile ${aws_profile} --region ${aws_region} \
+until aws --profile ${ PROFILE } --region ${ REGION } \
     ec2 describe-instances \
     --query 'Reservations[].Instances[] | [0].InstanceId' \
-    --filters Name=tag:Name,Values=master.${prefix}-${suffix}.internal Name=instance-state-name,Values=running \
+    --filters Name=tag:Name,Values=master.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
     --output text | grep --quiet 'i-'
 do
   sleep 2
   echo -n "."
 done
 echo ""
-SSM_INSTANCE=$(aws --profile ${aws_profile} --region ${aws_region} \
+SSM_INSTANCE=$(aws --profile ${ PROFILE } --region ${ REGION } \
     ec2 describe-instances \
     --query 'Reservations[].Instances[] | [0].InstanceId' \
-    --filters Name=tag:Name,Values=master.${prefix}-${suffix}.internal Name=instance-state-name,Values=running \
+    --filters Name=tag:Name,Values=master.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
     --output text)
 
 # Forward k3s kubeapi port (6443)
 echo "Found $SSM_INSTANCE, attempting AWS-StartPortForwardingSession"
 echo "Once established, use --kubeconfig with kubectl and helm, e.g.:
-kubectl get nodes --kubeconfig=${prefix}-${suffix}.config"
-until aws --profile ${aws_profile} --region ${aws_region} \
+kubectl get nodes --kubeconfig=${ PREFIX }-${ SUFFIX }.config"
+until aws --profile ${ PROFILE } --region ${ REGION } \
   ssm start-session \
   --target $SSM_INSTANCE --document-name AWS-StartPortForwardingSession \
   --parameters '{"portNumber":["6443"],"localPortNumber":["6443"]}'

@@ -21,7 +21,7 @@ locals {
     }
   }
 
-  vpces = toset(["ec2messages", "ecr.api", "ecr.dkr", "kms", "logs", "ssm", "ssmmessages"])
+  vpces = toset(["ec2messages", "ecr.api", "ecr.dkr", "kms", "logs", "ssm", "ssmmessages", "sts"])
 
   subnet-vpc = tolist(flatten([for endpoint in aws_vpc_endpoint.k3s-vpces : [for subnet in aws_subnet.k3s-private : "${endpoint.id}+${subnet.id}"]]))
 

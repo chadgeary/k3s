@@ -55,11 +55,11 @@ def lambda_handler(event, context):
 
     try:
         iam.create_open_id_connect_provider(
-            Url="https://"
-            + s3.Bucket(os.environ["BUCKET_PUBLIC"]).name
-            + ".s3."
+            Url="https://s3."
             + os.environ["REGION"]
-            + ".amazonaws.com/oidc",
+            + ".amazonaws.com/"
+            + s3.Bucket(os.environ["BUCKET_PUBLIC"]).name
+            + "/oidc",
             ClientIDList=[
                 os.environ["PREFIX"] + "-" + os.environ["SUFFIX"],
             ],
@@ -79,11 +79,11 @@ def lambda_handler(event, context):
     iam.update_open_id_connect_provider_thumbprint(
         OpenIDConnectProviderArn="arn:aws:iam::"
         + os.environ["ACCOUNT"]
-        + ":oidc-provider/"
-        + os.environ["BUCKET_PUBLIC"]
-        + ".s3."
+        + ":oidc-provider/s3."
         + os.environ["REGION"]
-        + ".amazonaws.com/oidc",
+        + ".amazonaws.com/"
+        + s3.Bucket(os.environ["BUCKET_PUBLIC"]).name
+        + "/oidc",
         ThumbprintList=[
             fileobjects["thumbprint"],
         ],

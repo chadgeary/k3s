@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "k3s-private" {
   name                 = "${local.prefix}-${local.suffix}-private"
   protocol             = "TCP"
   vpc_id               = aws_vpc.k3s.id
-  preserve_client_ip   = true
+  preserve_client_ip   = false
   deregistration_delay = 10
   stickiness {
     enabled = true

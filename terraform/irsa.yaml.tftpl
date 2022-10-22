@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${ PREFIX }-${ SUFFIX }
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: irsa
+  namespace: ${ PREFIX }-${ SUFFIX }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: irsa
+  namespace: ${ PREFIX }-${ SUFFIX }
+spec:
+  containers:
+  - name: irsa
+    args: ["sts", "get-caller-identity", "--debug"]
+    env:
+      - name: AWS_DEFAULT_REGION
+        value: "${ REGION }"
+      - name: AWS_ROLE_ARN
+        value: "${ ROLE_ARN }"
+      - name: AWS_WEB_IDENTITY_TOKEN_FILE
+        value: "/var/run/secrets/serviceaccount/token"
+    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/k3s-dev-ecr/bitnami/aws-cli
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    volumeMounts:
+      - mountPath: "/.aws"
+        name: aws
+      - mountPath: "/var/run/secrets/serviceaccount/"
+        name: serviceaccount
+  restartPolicy: Never
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+  serviceAccountName: irsa
+  volumes:
+    - name: aws
+      emptyDir: {}
+    - name: serviceaccount
+      projected:
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 43200
+              audience: ${ PREFIX }-${ SUFFIX }
