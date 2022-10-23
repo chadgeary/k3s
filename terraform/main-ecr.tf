@@ -11,8 +11,8 @@ resource "aws_ecr_pull_through_cache_rule" "k3s-quay" {
 resource "aws_ecr_repository" "k3s-codebuild" {
   for_each             = toset(var.container_images)
   name                 = "${local.prefix}-${local.suffix}-codebuild/${element(split(":", each.key), 0)}"
+  force_delete         = true
   image_tag_mutability = "MUTABLE"
-
   image_scanning_configuration {
     scan_on_push = true
   }
