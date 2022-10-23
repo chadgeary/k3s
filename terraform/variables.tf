@@ -33,6 +33,12 @@ variable "urls" {
   description = "Location K3s bin/tar are downloaded from via lambda"
 }
 
+# container images
+variable "container_images" {
+  type        = toset(list(string))
+  description = "Images to clone from public repositories to ECR"
+}
+
 # nodegroups (ec2 autoscaling groups)
 variable "nodegroups" {
   type = map(object(

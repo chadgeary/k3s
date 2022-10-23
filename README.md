@@ -30,7 +30,7 @@ terraform apply
   * script included, see image below
   * works with kubectl, helm, lens, etc.
 * strongly enforced encryption
-  * 6 independent kms keys (cloudwatch, ec2, lambda, rds, s3, ssm)
+  * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key policies
   * tailored bucket policy / iam policies (ec2, lambda)
 * arm, x86, gpu based nodes

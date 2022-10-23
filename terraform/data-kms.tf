@@ -18,6 +18,32 @@ data "aws_iam_policy_document" "k3s-kms" {
   ## cloudwatch statement(s)
   #
   dynamic "statement" {
+    for_each = each.value == "codebuild" ? [1] : []
+    content {
+      sid = "CodebuildUse"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = ["*"]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:CallerAccount"
+        values   = [data.aws_caller_identity.k3s.account_id]
+      }
+    }
+  }
+
+  ## cloudwatch statement(s)
+  #
+  dynamic "statement" {
     for_each = each.value == "cw" ? [1] : []
     content {
       sid = "CloudwatchUse"
