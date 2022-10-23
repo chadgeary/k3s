@@ -26,7 +26,7 @@ spec:
         value: "${ ROLE_ARN }"
       - name: AWS_WEB_IDENTITY_TOKEN_FILE
         value: "/var/run/secrets/serviceaccount/token"
-    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/k3s-dev-ecr/bitnami/aws-cli
+    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-ecr/bitnami/aws-cli
     resources:
       limits:
         memory: "128Mi"
