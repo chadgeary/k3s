@@ -91,6 +91,26 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     }
   }
 
+  statement {
+    sid    = "CodebuildCodepipelineUse"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:GetBucketVersioning",
+      "s3:PutObject"
+    ]
+    resources = [
+      aws_s3_bucket.k3s-private.arn,
+      "${aws_s3_bucket.k3s-private.arn}/containers*",
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.k3s-codebuild.arn, aws_iam_role.k3s-codepipeline.arn]
+    }
+  }
+
 }
 
 data "aws_iam_policy_document" "k3s-s3-public" {

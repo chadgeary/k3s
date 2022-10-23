@@ -18,8 +18,10 @@ terraform apply
 * offline
   * cluster has no direct internet access
   * saves costs on NAT gateways for development
-  * lambda fetches external dependencies
-  * ecr pull through with [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
+  * lambda fetches k3s dependencies
+  * containers available via either:
+    * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
+    * codebuild => ecr mirroring (`var.container_images`)
   * optional tf for public access
     * replace `main-vpc.tf` with `main-vpc.tf-with-public`
 * independently scalable

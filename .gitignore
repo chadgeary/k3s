@@ -40,3 +40,6 @@ override.tf.json
 
 # manifests
 **/manifests/*
+
+# manifests
+**/containers/*

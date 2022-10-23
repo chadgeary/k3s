@@ -1,18 +1,18 @@
-data "aws_iam_policy_document" "k3s-codebuild-trust" {
+data "aws_iam_policy_document" "k3s-codepipeline-trust" {
   statement {
-    sid = "ForCodebuildPipelineOnly"
+    sid = "ForCodepipeOnly"
     actions = [
       "sts:AssumeRole"
     ]
     effect = "Allow"
     principals {
       type        = "Service"
-      identifiers = ["codebuild.amazonaws.com", "codepipeline.amazonaws.com"]
+      identifiers = ["codepipeline.amazonaws.com"]
     }
   }
 }
 
-data "aws_iam_policy_document" "k3s-codebuild" {
+data "aws_iam_policy_document" "k3s-codepipeline" {
 
   statement {
     sid = "UseS3"
@@ -44,29 +44,26 @@ data "aws_iam_policy_document" "k3s-codebuild" {
   }
 
   statement {
-    sid = "UseCloudwatch"
+    sid = "UseCodebuild"
     actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "codebuild:BatchGetBuilds",
+      "codebuild:StartBuild"
     ]
     effect    = "Allow"
-    resources = [aws_cloudwatch_log_group.k3s-codebuild.arn, "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-codebuild*"]
+    resources = [aws_codebuild_project.k3s.arn]
   }
 
   statement {
-    sid = "UseECR"
+    sid = "PassToService"
     actions = [
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:BatchGetImage",
-      "ecr:CompleteLayerUpload",
-      "ecr:GetAuthorizationToken",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:InitiateLayerUpload",
-      "ecr:PutImage",
-      "ecr:UploadLayerPart"
+      "iam:PassRole"
     ]
     effect    = "Allow"
-    resources = ["*"]
+    resources = ["arn:${data.aws_partition.k3s.partition}:iam::${var.aws_region}:role/${local.prefix}-${local.suffix}-codepipeline"]
+    condition {
+      test     = "StringEqualsIfExists"
+      variable = "iam:PassedToService"
+      values   = ["codepipeline.amazonaws.com"]
+    }
   }
-
 }

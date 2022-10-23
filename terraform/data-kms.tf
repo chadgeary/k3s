@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["cw", "ec2", "lambda", "rds", "s3", "ssm"])
+  for_each = toset(["codebuild", "cw", "ec2", "lambda", "rds", "s3", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "k3s-kms" {
     }
   }
 
-  ## cloudwatch statement(s)
+  ## codebuild statement(s)
   #
   dynamic "statement" {
     for_each = each.value == "codebuild" ? [1] : []
@@ -37,6 +37,11 @@ data "aws_iam_policy_document" "k3s-kms" {
         test     = "StringEquals"
         variable = "kms:CallerAccount"
         values   = [data.aws_caller_identity.k3s.account_id]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:ViaService"
+        values   = ["codebuild.${var.aws_region}.amazonaws.com"]
       }
     }
   }
@@ -65,6 +70,7 @@ data "aws_iam_policy_document" "k3s-kms" {
         values = [
           "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
           "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-*",
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-*"
         ]
       }
     }
@@ -162,16 +168,18 @@ data "aws_iam_policy_document" "k3s-kms" {
   dynamic "statement" {
     for_each = each.value == "s3" ? [1] : []
     content {
-      sid = "EC2LambdaAllow"
+      sid = "CodebuildCodepipelineEC2LambdaAllow"
       actions = [
+        "kms:Encrypt",
         "kms:Decrypt",
+        "kms:ReEncrypt*",
         "kms:GenerateDataKey*",
         "kms:DescribeKey"
       ]
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-ec2.arn, aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
+        identifiers = [aws_iam_role.k3s-ec2.arn, aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn, aws_iam_role.k3s-codebuild.arn, aws_iam_role.k3s-codepipeline.arn]
       }
     }
   }

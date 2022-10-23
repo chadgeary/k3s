@@ -45,14 +45,12 @@ resource "aws_s3_bucket_public_access_block" "k3s-private" {
 }
 
 # s3 objects (playbook)
-resource "aws_s3_object" "files" {
-  for_each       = fileset("../scripts/", "*")
+resource "aws_s3_object" "bootstrap" {
   bucket         = aws_s3_bucket.k3s-private.id
-  key            = "scripts/${each.value}"
-  content_base64 = base64encode(file("../scripts/${each.value}"))
+  key            = "scripts/bootstrap.sh"
+  content_base64 = base64encode(file("../templates/bootstrap.sh"))
   kms_key_id     = aws_kms_key.k3s["s3"].arn
 }
-
 
 # bucket
 resource "aws_s3_bucket" "k3s-public" {
