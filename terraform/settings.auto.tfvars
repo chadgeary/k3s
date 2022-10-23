@@ -53,7 +53,8 @@ amis = {
 # Images not available on Public ECR or Quay.io cloned to Private ECR via codebuild
 container_images = [
   "k8s.gcr.io/autoscaling/cluster-autoscaler-arm64:v1.25.0",
-  "k8s.gcr.io/autoscaling/cluster-autoscaler-amd64:v1.25.0"
+  "k8s.gcr.io/autoscaling/cluster-autoscaler-amd64:v1.25.0",
+  "amazon/aws-cli:arm64"
 ]
 
 ## Node groups via asgs
