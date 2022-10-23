@@ -2,7 +2,7 @@
 # Labels attached to resource names, use a short lower alphanumeric string
 # If suffix is empty, a random two character suffix is generated
 prefix = "k3s"
-suffix = "dev"
+suffix = ""
 
 ## AWS
 aws_profile = "default"
