@@ -8,7 +8,7 @@ resource "local_file" "k3s" {
   filename        = "./connect.sh"
   file_permission = "0700"
   content = templatefile(
-    "./connect.sh.tftpl",
+    "../templates/connect.sh.tftpl",
     {
       PROFILE = var.aws_profile
       REGION  = var.aws_region
@@ -22,7 +22,7 @@ resource "local_file" "irsa" {
   filename        = "./manifests/irsa.yaml"
   file_permission = "0600"
   content = templatefile(
-    "./irsa.yaml.tftpl",
+    "../templates/irsa.yaml.tftpl",
     {
       ACCOUNT  = data.aws_caller_identity.k3s.account_id
       REGION   = var.aws_region

@@ -75,5 +75,5 @@ resource "aws_autoscaling_group" "k3s" {
     propagate_at_launch = true
   }
 
-  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.files, aws_iam_role_policy_attachment.k3s-ec2, aws_iam_role_policy_attachment.k3s-ec2-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
+  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.bootstrap, aws_iam_role_policy_attachment.k3s-ec2, aws_iam_role_policy_attachment.k3s-ec2-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
 }

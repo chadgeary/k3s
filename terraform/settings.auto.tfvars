@@ -49,6 +49,13 @@ amis = {
   gpu    = "amzn2-ami-ecs-gpu-hvm-*-x86_64-ebs"
 }
 
+## Container Images
+# Images not available on Public ECR or Quay.io cloned to Private ECR via codebuild
+container_images = [
+  "k8s.gcr.io/autoscaling/cluster-autoscaler-arm64:v1.25.0",
+  "k8s.gcr.io/autoscaling/cluster-autoscaler-amd64:v1.25.0"
+]
+
 ## Node groups via asgs
 # Instance types @ https://instances.vantage.sh/
 # at least one group must be named 'master'

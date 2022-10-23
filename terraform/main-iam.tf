@@ -15,6 +15,42 @@ resource "aws_iam_user_policy_attachment" "k3s-ec2-passrole" {
   policy_arn = aws_iam_policy.k3s-ec2-passrole.arn
 }
 
+## codebuild
+resource "aws_iam_role" "k3s-codebuild" {
+  name               = "${local.prefix}-${local.suffix}-codebuild"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-codebuild-trust.json
+}
+
+resource "aws_iam_policy" "k3s-codebuild" {
+  name   = "${local.prefix}-${local.suffix}-codebuild"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-codebuild.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-codebuild" {
+  role       = aws_iam_role.k3s-codebuild.name
+  policy_arn = aws_iam_policy.k3s-codebuild.arn
+}
+
+## codepipeline
+resource "aws_iam_role" "k3s-codepipeline" {
+  name               = "${local.prefix}-${local.suffix}-codepipeline"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-codepipeline-trust.json
+}
+
+resource "aws_iam_policy" "k3s-codepipeline" {
+  name   = "${local.prefix}-${local.suffix}-codepipeline"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-codepipeline.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-codepipeline" {
+  role       = aws_iam_role.k3s-codepipeline.name
+  policy_arn = aws_iam_policy.k3s-codepipeline.arn
+}
+
 ## instances
 resource "aws_iam_role" "k3s-ec2" {
   name               = "${local.prefix}-${local.suffix}-ec2"
@@ -28,7 +64,6 @@ resource "aws_iam_policy" "k3s-ec2" {
   policy = data.aws_iam_policy_document.k3s-ec2.json
 }
 
-# attachment(s)
 resource "aws_iam_role_policy_attachment" "k3s-ec2" {
   role       = aws_iam_role.k3s-ec2.name
   policy_arn = aws_iam_policy.k3s-ec2.arn
