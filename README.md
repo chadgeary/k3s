@@ -41,6 +41,7 @@ terraform apply
   * public endpoint exposed via s3 bucket
   * oidc data refreshes periodically
   * lambda manages aws identity provider
+  * example: `terraform/manifests/irsa.yaml` after apply
 
 ![Output](k3s.png)
 
