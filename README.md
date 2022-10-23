@@ -44,4 +44,4 @@ terraform apply
 
 ![Output](k3s.png)
 
-[Contact Me](https://discord.gg/zmu6GVnPnj)
+[Contact Me](https://discord.gg/sB9dUaj9jt)
