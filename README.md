@@ -39,7 +39,6 @@ terraform apply
   * save cost using ARM-based EC2 instances for master group
 * IRSA support
   * public endpoint exposed via s3 bucket
-  * oidc data refreshes periodically
   * lambda manages aws identity provider
   * example: `terraform/manifests/irsa.yaml` after apply
 
