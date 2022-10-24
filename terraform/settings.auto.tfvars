@@ -6,7 +6,7 @@ suffix = ""
 
 ## AWS
 aws_profile = "default"
-aws_region  = "us-east-2"
+aws_region  = "us-east-1"
 
 ## VPC
 # vpc_cidr is split across availability zones, minimum 2
@@ -107,4 +107,12 @@ rds = {
   engine_version          = "14.3"
   instance_class          = "db.t4g.micro"
   storage_type            = "standard"
+}
+
+# public access permits inbound/outbound internet access
+# inbound via load balancer (network), e.g. { 80 = "TCP", 443 = "TCP", 51820 = "UDP" }
+# outbound via nat gateway(s)
+public_access = {
+  load_balancer_ports = {}
+  nat_gateways        = false
 }

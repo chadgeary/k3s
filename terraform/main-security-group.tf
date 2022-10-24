@@ -9,7 +9,7 @@ resource "aws_security_group" "k3s-ec2" {
 }
 
 resource "aws_security_group_rule" "k3s-ec2-ingress-self-sg" {
-  for_each                 = toset(["443", "6443", "2379", "2380"])
+  for_each                 = toset(["443", "6443", "2379", "2380", "10250"])
   type                     = "ingress"
   from_port                = each.value
   to_port                  = each.value
@@ -19,7 +19,7 @@ resource "aws_security_group_rule" "k3s-ec2-ingress-self-sg" {
 }
 
 resource "aws_security_group_rule" "k3s-ec2-egress-self-sg" {
-  for_each                 = toset(["443", "6443", "2379", "2380"])
+  for_each                 = toset(["443", "6443", "2379", "2380", "10250"])
   type                     = "egress"
   from_port                = each.value
   to_port                  = each.value
@@ -28,7 +28,7 @@ resource "aws_security_group_rule" "k3s-ec2-egress-self-sg" {
   source_security_group_id = aws_security_group.k3s-ec2.id
 }
 
-resource "aws_security_group_rule" "k3s-ec2-ingress-self-lb" {
+resource "aws_security_group_rule" "k3s-ec2-ingress-self-lb-private" {
   type              = "ingress"
   from_port         = "6443"
   to_port           = "6443"
@@ -37,13 +37,23 @@ resource "aws_security_group_rule" "k3s-ec2-ingress-self-lb" {
   cidr_blocks       = [for net in aws_subnet.k3s-private : net.cidr_block]
 }
 
-resource "aws_security_group_rule" "k3s-ec2-egress-self-lb" {
+resource "aws_security_group_rule" "k3s-ec2-egress-self-lb-private" {
   type              = "egress"
   from_port         = "6443"
   to_port           = "6443"
   protocol          = "tcp"
   security_group_id = aws_security_group.k3s-ec2.id
   cidr_blocks       = [for net in aws_subnet.k3s-private : net.cidr_block]
+}
+
+resource "aws_security_group_rule" "k3s-ec2-ingress-self-lb-public" {
+  for_each          = length(var.public_access.load_balancer_ports) > 0 ? merge(var.public_access.load_balancer_ports, { 10250 = "TCP" }) : {}
+  type              = "ingress"
+  from_port         = each.key
+  to_port           = each.key
+  protocol          = lower(each.value)
+  security_group_id = aws_security_group.k3s-ec2.id
+  cidr_blocks       = [for net in aws_subnet.k3s-public : net.cidr_block]
 }
 
 resource "aws_security_group_rule" "k3s-ec2-egress-s3" {

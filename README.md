@@ -17,30 +17,27 @@ terraform apply
 ## Features
 * offline
   * cluster has no direct internet access
-  * saves costs on NAT gateways for development
+  * enable egress over NAT gateway(s) via `var.public_access.nat_gateways = true`
+  * enable ingress over NLB via `var.public_access.load_balancer_ports = { <port_number> = <port_protocol>, ... }`
   * lambda fetches k3s dependencies
-  * containers available via either:
+  * containers available via:
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
-  * optional tf for public access
-    * replace `main-vpc.tf` with `main-vpc.tf-with-public`
-* independently scalable
-  * node groups
+* multiple scaling configurations
+  * node groups, including control plane (master)
+    * multi-arch support (arm, x86, gpu)
   * datastore (RDS postgres)
   * availability zones
-* interact with cluster via SSM PortForwardSession
+* interact with cluster API via SSM PortForwardSession
   * script included, see image below
-  * works with kubectl, helm, lens, etc.
-* strongly enforced encryption
+  * works with kubectl, helm, k9s, lens, etc.
+* IRSA (IAM roles for Service Accounts) support
+  * OIDC endpoint enrollment via s3 bucket static page
+  * lambda managed aws identity provider
+  * usage example: `terraform/manifests/irsa.yaml` after apply
+* strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
-  * tailored kms key policies
-  * tailored bucket policy / iam policies (ec2, lambda)
-* arm, x86, gpu based nodes
-  * save cost using ARM-based EC2 instances for master group
-* IRSA support
-  * public endpoint exposed via s3 bucket
-  * lambda manages aws identity provider
-  * example: `terraform/manifests/irsa.yaml` after apply
+  * tailored kms key, bucket, iam, and trust policies
 
 ![Output](k3s.png)
 

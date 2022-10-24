@@ -19,10 +19,18 @@ resource "aws_vpc_dhcp_options_association" "k3s" {
   dhcp_options_id = aws_vpc_dhcp_options.k3s.id
 }
 
+## Private Network
 # private route table(s) per zone
 resource "aws_route_table" "k3s-private" {
-  for_each = local.public_nets
+  for_each = local.private_nets
   vpc_id   = aws_vpc.k3s.id
+  dynamic "route" {
+    for_each = var.public_access.nat_gateways ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.k3s[each.key].id
+    }
+  }
   tags = {
     Name = "${local.prefix}-${local.suffix}-${each.value.zone}"
   }
@@ -77,4 +85,56 @@ resource "aws_vpc_endpoint_subnet_association" "k3s-vpces" {
   subnet_id       = element(split("+", local.subnet-vpc[count.index]), 1)
   vpc_endpoint_id = element(split("+", local.subnet-vpc[count.index]), 0)
 
+}
+
+## Public Network
+# igw if nat_gateways or lb ports
+resource "aws_internet_gateway" "k3s" {
+  for_each = var.public_access.nat_gateways || length(var.public_access.load_balancer_ports) > 0 ? { public = true } : {}
+  vpc_id   = aws_vpc.k3s.id
+  tags = {
+    Name = "${local.prefix}-${local.suffix}"
+  }
+}
+
+# public net(s) per zone
+resource "aws_subnet" "k3s-public" {
+  for_each          = var.public_access.nat_gateways || length(var.public_access.load_balancer_ports) > 0 ? local.public_nets : {}
+  vpc_id            = aws_vpc.k3s.id
+  availability_zone = each.value.zone
+  cidr_block        = each.value.cidr
+  tags = {
+    Name = "${local.prefix}-${local.suffix}-${each.value.zone}-public"
+  }
+}
+
+# public route via internet gateway
+resource "aws_route_table" "k3s-public" {
+  for_each = var.public_access.nat_gateways || length(var.public_access.load_balancer_ports) > 0 ? { public = true } : {}
+  vpc_id   = aws_vpc.k3s.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.k3s["public"].id
+  }
+  tags = {
+    Name = "${local.prefix}-${local.suffix}"
+  }
+}
+
+# nat gateway
+resource "aws_eip" "k3s" {
+  for_each = var.public_access.nat_gateways ? local.public_nets : {}
+  vpc      = true
+  tags = {
+    Name = "${local.prefix}-${local.suffix}-${each.value.zone}"
+  }
+}
+
+resource "aws_nat_gateway" "k3s" {
+  for_each      = var.public_access.nat_gateways ? local.public_nets : {}
+  allocation_id = aws_eip.k3s[each.key].id
+  subnet_id     = aws_subnet.k3s-public[each.key].id
+  tags = {
+    Name = "${local.prefix}-${local.suffix}-${each.value.zone}"
+  }
 }
