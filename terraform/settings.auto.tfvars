@@ -113,6 +113,6 @@ rds = {
 # inbound via load balancer (network), e.g. { 80 = "TCP", 443 = "TCP", 51820 = "UDP" }
 # outbound via nat gateway(s)
 public_access = {
-  load_balancer_ports = {}
+  load_balancer_ports = { 9000 = "UDP" }
   nat_gateways        = false
 }

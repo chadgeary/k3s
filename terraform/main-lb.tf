@@ -52,7 +52,7 @@ resource "aws_lb" "k3s-public" {
   for_each                         = length(var.public_access.load_balancer_ports) > 0 ? { public = true } : {}
   name                             = "${local.prefix}-${local.suffix}-public"
   load_balancer_type               = "network"
-  internal                         = true
+  internal                         = false
   enable_cross_zone_load_balancing = true
   subnets                          = [for key, value in aws_subnet.k3s-public : value.id]
 
