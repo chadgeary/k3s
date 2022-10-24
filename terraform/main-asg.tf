@@ -44,7 +44,7 @@ resource "aws_autoscaling_group" "k3s" {
       }
     }
   }
-  target_group_arns         = each.key == "master" ? [aws_lb_target_group.k3s-private.arn] : []
+  target_group_arns         = each.key == "master" ? [aws_lb_target_group.k3s-private.arn] : length(var.public_access.load_balancer_ports) > 0 ? [for target in aws_lb_target_group.k3s-public : target.arn] : []
   service_linked_role_arn   = aws_iam_service_linked_role.k3s.arn
   termination_policies      = ["ClosestToNextInstanceHour"]
   min_size                  = each.value.scaling_count.min

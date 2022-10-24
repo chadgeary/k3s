@@ -110,9 +110,9 @@ rds = {
 }
 
 # public access permits inbound/outbound internet access
-# inbound via load balancer (network), e.g. { 80 = "TCP", 443 = "TCP", 51820 = "UDP" }
+# inbound via load balancer (network), e.g. { 30000 = "TCP" }
 # outbound via nat gateway(s)
 public_access = {
-  load_balancer_ports = { 9000 = "UDP" }
+  load_balancer_ports = { }
   nat_gateways        = false
 }
