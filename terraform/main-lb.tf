@@ -78,7 +78,7 @@ resource "aws_lb_target_group" "k3s-public" {
     healthy_threshold   = 3
     unhealthy_threshold = 3
     interval            = 10
-    protocol            = upper(each.value)
+    protocol            = "TCP"
     port                = upper(each.value) == "TCP" ? each.key : "10250"
   }
   tags = {
