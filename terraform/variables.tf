@@ -86,10 +86,7 @@ variable "azs" {
   description = "The number of azs to use, min is 1 & max is number of azs in the region"
 }
 
-variable "public_access" {
-  type = object({
-    load_balancer_ports = map(string)
-    nat_gateways        = bool
-  })
-  description = "Public internet access (inbound via nlb ports or outbound via nat_gateway(s))"
+variable "nat_gateways" {
+  type = bool
+  description = "Public internet access (outbound via nat_gateway(s))"
 }

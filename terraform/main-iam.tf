@@ -152,3 +152,22 @@ resource "aws_iam_role_policy_attachment" "k3s-irsa" {
   role       = aws_iam_role.k3s-irsa.name
   policy_arn = aws_iam_policy.k3s-irsa.arn
 }
+
+## awsvpccni
+resource "aws_iam_role" "k3s-awsvpccni" {
+  name               = "${local.prefix}-${local.suffix}-awsvpccni"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-awsvpccni-trust.json
+  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
+}
+
+resource "aws_iam_policy" "k3s-awsvpccni" {
+  name   = "${local.prefix}-${local.suffix}-awsvpccni"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-awsvpccni.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-awsvpccni" {
+  role       = aws_iam_role.k3s-awsvpccni.name
+  policy_arn = aws_iam_policy.k3s-awsvpccni.arn
+}

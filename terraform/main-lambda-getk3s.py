@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
         urls = {
             "data/downloads/k3s/k3s-airgap-images-x86_64.tar": os.environ[
-                "K3S_TAR_URL_X86_64"
+                "K3S_TAR_X86_64"
             ],
         }
         for key in urls:
@@ -42,7 +42,7 @@ def lambda_handler(event, context):
 
         urls = {
             "data/downloads/k3s/k3s-airgap-images-aarch64.tar": os.environ[
-                "K3S_TAR_URL_ARM64"
+                "K3S_TAR_ARM64"
             ],
         }
         for key in urls:
@@ -67,8 +67,11 @@ def lambda_handler(event, context):
     if event["files"] == "k3s-bin":
 
         urls = {
-            "data/downloads/k3s/k3s-x86_64": os.environ["K3S_BIN_URL_X86_64"],
-            "data/downloads/k3s/k3s-aarch64": os.environ["K3S_BIN_URL_ARM64"],
+            "data/downloads/charts/aws-vpc-cni.tgz": os.environ["AWS_VPC_CNI"],
+            "data/downloads/k3s/k3s-x86_64": os.environ["K3S_BIN_X86_64"],
+            "data/downloads/k3s/k3s-aarch64": os.environ["K3S_BIN_ARM64"],
+            "data/downloads/k3s/helm-x86_64.tar.gz": os.environ["HELM_X86_64"],
+            "data/downloads/k3s/helm-aarch64.tar.gz": os.environ["HELM_ARM64"],
             "scripts/install.sh": os.environ["K3S_INSTALL"],
         }
         for key in urls:

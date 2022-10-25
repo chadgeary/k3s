@@ -44,7 +44,7 @@ resource "aws_autoscaling_group" "k3s" {
       }
     }
   }
-  target_group_arns         = each.key == "master" ? [aws_lb_target_group.k3s-private.arn] : length(var.public_access.load_balancer_ports) > 0 ? [for target in aws_lb_target_group.k3s-public : target.arn] : []
+  target_group_arns         = each.key == "master" ? [aws_lb_target_group.k3s-private.arn] : []
   service_linked_role_arn   = aws_iam_service_linked_role.k3s.arn
   termination_policies      = ["ClosestToNextInstanceHour"]
   min_size                  = each.value.scaling_count.min
@@ -70,8 +70,20 @@ resource "aws_autoscaling_group" "k3s" {
   }
 
   tag {
+    key                 = "kubernetes.io/cluster/${local.prefix}-${local.suffix}"
+    value               = "owned"
+    propagate_at_launch = true
+  }
+
+  tag {
     key                 = "Name"
     value               = "${each.key}.${local.prefix}-${local.suffix}.internal"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "cluster.k8s.amazonaws.com/name"
+    value               = "${local.prefix}-${local.suffix}"
     propagate_at_launch = true
   }
 

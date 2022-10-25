@@ -99,13 +99,20 @@ data "aws_iam_policy_document" "k3s-ec2" {
   statement {
     sid = "UseECR"
     actions = [
-      "cloudwatch:PutMetricData",
       "ecr:BatchCheckLayerAvailability",
       "ecr:BatchGetImage",
       "ecr:BatchImportUpstreamImage",
       "ecr:CreateRepository",
+      "ecr:DescribeImages",
+      "ecr:DescribeImageScanFindings",
+      "ecr:DescribeRepositories",
+      "ecr:GetAuthorizationToken",
       "ecr:GetDownloadUrlForLayer",
-      "ecr:GetAuthorizationToken"
+      "ecr:GetLifecyclePolicy",
+      "ecr:GetLifecyclePolicyPreview",
+      "ecr:GetRepositoryPolicy",
+      "ecr:ListImages",
+      "ecr:ListTagsForResource",
     ]
     effect    = "Allow"
     resources = ["*"]

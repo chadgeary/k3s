@@ -46,28 +46,8 @@ resource "aws_security_group_rule" "k3s-ec2-egress-self-lb-private" {
   cidr_blocks       = [for net in aws_subnet.k3s-private : net.cidr_block]
 }
 
-resource "aws_security_group_rule" "k3s-ec2-ingress-world-lb-public" {
-  for_each          = length(var.public_access.load_balancer_ports) > 0 ? var.public_access.load_balancer_ports : {}
-  type              = "ingress"
-  from_port         = each.key
-  to_port           = each.key
-  protocol          = lower(each.value)
-  security_group_id = aws_security_group.k3s-ec2.id
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "k3s-ec2-ingress-self-lb-public-udphealthcheck" {
-  for_each          = length(var.public_access.load_balancer_ports) > 0 ? { 10250 = "TCP" } : {}
-  type              = "ingress"
-  from_port         = each.key
-  to_port           = each.key
-  protocol          = lower(each.value)
-  security_group_id = aws_security_group.k3s-ec2.id
-  cidr_blocks       = [for net in aws_subnet.k3s-public : net.cidr_block]
-}
-
 resource "aws_security_group_rule" "k3s-ec2-egress-world" {
-  for_each          = var.public_access.nat_gateways ? { public = "true" } : {}
+  for_each          = var.nat_gateways ? { public = "true" } : {}
   type              = "egress"
   from_port         = 0
   to_port           = 65535

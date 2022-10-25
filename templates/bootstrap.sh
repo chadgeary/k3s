@@ -9,9 +9,11 @@ K3S_TAR_PATH="/var/lib/rancher/k3s/agent/images"
 K3S_TAR_FILE="k3s-airgap-images"
 K3S_INSTALL_PATH="/usr/local/bin"
 K3S_INSTALL_FILE="install.sh"
+HELM_BIN_FILE="helm"
+CHARTS_PATH="/opt/charts"
 K3S_DATASTORE_ENDPOINT="postgres://$PREFIX$SUFFIX:$DB_PASS@$DB_ENDPOINT/$PREFIX$SUFFIX"
 INSTALL_K3S_SKIP_DOWNLOAD="true"
-export ARCH DB_PASS K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD
+export ARCH DB_PASS K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD HELM_BIN_FILE CHARTS_PATH
 
 # k3s binary
 if [ -f "$K3S_BIN_PATH/$K3S_BIN_FILE" ]; then
@@ -63,8 +65,15 @@ if [ "$K3S_NODEGROUP" == "master" ]; then
     if [ "$ARCH" == "aarch64" ]; then
         echo "tainting node (arm64:NoSchedule)"
         /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        taint --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch=arm64:NoSchedule
+            taint --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch=arm64:NoSchedule
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+            label --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch="arm64"
+    else
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+            label --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch="amd64"
     fi
 
     echo "copying kube config to s3 (private)"
@@ -72,6 +81,58 @@ if [ "$K3S_NODEGROUP" == "master" ]; then
         echo -n "."
         aws --region "$AWS_REGION" s3 cp /etc/rancher/k3s/k3s.yaml s3://"$PREFIX"-"$SUFFIX"-private/data/k3s/config && echo "" && break || sleep 1
     done
+
+    # helm
+    if [ -f "$K3S_BIN_PATH/$HELM_BIN_FILE" ]; then
+        echo "helm exists, skipping"
+    else
+        aws --region "$AWS_REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$HELM_BIN_FILE"-"$ARCH".tar.gz /opt/"$HELM_BIN_FILE"-"$ARCH".tar.gz
+        if [ "$ARCH" == "aarch64" ]; then
+            tar -zx -f /opt/"$HELM_BIN_FILE"-"$ARCH".tar.gz --strip-components=1 --directory "$K3S_BIN_PATH" "linux-arm64/helm"
+        else
+            tar -zx -f /opt/"$HELM_BIN_FILE"-"$ARCH".tar.gz --strip-components=1 --directory "$K3S_BIN_PATH" "linux-amd64/helm"
+        fi
+        chmod +x "$K3S_BIN_PATH"/"$HELM_BIN_FILE"
+    fi
+
+    # chart(s)
+    mkdir -p "$CHARTS_PATH"
+    aws --region "$AWS_REGION" s3 sync s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/charts/ "$CHARTS_PATH"/
+    tee "$CHARTS_PATH"/aws_vpc_cni_values.yaml <<EOM
+env:
+  ANNOTATE_POD_IP: "false"
+  AWS_DEFAULT_REGION: $AWS_REGION
+  AWS_STS_REGIONAL_ENDPOINTS: "regional"
+  AWS_ROLE_ARN: arn:aws:iam::$ACCOUNT:role/$PREFIX-$SUFFIX-awsvpccni
+  AWS_WEB_IDENTITY_TOKEN_FILE: "/var/run/secrets/serviceaccount/token"
+  CLUSTER_NAME: $PREFIX-$SUFFIX
+extraVolumeMounts:
+  - mountPath: /var/run/secrets/serviceaccount/
+    name: serviceaccount
+extraVolumes:
+  - name: serviceaccount
+    projected:
+      sources:
+        - serviceAccountToken:
+            path: token
+            expirationSeconds: 43200
+            audience: $PREFIX-$SUFFIX
+cri:
+  hostPath:
+    path: /run/k3s/containerd/containerd.sock
+init:
+  image:
+    region: $AWS_REGION
+image:
+  region: $AWS_REGION
+tolerations:
+  - operator: "Exists"
+EOM
+
+    # install(s)
+    helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+      --namespace kube-system aws-vpc-cni -f "$CHARTS_PATH"/aws_vpc_cni_values.yaml \
+      "$CHARTS_PATH"/aws-vpc-cni.tgz
 
     echo "generating oidc script and systemd service+timer"
     tee /usr/local/bin/oidc << EOM
@@ -136,8 +197,15 @@ mirrors:
   "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     endpoint:
       - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
+  "$AWS_ADDON_URI":
+    endpoint:
+      - "https://$AWS_ADDON_URI"
 configs:
   "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+  "$AWS_ADDON_URI":
     auth:
       username: AWS
       password: \$ECR_PASSWORD
@@ -199,8 +267,15 @@ else
     if [ "$ARCH" == "aarch64" ]; then
         echo "tainting node (arm64:NoSchedule)"
         /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        taint --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch=arm64:NoSchedule
+            taint --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch=arm64:NoSchedule
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+            label --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch="arm64"
+    else
+        /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+            label --overwrite=true node "$(hostname -f)" \
+            kubernetes.io/arch="amd64"
     fi
 
     echo "generating registries script and systemd service+timer"
@@ -216,8 +291,15 @@ mirrors:
   "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
     endpoint:
       - "https://$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
+  "$AWS_ADDON_URI":
+    endpoint:
+      - "https://$AWS_ADDON_URI"
 configs:
   "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com":
+    auth:
+      username: AWS
+      password: \$ECR_PASSWORD
+  "$AWS_ADDON_URI":
     auth:
       username: AWS
       password: \$ECR_PASSWORD

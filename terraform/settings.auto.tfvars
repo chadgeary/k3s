@@ -20,11 +20,14 @@ log_retention_in_days = 30 # 0 = never expire
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
 urls = {
-  k3s_bin-arm64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
-  k3s_bin-x86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
-  k3s_tar-arm64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
-  k3s_tar-x86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
-  k3s_install    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+  AWS_VPC_CNI    = "https://aws.github.io/eks-charts/aws-vpc-cni-1.1.21.tgz"
+  HELM_ARM64     = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
+  HELM_X86_64    = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
+  K3S_INSTALL    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+  K3S_BIN_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
+  K3S_BIN_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
+  K3S_TAR_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
+  K3S_TAR_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
 }
 
 ## Secrets
@@ -54,7 +57,7 @@ amis = {
 container_images = [
   "k8s.gcr.io/autoscaling/cluster-autoscaler-arm64:v1.25.0",
   "k8s.gcr.io/autoscaling/cluster-autoscaler-amd64:v1.25.0",
-  "amazon/aws-cli:arm64"
+  "amazon/aws-cli:arm64",
 ]
 
 ## Node groups via asgs
@@ -109,10 +112,5 @@ rds = {
   storage_type            = "standard"
 }
 
-# public access permits inbound/outbound internet access
-# inbound via load balancer (network), e.g. { 30000 = "TCP" }
-# outbound via nat gateway(s)
-public_access = {
-  load_balancer_ports = { }
-  nat_gateways        = false
-}
+# outbound public access via nat_gateways (per az)
+nat_gateways = false

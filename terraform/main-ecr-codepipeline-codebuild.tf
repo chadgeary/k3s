@@ -1,11 +1,7 @@
-resource "aws_ecr_pull_through_cache_rule" "k3s-ecr" {
-  ecr_repository_prefix = "${local.prefix}-${local.suffix}-ecr"
-  upstream_registry_url = "public.ecr.aws"
-}
-
-resource "aws_ecr_pull_through_cache_rule" "k3s-quay" {
-  ecr_repository_prefix = "${local.prefix}-${local.suffix}-quay"
-  upstream_registry_url = "quay.io"
+resource "aws_ecr_pull_through_cache_rule" "k3s" {
+  for_each              = local.ecr_pull_through_caches
+  ecr_repository_prefix = "${local.prefix}-${local.suffix}-${each.key}"
+  upstream_registry_url = each.value
 }
 
 resource "aws_ecr_repository" "k3s-codebuild" {
@@ -20,44 +16,6 @@ resource "aws_ecr_repository" "k3s-codebuild" {
   tags = {
     Name = "${local.prefix}-${local.suffix}-codebuild"
   }
-}
-
-data "archive_file" "containers" {
-  for_each = toset(var.container_images)
-  type     = "zip"
-  source {
-    content = templatefile(
-      "../templates/dockerfile.tftpl",
-      {
-        IMAGE = element(split(":", each.key), 0)
-        TAG   = element(split(":", each.key), 1)
-    })
-    filename = "Dockerfile"
-  }
-  source {
-    content = templatefile(
-      "../templates/buildspec.yml.tftpl",
-      {
-        IMAGE   = element(split(":", each.key), 0)
-        TAG     = element(split(":", each.key), 1)
-        ACCOUNT = data.aws_caller_identity.k3s.account_id
-        REGION  = var.aws_region
-        PREFIX  = local.prefix
-        SUFFIX  = local.suffix
-    })
-    filename = "buildspec.yml"
-  }
-  output_path = "./containers/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
-}
-
-resource "aws_s3_object" "containers" {
-  for_each       = fileset("./containers/", "*.zip")
-  bucket         = aws_s3_bucket.k3s-private.id
-  key            = "containers/${each.value}"
-  content_base64 = filebase64("./containers/${each.value}")
-  kms_key_id     = aws_kms_key.k3s["s3"].arn
-
-  depends_on = [data.archive_file.containers]
 }
 
 resource "aws_codebuild_project" "k3s" {
@@ -131,5 +89,5 @@ resource "aws_codepipeline" "k3s" {
     }
   }
 
-  depends_on = [data.archive_file.containers]
+  depends_on = [aws_s3_object.containers]
 }

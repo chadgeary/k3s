@@ -17,8 +17,7 @@ terraform apply
 ## Features
 * offline
   * cluster has no direct internet access
-    * enable egress over NAT gateway(s) with `var.public_access.nat_gateways = true`
-    * enable ingress over NLB with `var.public_access.load_balancer_ports = { <port_number> = <port_protocol>, ... }`
+    * enable egress over NAT gateway(s) with `var.nat_gateways = true`
   * pod containers available via (see tf output):
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
