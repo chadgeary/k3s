@@ -22,15 +22,13 @@ log_retention_in_days = 30 # 0 = never expire
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
 urls = {
-  AWS_CLOUD_CONTROLLER = "https://github.com/kubernetes/cloud-provider-aws/releases/download/helm-chart-aws-cloud-controller-manager-0.0.7/aws-cloud-controller-manager-0.0.7.tgz"
-  AWS_VPC_CNI          = "https://aws.github.io/eks-charts/aws-vpc-cni-1.1.21.tgz"
-  HELM_ARM64           = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
-  HELM_X86_64          = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
-  K3S_INSTALL          = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
-  K3S_BIN_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
-  K3S_BIN_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
-  K3S_TAR_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
-  K3S_TAR_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
+  HELM_ARM64     = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
+  HELM_X86_64    = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
+  K3S_INSTALL    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+  K3S_BIN_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
+  K3S_BIN_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
+  K3S_TAR_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
+  K3S_TAR_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
 }
 
 ## Secrets

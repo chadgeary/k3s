@@ -67,10 +67,6 @@ def lambda_handler(event, context):
     if event["files"] == "k3s-bin":
 
         urls = {
-            "data/downloads/charts/aws-cloud-controller-manager.tgz": os.environ[
-                "AWS_CLOUD_CONTROLLER"
-            ],
-            "data/downloads/charts/aws-vpc-cni.tgz": os.environ["AWS_VPC_CNI"],
             "data/downloads/k3s/k3s-x86_64": os.environ["K3S_BIN_X86_64"],
             "data/downloads/k3s/k3s-arm64": os.environ["K3S_BIN_ARM64"],
             "data/downloads/k3s/helm-x86_64.tar.gz": os.environ["HELM_X86_64"],

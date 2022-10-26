@@ -119,6 +119,12 @@ resource "aws_route_table" "k3s-public" {
   }
 }
 
+resource "aws_route_table_association" "k3s-public" {
+  for_each       = local.public_nets
+  subnet_id      = aws_subnet.k3s-public[each.key].id
+  route_table_id = aws_route_table.k3s-public.id
+}
+
 # if var.nat_gateways = true
 resource "aws_eip" "k3s" {
   for_each = var.nat_gateways ? local.public_nets : {}

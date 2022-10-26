@@ -68,7 +68,7 @@ resource "aws_lb" "k3s-public" {
 
 resource "aws_lb_target_group" "k3s-public" {
   for_each             = var.public_lb ? toset(["80", "443"]) : toset([])
-  port                 = each.key
+  port                 = tostring(tonumber(each.key) + 30000)
   name                 = "${local.prefix}-${local.suffix}-public-${each.key}"
   protocol             = "TCP"
   vpc_id               = aws_vpc.k3s.id
