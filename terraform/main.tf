@@ -10,8 +10,8 @@ resource "local_file" "k3s" {
   content = templatefile(
     "../templates/connect.sh.tftpl",
     {
-      PROFILE = var.aws_profile
-      REGION  = var.aws_region
+      PROFILE = var.profile
+      REGION  = var.region
       PREFIX  = local.prefix
       SUFFIX  = local.suffix
     }
@@ -25,7 +25,7 @@ resource "local_file" "irsa" {
     "../templates/irsa.yaml.tftpl",
     {
       ACCOUNT  = data.aws_caller_identity.k3s.account_id
-      REGION   = var.aws_region
+      REGION   = var.region
       ROLE_ARN = aws_iam_role.k3s-irsa.arn
       PREFIX   = local.prefix
       SUFFIX   = local.suffix

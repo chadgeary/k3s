@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "k3s-ec2-passrole" {
     condition {
       test     = "StringLike"
       variable = "iam:AssociatedResourceArn"
-      values   = ["arn:${data.aws_partition.k3s.partition}:autoscaling:${var.aws_region}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}"]
+      values   = ["arn:${data.aws_partition.k3s.partition}:autoscaling:${var.region}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}"]
     }
   }
 }
@@ -119,10 +119,17 @@ data "aws_iam_policy_document" "k3s-ec2" {
   }
 
   statement {
-    sid = "Etc"
+    sid = "cloudprovider"
     actions = [
-      "logs:DescribeLogStreams",
-      "logs:DescribeLogGroups",
+      "ec2:DescribeInstances",
+      "ec2:DescribeRegions",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:GetRepositoryPolicy",
+      "ecr:DescribeRepositories",
+      "ecr:ListImages",
+      "ecr:BatchGetImage"
     ]
     effect    = "Allow"
     resources = ["*"]

@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       condition {
         test     = "StringEquals"
         variable = "kms:ViaService"
-        values   = ["codebuild.${var.aws_region}.amazonaws.com"]
+        values   = ["codebuild.${var.region}.amazonaws.com"]
       }
     }
   }
@@ -62,15 +62,15 @@ data "aws_iam_policy_document" "k3s-kms" {
       resources = ["*"]
       principals {
         type        = "Service"
-        identifiers = ["logs.${var.aws_region}.amazonaws.com"]
+        identifiers = ["logs.${var.region}.amazonaws.com"]
       }
       condition {
         test     = "ArnEquals"
         variable = "kms:EncryptionContext:aws:logs:arn"
         values = [
-          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
-          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-*",
-          "arn:${data.aws_partition.k3s.partition}:logs:${var.aws_region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-*"
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/ec2/${local.prefix}-${local.suffix}",
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/lambda/${local.prefix}-${local.suffix}-*",
+          "arn:${data.aws_partition.k3s.partition}:logs:${var.region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-*"
         ]
       }
     }
@@ -139,7 +139,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       condition {
         test     = "StringEquals"
         variable = "kms:ViaService"
-        values   = ["lambda.${var.aws_region}.amazonaws.com"]
+        values   = ["lambda.${var.region}.amazonaws.com"]
       }
     }
   }

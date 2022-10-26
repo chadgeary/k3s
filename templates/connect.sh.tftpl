@@ -14,11 +14,11 @@ chmod 0600 ${ PREFIX }-${ SUFFIX }.config
 echo ""
 
 # Get an instance id
-echo "Polling for a running master to use as proxy"
+echo "Polling for a running control-plane to use as proxy"
 until aws --profile ${ PROFILE } --region ${ REGION } \
     ec2 describe-instances \
     --query 'Reservations[].Instances[] | [0].InstanceId' \
-    --filters Name=tag:Name,Values=master.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
+    --filters Name=tag:Name,Values=control-plane.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
     --output text | grep --quiet 'i-'
 do
   sleep 2
@@ -28,7 +28,7 @@ echo ""
 SSM_INSTANCE=$(aws --profile ${ PROFILE } --region ${ REGION } \
     ec2 describe-instances \
     --query 'Reservations[].Instances[] | [0].InstanceId' \
-    --filters Name=tag:Name,Values=master.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
+    --filters Name=tag:Name,Values=control-plane.${ PREFIX }-${ SUFFIX }.internal Name=instance-state-name,Values=running \
     --output text)
 
 # Forward k3s kubeapi port (6443)

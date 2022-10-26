@@ -9,21 +9,19 @@ resource "aws_security_group" "k3s-ec2" {
 }
 
 resource "aws_security_group_rule" "k3s-ec2-ingress-self-sg" {
-  for_each                 = toset(["443", "6443", "2379", "2380", "10250"])
   type                     = "ingress"
-  from_port                = each.value
-  to_port                  = each.value
-  protocol                 = "tcp"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "all"
   security_group_id        = aws_security_group.k3s-ec2.id
   source_security_group_id = aws_security_group.k3s-ec2.id
 }
 
 resource "aws_security_group_rule" "k3s-ec2-egress-self-sg" {
-  for_each                 = toset(["443", "6443", "2379", "2380", "10250"])
   type                     = "egress"
-  from_port                = each.value
-  to_port                  = each.value
-  protocol                 = "tcp"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "all"
   security_group_id        = aws_security_group.k3s-ec2.id
   source_security_group_id = aws_security_group.k3s-ec2.id
 }
@@ -47,11 +45,21 @@ resource "aws_security_group_rule" "k3s-ec2-egress-self-lb-private" {
 }
 
 resource "aws_security_group_rule" "k3s-ec2-egress-world" {
-  for_each          = var.nat_gateways ? { public = "true" } : {}
+  for_each          = var.nat_gateways || var.public_lb ? { public = "true" } : {}
   type              = "egress"
   from_port         = 0
   to_port           = 65535
   protocol          = "all"
+  security_group_id = aws_security_group.k3s-ec2.id
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "k3s-ec2-ingress-world" {
+  for_each          = var.public_lb ? toset(["80", "443"]) : toset([])
+  type              = "ingress"
+  from_port         = each.key
+  to_port           = each.key
+  protocol          = "tcp"
   security_group_id = aws_security_group.k3s-ec2.id
   cidr_blocks       = ["0.0.0.0/0"]
 }

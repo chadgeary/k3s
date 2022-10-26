@@ -21,7 +21,10 @@ resource "aws_launch_template" "k3s" {
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
-    http_put_response_hop_limit = 1
+    http_put_response_hop_limit = each.key == "control-plane" ? 2 : 1
+  }
+  private_dns_name_options {
+    hostname_type = "resource-name"
   }
 }
 
@@ -44,7 +47,7 @@ resource "aws_autoscaling_group" "k3s" {
       }
     }
   }
-  target_group_arns         = each.key == "master" ? [aws_lb_target_group.k3s-private.arn] : []
+
   service_linked_role_arn   = aws_iam_service_linked_role.k3s.arn
   termination_policies      = ["ClosestToNextInstanceHour"]
   min_size                  = each.value.scaling_count.min
@@ -55,6 +58,7 @@ resource "aws_autoscaling_group" "k3s" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [target_group_arns]
   }
 
   tag {
@@ -87,5 +91,5 @@ resource "aws_autoscaling_group" "k3s" {
     propagate_at_launch = true
   }
 
-  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.bootstrap, aws_iam_role_policy_attachment.k3s-ec2, aws_iam_role_policy_attachment.k3s-ec2-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
+  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.scripts, aws_iam_role_policy_attachment.k3s-ec2, aws_iam_role_policy_attachment.k3s-ec2-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
 }

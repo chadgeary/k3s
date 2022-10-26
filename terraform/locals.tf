@@ -18,7 +18,7 @@ locals {
     }
   }
 
-  vpces = toset(["ec2", "ec2messages", "ecr.api", "ecr.dkr", "kms", "logs", "ssm", "ssmmessages", "sts"])
+  vpces = toset(["ec2", "ec2messages", "ecr.api", "ecr.dkr", "elasticloadbalancing", "kms", "logs", "ssm", "ssmmessages", "sts"])
 
   subnet-vpce = merge([for subnet in aws_subnet.k3s-private : { for vpce in aws_vpc_endpoint.k3s-vpces : "${subnet.availability_zone}-${strrev(element(split(".", strrev(vpce.service_name)), 0))}" => { "subnet" = subnet.id, "vpce" = vpce.id } }]...)
 
@@ -52,9 +52,9 @@ locals {
     us-west-2      = "602401143452.dkr.ecr.us-west-2.amazonaws.com"
   }
 
-  ecr_pull_through_caches = data.aws_partition.k3s.partition == "aws" ? {} : {
+  ecr_pull_through_caches = data.aws_partition.k3s.partition == "aws" ? {
     quay = "quay.io"
     ecr  = "public.ecr.aws"
-  }
+  } : {}
 
 }

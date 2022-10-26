@@ -23,7 +23,7 @@ terraform apply
     * codebuild => ecr mirroring (`var.container_images`)
   * lambda fetches k3s installation dependencies
 * multiple scaling configurations
-  * node groups, including control plane (master)
+  * node groups, including control plane
     * multi-arch support (arm, x86, gpu)
   * datastore (RDS postgres)
   * availability zones

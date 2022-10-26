@@ -20,12 +20,12 @@ resource "aws_lambda_function" "k3s-oidcprovider" {
       BUCKET_PUBLIC  = aws_s3_bucket.k3s-public.id
       BUCKET_PRIVATE = aws_s3_bucket.k3s-private.id
       OBJECT_TIMEOUT = 800
-      REGION         = var.aws_region
+      REGION         = var.region
       PREFIX         = local.prefix
       SUFFIX         = local.suffix
     }
   }
-  depends_on = [aws_cloudwatch_log_group.k3s-lambda-oidcprovider, aws_autoscaling_group.k3s["master"]]
+  depends_on = [aws_cloudwatch_log_group.k3s-lambda-oidcprovider, aws_autoscaling_group.k3s["control-plane"]]
 }
 
 data "aws_lambda_invocation" "k3s-oidcprovider" {

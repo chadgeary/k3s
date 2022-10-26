@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "k3s-codepipeline" {
       "codebuild:StartBuild"
     ]
     effect    = "Allow"
-    resources = [aws_codebuild_project.k3s.arn]
+    resources = [aws_codebuild_project.k3s-arm64.arn, aws_codebuild_project.k3s-x86_64.arn]
   }
 
   statement {
@@ -59,7 +59,7 @@ data "aws_iam_policy_document" "k3s-codepipeline" {
       "iam:PassRole"
     ]
     effect    = "Allow"
-    resources = ["arn:${data.aws_partition.k3s.partition}:iam::${var.aws_region}:role/${local.prefix}-${local.suffix}-codepipeline"]
+    resources = ["arn:${data.aws_partition.k3s.partition}:iam::${var.region}:role/${local.prefix}-${local.suffix}-codepipeline"]
     condition {
       test     = "StringEqualsIfExists"
       variable = "iam:PassedToService"

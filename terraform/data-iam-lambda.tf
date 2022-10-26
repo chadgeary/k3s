@@ -152,6 +152,6 @@ data "aws_iam_policy_document" "k3s-lambda-oidcprovider" {
       "iam:TagOpenIDConnectProvider",
     ]
     effect    = "Allow"
-    resources = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:oidc-provider/s3.${var.aws_region}.amazonaws.com*"]
+    resources = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:oidc-provider/s3.${var.region}.amazonaws.com*"]
   }
 }

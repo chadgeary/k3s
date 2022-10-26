@@ -51,7 +51,7 @@ resource "aws_iam_role_policy_attachment" "k3s-codepipeline" {
   policy_arn = aws_iam_policy.k3s-codepipeline.arn
 }
 
-## instances
+## ec2
 resource "aws_iam_role" "k3s-ec2" {
   name               = "${local.prefix}-${local.suffix}-ec2"
   path               = "/"
@@ -153,21 +153,58 @@ resource "aws_iam_role_policy_attachment" "k3s-irsa" {
   policy_arn = aws_iam_policy.k3s-irsa.arn
 }
 
-## awsvpccni
-resource "aws_iam_role" "k3s-awsvpccni" {
-  name               = "${local.prefix}-${local.suffix}-awsvpccni"
+## aws-cloud-controller-manager
+resource "aws_iam_role" "k3s-aws-cloud-controller-manager" {
+  name               = "${local.prefix}-${local.suffix}-aws-cloud-controller-manager"
   path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.k3s-awsvpccni-trust.json
+  assume_role_policy = data.aws_iam_policy_document.k3s-aws-cloud-controller-manager-trust.json
   depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
 }
 
-resource "aws_iam_policy" "k3s-awsvpccni" {
-  name   = "${local.prefix}-${local.suffix}-awsvpccni"
+resource "aws_iam_policy" "k3s-aws-cloud-controller-manager" {
+  name   = "${local.prefix}-${local.suffix}-aws-cloud-controller-manager"
   path   = "/"
-  policy = data.aws_iam_policy_document.k3s-awsvpccni.json
+  policy = data.aws_iam_policy_document.k3s-aws-cloud-controller-manager.json
 }
 
-resource "aws_iam_role_policy_attachment" "k3s-awsvpccni" {
-  role       = aws_iam_role.k3s-awsvpccni.name
-  policy_arn = aws_iam_policy.k3s-awsvpccni.arn
+resource "aws_iam_role_policy_attachment" "k3s-aws-cloud-controller-manager" {
+  role       = aws_iam_role.k3s-aws-cloud-controller-manager.name
+  policy_arn = aws_iam_policy.k3s-aws-cloud-controller-manager.arn
 }
+
+## aws-vpc-cni
+resource "aws_iam_role" "k3s-aws-vpc-cni" {
+  name               = "${local.prefix}-${local.suffix}-aws-vpc-cni"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-aws-vpc-cni-trust.json
+  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
+}
+
+resource "aws_iam_policy" "k3s-aws-vpc-cni" {
+  name   = "${local.prefix}-${local.suffix}-aws-vpc-cni"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-aws-vpc-cni.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-aws-vpc-cni" {
+  role       = aws_iam_role.k3s-aws-vpc-cni.name
+  policy_arn = aws_iam_policy.k3s-aws-vpc-cni.arn
+}
+# ## awslbcontroller
+# resource "aws_iam_role" "k3s-awslbcontroller" {
+#   name               = "${local.prefix}-${local.suffix}-awslbcontroller"
+#   path               = "/"
+#   assume_role_policy = data.aws_iam_policy_document.k3s-awslbcontroller-trust.json
+#   depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
+# }
+
+# resource "aws_iam_policy" "k3s-awslbcontroller" {
+#   name   = "${local.prefix}-${local.suffix}-awslbcontroller"
+#   path   = "/"
+#   policy = data.aws_iam_policy_document.k3s-awslbcontroller.json
+# }
+
+# resource "aws_iam_role_policy_attachment" "k3s-awslbcontroller" {
+#   role       = aws_iam_role.k3s-awslbcontroller.name
+#   policy_arn = aws_iam_policy.k3s-awslbcontroller.arn
+# }

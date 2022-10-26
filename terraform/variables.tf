@@ -11,12 +11,12 @@ variable "suffix" {
 }
 
 # aws
-variable "aws_profile" {
+variable "profile" {
   type        = string
   description = "The aws profile to deploy the service"
 }
 
-variable "aws_region" {
+variable "region" {
   type        = string
   description = "The aws region to deploy the service"
 }
@@ -35,7 +35,7 @@ variable "urls" {
 
 # container images
 variable "container_images" {
-  type        = list(string)
+  type        = map(list(string))
   description = "Images to clone from public repositories to ECR"
 }
 
@@ -87,6 +87,11 @@ variable "azs" {
 }
 
 variable "nat_gateways" {
-  type = bool
+  type        = bool
   description = "Public internet access (outbound via nat_gateway(s))"
+}
+
+variable "public_lb" {
+  type        = bool
+  description = "An NLB on port 80 and 443 destined for 30080 and 30443 (nodeport range)"
 }

@@ -1,9 +1,18 @@
-resource "aws_cloudwatch_log_group" "k3s-codebuild" {
-  name              = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild"
+resource "aws_cloudwatch_log_group" "k3s-codebuild-arm64" {
+  name              = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild-arm64"
   retention_in_days = var.log_retention_in_days
   kms_key_id        = aws_kms_key.k3s["cw"].arn
   tags = {
-    Name = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild"
+    Name = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild-arm64"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "k3s-codebuild-x86_64" {
+  name              = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild-x86_64"
+  retention_in_days = var.log_retention_in_days
+  kms_key_id        = aws_kms_key.k3s["cw"].arn
+  tags = {
+    Name = "/aws/codebuild/${local.prefix}-${local.suffix}-codebuild-x86_64"
   }
 }
 

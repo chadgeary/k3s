@@ -16,17 +16,18 @@ resource "aws_lambda_function" "k3s-getk3s" {
   timeout          = 900
   environment {
     variables = {
-      AWS_VPC_CNI    = var.urls.AWS_VPC_CNI
-      HELM_ARM64     = var.urls.HELM_ARM64
-      HELM_X86_64    = var.urls.HELM_X86_64
-      K3S_INSTALL    = var.urls.K3S_INSTALL
-      K3S_BIN_ARM64  = var.urls.K3S_BIN_ARM64
-      K3S_BIN_X86_64 = var.urls.K3S_BIN_X86_64
-      K3S_TAR_ARM64  = var.urls.K3S_TAR_ARM64
-      K3S_TAR_X86_64 = var.urls.K3S_TAR_X86_64
-      BUCKET         = aws_s3_bucket.k3s-private.id
-      REGION         = var.aws_region
-      KEY            = aws_kms_key.k3s["s3"].arn
+      AWS_CLOUD_CONTROLLER = var.urls.AWS_CLOUD_CONTROLLER
+      AWS_VPC_CNI          = var.urls.AWS_VPC_CNI
+      HELM_ARM64           = var.urls.HELM_ARM64
+      HELM_X86_64          = var.urls.HELM_X86_64
+      K3S_INSTALL          = var.urls.K3S_INSTALL
+      K3S_BIN_ARM64        = var.urls.K3S_BIN_ARM64
+      K3S_BIN_X86_64       = var.urls.K3S_BIN_X86_64
+      K3S_TAR_ARM64        = var.urls.K3S_TAR_ARM64
+      K3S_TAR_X86_64       = var.urls.K3S_TAR_X86_64
+      BUCKET               = aws_s3_bucket.k3s-private.id
+      REGION               = var.region
+      KEY                  = aws_kms_key.k3s["s3"].arn
     }
   }
   depends_on = [aws_cloudwatch_log_group.k3s-lambda-getk3s]

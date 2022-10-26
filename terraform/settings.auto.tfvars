@@ -5,29 +5,32 @@ prefix = "k3s"
 suffix = ""
 
 ## AWS
-aws_profile = "default"
-aws_region  = "us-east-1"
+profile = "default"
+region  = "us-east-1"
 
 ## VPC
 # vpc_cidr is split across availability zones, minimum 2
-vpc_cidr = "172.16.0.0/16"
-azs      = 2
+vpc_cidr     = "172.16.0.0/16"
+azs          = 2
+nat_gateways = false
+public_lb    = true # 80, 443
 
 ## Logs
-# lambda, ec2
+# codebuild, lambda
 log_retention_in_days = 30 # 0 = never expire
 
 ## URLs
 # Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
 urls = {
-  AWS_VPC_CNI    = "https://aws.github.io/eks-charts/aws-vpc-cni-1.1.21.tgz"
-  HELM_ARM64     = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
-  HELM_X86_64    = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
-  K3S_INSTALL    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
-  K3S_BIN_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
-  K3S_BIN_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
-  K3S_TAR_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
-  K3S_TAR_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
+  AWS_CLOUD_CONTROLLER = "https://github.com/kubernetes/cloud-provider-aws/releases/download/helm-chart-aws-cloud-controller-manager-0.0.7/aws-cloud-controller-manager-0.0.7.tgz"
+  AWS_VPC_CNI          = "https://aws.github.io/eks-charts/aws-vpc-cni-1.1.21.tgz"
+  HELM_ARM64           = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
+  HELM_X86_64          = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
+  K3S_INSTALL          = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+  K3S_BIN_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
+  K3S_BIN_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
+  K3S_TAR_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
+  K3S_TAR_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
 }
 
 ## Secrets
@@ -43,9 +46,9 @@ secrets = {
 # The Amazon Linux AMI name string and account number.
 # ARM equivalent instances cost less and are used by the control plane (and RDS)
 # To find your region's AMI, replace us-east-1 with your region, then run the command:
-# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $AWS_REGION
-# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $AWS_REGION
-# AWS_REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended --region $AWS_REGION
+# REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $REGION
+# REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $REGION
+# REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended --region $REGION
 amis = {
   arm64  = "amzn2-ami-hvm-*-arm64-gp2"
   x86_64 = "amzn2-ami-hvm-*-x86_64-gp2"
@@ -54,17 +57,20 @@ amis = {
 
 ## Container Images
 # Images not available on Public ECR or Quay.io cloned to Private ECR via codebuild
-container_images = [
-  "k8s.gcr.io/autoscaling/cluster-autoscaler-arm64:v1.25.0",
-  "k8s.gcr.io/autoscaling/cluster-autoscaler-amd64:v1.25.0",
-  "amazon/aws-cli:arm64",
-]
+container_images = {
+  arm64 = [
+    "amazon/aws-cli:arm64",
+  ]
+  x86_64 = [
+    "amazon/aws-cli:amd64"
+  ]
+}
 
 ## Node groups via asgs
 # Instance types @ https://instances.vantage.sh/
-# at least one group must be named 'master'
+# one group must be named 'control-plane'
 nodegroups = {
-  master = {
+  control-plane = {
     ami = "arm64"
     scaling_count = {
       min = 1
@@ -79,8 +85,8 @@ nodegroups = {
   generalpurpose = {
     ami = "x86_64"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 0
+      max = 0
     }
     volume = {
       gb   = 100
@@ -112,5 +118,4 @@ rds = {
   storage_type            = "standard"
 }
 
-# outbound public access via nat_gateways (per az)
-nat_gateways = false
+
