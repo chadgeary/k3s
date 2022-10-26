@@ -17,23 +17,27 @@ terraform apply
 ## Features
 * offline
   * cluster has no direct internet access
-    * enable egress over NAT gateway(s) with `var.nat_gateways = true`
-  * pod containers available via (see tf output):
+  * enable egress w/ `var.nat_gateways = true`
+  * enable ingress w/ `var.public_lb = true`
+  * container images available via (see tf output):
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
   * lambda fetches k3s installation dependencies
 * multiple scaling configurations
-  * node groups, including control plane
-    * multi-arch support (arm, x86, gpu)
+  * individual node group components, including the control-plane
+    * autoscaling group min/max
+    * instance types
+    * architecture (arm, x86, gpu)
+    * local storage
   * datastore (RDS postgres)
   * availability zones
-* interact with cluster API via SSM PortForwardSession
-  * script included, see example image
-  * works with kubectl, helm, k9s, lens, etc.
 * IRSA (IAM roles for Service Accounts) support
   * OIDC endpoint enrollment via s3 bucket static page
   * lambda managed aws identity provider
   * usage example: `terraform/manifests/irsa.yaml` after apply
+* interact with cluster API via SSM PortForwardSession
+  * script included, see example image
+  * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key, bucket, iam, and trust policies

@@ -13,7 +13,7 @@ region  = "us-east-1"
 vpc_cidr     = "172.16.0.0/16"
 azs          = 2
 nat_gateways = false
-public_lb    = true # 80, 443
+public_lb    = true # NLB forwards 80=>30080, 443=>30443
 
 ## Logs
 # codebuild, lambda
@@ -65,7 +65,6 @@ container_images = {
 }
 
 ## Node groups via asgs
-# Instance types @ https://instances.vantage.sh/
 # one group must be named 'control-plane'
 nodegroups = {
   control-plane = {
@@ -80,7 +79,7 @@ nodegroups = {
     }
     instance_types = ["t4g.micro"]
   }
-  generalpurpose = {
+  generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
       min = 0
