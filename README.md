@@ -25,9 +25,10 @@ terraform apply
     * codebuild => ecr mirroring (`var.container_images`)
   * lambda fetches k3s installation dependencies
 * multiple scaling configurations
-  * individual node group components, including the control-plane
-    * autoscaling group min/max
-    * instance types
+  * create any number of node groups
+  * define the following components per node group, including the control-plane
+    * node count (min/max)
+    * instance type
     * architecture (arm, x86, gpu)
     * local storage
   * datastore (RDS postgres)
