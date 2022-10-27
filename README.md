@@ -7,10 +7,12 @@ Deploys a low-cost, scalable, private K3s cluster on AWS.
 
 ## Deploy
 ```shell
-# customize/edit settings.auto.tfvars
+cd terraform/
+
+# customize settings.auto.tfvars
 
 # init and apply
-terraform init --upgrade
+terraform init
 terraform apply
 ```
 
