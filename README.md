@@ -23,7 +23,7 @@ terraform apply
   * container images available via (see tf output):
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
-  * lambda fetches k3s installation dependencies
+  * lambda+ssm manage k3s' [airgap](https://docs.k3s.io/installation/airgap) installation
 * multiple scaling configurations
   * create any number of node groups
   * define the following components per node group, including the control-plane
