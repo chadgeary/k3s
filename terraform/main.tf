@@ -32,3 +32,17 @@ resource "local_file" "irsa" {
     }
   )
 }
+
+resource "local_file" "website" {
+  filename        = "./manifests/website.yaml"
+  file_permission = "0600"
+  content = templatefile(
+    "../templates/website.yaml.tftpl",
+    {
+      ACCOUNT  = data.aws_caller_identity.k3s.account_id
+      REGION   = var.region
+      PREFIX   = local.prefix
+      SUFFIX   = local.suffix
+    }
+  )
+}

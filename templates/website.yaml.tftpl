@@ -45,7 +45,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: 927765134734.dkr.ecr.us-east-1.amazonaws.com/k3s-p9-ecr/docker/library/nginx
+    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-ecr/docker/library/nginx
     resources:
       limits:
         memory: "48Mi"
