@@ -38,7 +38,7 @@ terraform apply
   * lambda manages aws identity provider
   * example use: `terraform/manifests/irsa.yaml` after apply
 * interact with cluster API via SSM PortForwardSession
-  * script (`./terraform/connect.sh`) included, see example image
+  * post-apply use `./terraform/connect.sh`, see example image
   * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
