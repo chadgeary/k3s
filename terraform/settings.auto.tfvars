@@ -42,7 +42,7 @@ secrets = {
 
 ## AMIs
 # The Amazon Linux AMI name string and account number.
-# ARM equivalent instances cost less and are used by the control plane (and RDS)
+# ARM equivalent instances cost less and may be used by the control plane (and RDS)
 # To find your region's AMI, replace us-east-1 with your region, then run the command:
 # REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2 --region $REGION
 # REGION=us-east-1 && aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --region $REGION
@@ -54,7 +54,7 @@ amis = {
 }
 
 ## Container Images
-# Images not available on Public ECR or Quay.io cloned to Private ECR via codebuild
+# Images cloned to Private ECR via codebuild
 container_images = {
   arm64 = [
     "amazon/aws-cli:arm64",
@@ -64,7 +64,7 @@ container_images = {
   ]
 }
 
-## Node groups via asgs
+## Node groups via ASGs
 # one group must be named 'control-plane'
 nodegroups = {
   control-plane = {

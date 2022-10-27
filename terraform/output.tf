@@ -10,8 +10,10 @@ ${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/$
 %{for container in var.container_images["arm64"]}${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-codebuild/arm64/${container}
 %{endfor}%{for container in var.container_images["x86_64"]}${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-codebuild/x86_64/${container}
 %{endfor}
+%{ if var.public_lb }# Public Endpoint (80, 443): ${aws_lb.k3s-public["public"].dns_name}
+%{ endif }
 # To fetch the kubeconfig from s3
-# and open a tunnel to the k3s API
+# and open a tunnel to the k3s cluster
 ./connect.sh
 EOT
 
