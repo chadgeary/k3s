@@ -16,10 +16,10 @@ terraform apply
 
 ## Features
 * offline
-  * cluster has no direct internet access
-  * enable egress w/ `var.nat_gateways = true`
-  * enable ingress w/ `var.public_lb = true`
-    * example: `terraform/manifests/nginx.yaml`
+  * cluster functions without direct internet access
+    * enable egress w/ `var.nat_gateways = true`
+    * enable ingress w/ `var.public_lb = true`
+      * example use: `terraform/manifests/nginx.yaml`
   * container images available via (see tf output):
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
