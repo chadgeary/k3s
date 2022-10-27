@@ -35,10 +35,10 @@ terraform apply
   * availability zones
 * IRSA (IAM roles for Service Accounts) support
   * OIDC endpoint enrollment via s3 bucket static page
-  * lambda managed aws identity provider
-  * example: `terraform/manifests/irsa.yaml` after apply
+  * lambda manages aws identity provider
+  * example use: `terraform/manifests/irsa.yaml` after apply
 * interact with cluster API via SSM PortForwardSession
-  * script included, see example image
+  * script (`./terraform/connect.sh`) included, see example image
   * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
