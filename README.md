@@ -40,10 +40,13 @@ terraform apply
 * interact with cluster API via SSM PortForwardSession
   * post-apply: `./terraform/connect.sh`, see example image
   * works with kubectl, helm, k9s, lens, etc.
-* Includes AWS Cloud Controller, AWS LB Controller, and Calico CNI w/ IRSA
 * strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key, bucket, iam, and trust policies
+* included charts:
+  * aws cloud controller + lb controller
+  * calico cni via tigera-operator
+  * external-dns (if `var.nat_gateways = true`)
 
 ![Output](k3s.png)
 
