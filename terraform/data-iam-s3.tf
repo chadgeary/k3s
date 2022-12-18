@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.k3s-ec2.arn]
+      identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn]
     }
   }
 
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.k3s-ec2.arn]
+      identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn]
     }
   }
 

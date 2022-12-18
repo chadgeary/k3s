@@ -91,4 +91,33 @@ def lambda_handler(event, context):
                     )
                 print(key + " put to s3.")
 
+    # k3s binary and install.sh
+    if event["files"] == "k3s-charts":
+
+        urls = {
+            "data/downloads/charts/aws-cloud-controller-manager.tgz": os.environ[
+                "AWS_CLOUD_CONTROLLER"
+            ],
+            "data/downloads/charts/calico.tgz": os.environ["CALICO"],
+            "data/downloads/charts/external-dns.tgz": os.environ["EXTERNAL_DNS"],
+            "data/downloads/charts/aws-lb-controller.tgz": os.environ["AWS_LB_CONTROLLER"]
+        }
+        for key in urls:
+            s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))
+            if len(s3_object) > 0 and s3_object[0].key == key:
+                print(key + " exists, skipping.")
+            else:
+                print(key + " not found, downloading.")
+                with urlopen(urls[key]):
+                    s3.meta.client.upload_fileobj(
+                        http.request("GET", urls[key], preload_content=False),
+                        os.environ["BUCKET"],
+                        key,
+                        ExtraArgs={
+                            "ServerSideEncryption": "aws:kms",
+                            "SSEKMSKeyId": os.environ["KEY"],
+                        },
+                    )
+                print(key + " put to s3.")
+
     return {"statusCode": 200, "body": json.dumps("Complete")}

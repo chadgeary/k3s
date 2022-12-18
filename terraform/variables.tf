@@ -78,7 +78,12 @@ variable "secrets" {
 # vpc
 variable "vpc_cidr" {
   type        = string
-  description = "The subnet in CIDR notation used for VPC/Subnets"
+  description = "The network in CIDR notation used by AWS for VPC+Subnets"
+}
+
+variable "pod_cidr" {
+  type        = string
+  description = "The network in CIDR notation used by Calico for pods"
 }
 
 variable "azs" {
@@ -89,9 +94,4 @@ variable "azs" {
 variable "nat_gateways" {
   type        = bool
   description = "Public internet access (outbound via nat_gateway(s))"
-}
-
-variable "public_lb" {
-  type        = bool
-  description = "An NLB on port 80 and 443 destined for 30080 and 30443 (nodeport range)"
 }

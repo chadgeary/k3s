@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-example
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-nginx-deny
+spec:
+  selector: projectcalico.org/namespace in  {'nginx-example'}
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-ingress
+  namespace: advanced-policy-demo
+spec:
+  selector: app == 'nginx-example'
+  types:
+  - Ingress
+  ingress:
+  - action: Allow
+    source:
+      nets: ["0.0.0.0/0"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-example
+  namespace: nginx-example
+data:
+  index.html: |
+    <marquee
+      direction="down"
+      width="480"
+      height="320"
+      behavior="alternate"
+      style="border:solid;font-size:100px">
+      <marquee behavior="alternate">&#128019;</marquee>
+      <marquee behavior="alternate">&#128019;</marquee>
+      <marquee behavior="alternate">&#128019;</marquee>
+    </marquee>
+    </html>
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: nginx-example
+  labels:
+    app: nginx-example
+spec:
+  containers:
+  - name: nginx
+    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-ecr/docker/library/nginx
+    resources:
+      limits:
+        memory: "48Mi"
+        cpu: "100m"
+    ports:
+    - containerPort: 80
+    volumeMounts:
+        - name: nginx-example
+          mountPath: /usr/share/nginx/html/
+  restartPolicy: Never
+  tolerations:
+    - operator: "Exists"
+  volumes:
+  - name: nginx-example
+    configMap:
+      name: nginx-example
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-example
+  name: nginx-example
+  namespace: nginx-example
+spec:
+  selector:
+    app: nginx-example
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-example
+  namespace: nginx-example
+  annotations:
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /.*
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 30080

@@ -31,13 +31,19 @@ data "aws_iam_policy_document" "k3s-aws-cloud-controller-manager" {
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSubnets",
       "ec2:DescribeVolumes",
+      "ec2:DescribeAvailabilityZones",
       "ec2:CreateSecurityGroup",
       "ec2:CreateTags",
+      "ec2:CreateVolume",
       "ec2:ModifyInstanceAttribute",
+      "ec2:ModifyVolume",
+      "ec2:AttachVolume",
       "ec2:AuthorizeSecurityGroupIngress",
       "ec2:CreateRoute",
       "ec2:DeleteRoute",
       "ec2:DeleteSecurityGroup",
+      "ec2:DeleteVolume",
+      "ec2:DetachVolume",
       "ec2:RevokeSecurityGroupIngress",
       "ec2:DescribeVpcs",
       "elasticloadbalancing:AddTags",
@@ -71,6 +77,7 @@ data "aws_iam_policy_document" "k3s-aws-cloud-controller-manager" {
       "elasticloadbalancing:DeregisterTargets",
       "elasticloadbalancing:SetLoadBalancerPoliciesOfListener",
       "iam:CreateServiceLinkedRole",
+      "kms:DescribeKey"
     ]
     effect    = "Allow"
     resources = ["*"]

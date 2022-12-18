@@ -39,10 +39,10 @@ resource "local_file" "website" {
   content = templatefile(
     "../templates/website.yaml.tftpl",
     {
-      ACCOUNT  = data.aws_caller_identity.k3s.account_id
-      REGION   = var.region
-      PREFIX   = local.prefix
-      SUFFIX   = local.suffix
+      ACCOUNT = data.aws_caller_identity.k3s.account_id
+      REGION  = var.region
+      PREFIX  = local.prefix
+      SUFFIX  = local.suffix
     }
   )
 }

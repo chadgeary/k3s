@@ -91,7 +91,7 @@ resource "aws_ssm_association" "k3s" {
     s3_key_prefix  = "ssm/${each.key}"
   }
   parameters = {
-    EnvVars         = "AWS_ADDON_URI=${local.aws_addon_uris[var.region]} ACCOUNT=${data.aws_caller_identity.k3s.account_id} REGION=${var.region} PREFIX=${local.prefix} SUFFIX=${local.suffix} DB_ENDPOINT=${aws_db_instance.k3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443 SECGROUP=${aws_security_group.k3s-ec2.id} VPC=${aws_vpc.k3s.id}"
+    EnvVars         = "AWS_ADDON_URI=${local.aws_addon_uris[var.region]} ACCOUNT=${data.aws_caller_identity.k3s.account_id} REGION=${var.region} PREFIX=${local.prefix} SUFFIX=${local.suffix} DB_ENDPOINT=${aws_db_instance.k3s.endpoint} K3S_NODEGROUP=${each.key} K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443 SECGROUP=${aws_security_group.k3s-ec2.id} VPC=${aws_vpc.k3s.id} POD_CIDR=${var.pod_cidr} NAT_GATEWAYS=${tostring(var.nat_gateways)}"
     ShellScriptFile = "bootstrap.sh"
     SourceInfo      = "{\"path\":\"https://s3.${var.region}.amazonaws.com/${aws_s3_bucket.k3s-private.id}/scripts/\"}"
     SourceType      = "S3"

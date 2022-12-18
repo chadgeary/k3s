@@ -11,24 +11,33 @@ region  = "us-east-1"
 ## VPC
 # vpc_cidr is split across availability zones, minimum 2
 vpc_cidr     = "172.16.0.0/16"
+pod_cidr     = "172.17.0.0/16"
 azs          = 2
 nat_gateways = false
-public_lb    = true # NLB forwards 80=>30080, 443=>30443
 
 ## Logs
 # codebuild, lambda
 log_retention_in_days = 30 # 0 = never expire
 
 ## URLs
-# Where K3s is downloaded from (via lambda to s3 for ec2s to pickup offline)
+# helm @ https://github.com/helm/helm/releases
+# k3s @ https://github.com/k3s-io/k3s/releases
+# cloud controller @ https://kubernetes.github.io/cloud-provider-aws/index.yaml
+# lb controller @ https://aws.github.io/eks-charts/index.yaml
+# calico @ https://projectcalico.docs.tigera.io/charts/index.yaml
+# external-dns @ https://charts.bitnami.com/bitnami/index.yaml
 urls = {
-  HELM_ARM64     = "https://get.helm.sh/helm-v3.10.1-linux-arm64.tar.gz"
-  HELM_X86_64    = "https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz"
-  K3S_INSTALL    = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
-  K3S_BIN_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-arm64"
-  K3S_BIN_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s"
-  K3S_TAR_ARM64  = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-arm64.tar"
-  K3S_TAR_X86_64 = "https://github.com/k3s-io/k3s/releases/download/v1.25.2%2Bk3s1/k3s-airgap-images-amd64.tar"
+  HELM_ARM64           = "https://get.helm.sh/helm-v3.10.3-linux-arm64.tar.gz"
+  HELM_X86_64          = "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
+  K3S_INSTALL          = "https://raw.githubusercontent.com/k3s-io/k3s/master/install.sh"
+  K3S_BIN_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-arm64"
+  K3S_BIN_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s"
+  K3S_TAR_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-arm64.tar"
+  K3S_TAR_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-amd64.tar"
+  AWS_CLOUD_CONTROLLER = "https://github.com/kubernetes/cloud-provider-aws/releases/download/helm-chart-aws-cloud-controller-manager-0.0.7/aws-cloud-controller-manager-0.0.7.tgz"
+  AWS_LB_CONTROLLER    = "https://aws.github.io/eks-charts/aws-load-balancer-controller-1.4.6.tgz"
+  CALICO               = "https://github.com/projectcalico/calico/releases/download/v3.24.5/tigera-operator-v3.24.5.tgz"
+  EXTERNAL_DNS         = "https://charts.bitnami.com/bitnami/external-dns-6.12.1.tgz"
 }
 
 ## Secrets
@@ -58,9 +67,13 @@ amis = {
 container_images = {
   arm64 = [
     "amazon/aws-cli:arm64",
+    "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1", # ensure scripts/charts.sh ref is up-to-date
+    "ghcr.io/zcube/bitnami-compat/external-dns:0"
   ]
   x86_64 = [
-    "amazon/aws-cli:amd64"
+    "amazon/aws-cli:amd64",
+    "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1", # ensure scripts/charts.sh ref is up-to-date
+    "ghcr.io/zcube/bitnami-compat/external-dns:0"
   ]
 }
 
@@ -77,7 +90,7 @@ nodegroups = {
       gb   = 20
       type = "gp3"
     }
-    instance_types = ["t4g.micro"]
+    instance_types = ["t4g.small"]
   }
   generalpurpose1 = {
     ami = "x86_64"

@@ -16,16 +16,21 @@ resource "aws_lambda_function" "k3s-getk3s" {
   timeout          = 900
   environment {
     variables = {
-      HELM_ARM64     = var.urls.HELM_ARM64
-      HELM_X86_64    = var.urls.HELM_X86_64
-      K3S_INSTALL    = var.urls.K3S_INSTALL
-      K3S_BIN_ARM64  = var.urls.K3S_BIN_ARM64
-      K3S_BIN_X86_64 = var.urls.K3S_BIN_X86_64
-      K3S_TAR_ARM64  = var.urls.K3S_TAR_ARM64
-      K3S_TAR_X86_64 = var.urls.K3S_TAR_X86_64
-      BUCKET         = aws_s3_bucket.k3s-private.id
-      REGION         = var.region
-      KEY            = aws_kms_key.k3s["s3"].arn
+      AWS_CLOUD_CONTROLLER = var.urls.AWS_CLOUD_CONTROLLER
+      AWS_LB_CONTROLLER    = var.urls.AWS_LB_CONTROLLER
+      CALICO               = var.urls.CALICO
+      EXTERNAL_DNS         = var.urls.EXTERNAL_DNS
+      HELM_ARM64           = var.urls.HELM_ARM64
+      HELM_X86_64          = var.urls.HELM_X86_64
+      K3S_INSTALL          = var.urls.K3S_INSTALL
+      K3S_BIN_ARM64        = var.urls.K3S_BIN_ARM64
+      K3S_BIN_X86_64       = var.urls.K3S_BIN_X86_64
+      K3S_TAR_ARM64        = var.urls.K3S_TAR_ARM64
+      K3S_TAR_X86_64       = var.urls.K3S_TAR_X86_64
+      BUCKET               = aws_s3_bucket.k3s-private.id
+      REGION               = var.region
+      KEY                  = aws_kms_key.k3s["s3"].arn
+
     }
   }
   depends_on = [aws_cloudwatch_log_group.k3s-lambda-getk3s]
@@ -33,7 +38,7 @@ resource "aws_lambda_function" "k3s-getk3s" {
 
 # split downloads across three lambda invocations
 data "aws_lambda_invocation" "k3s-getk3s" {
-  for_each      = toset(["k3s-bin", "k3s-arm64", "k3s-x86_64"])
+  for_each      = toset(["k3s-bin", "k3s-arm64", "k3s-x86_64", "k3s-charts"])
   function_name = aws_lambda_function.k3s-getk3s.function_name
   input         = <<JSON
 {

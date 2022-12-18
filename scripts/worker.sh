@@ -35,6 +35,7 @@ else
         kubernetes.io/arch="amd64"
 fi
 
+# oidc (irsa)
 echo "generating registries script and systemd service+timer"
 tee /usr/local/bin/registries << EOM
 #!/bin/bash

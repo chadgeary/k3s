@@ -20,8 +20,6 @@ terraform apply
 * offline
   * cluster functions without direct internet access
     * enable egress w/ `var.nat_gateways = true`
-    * enable ingress w/ `var.public_lb = true`
-      * example: `./terraform/manifests/website.yaml`
   * container images available via (see tf output):
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
@@ -42,6 +40,7 @@ terraform apply
 * interact with cluster API via SSM PortForwardSession
   * post-apply: `./terraform/connect.sh`, see example image
   * works with kubectl, helm, k9s, lens, etc.
+* Includes AWS Cloud Controller, AWS LB Controller, and Calico CNI w/ IRSA
 * strongly enforced encryption + access management
   * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
   * tailored kms key, bucket, iam, and trust policies

@@ -39,5 +39,6 @@ JSON
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider,
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-1,
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-2,
+    aws_autoscaling_group.k3s
   ]
 }

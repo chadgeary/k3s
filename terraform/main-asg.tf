@@ -4,7 +4,7 @@ resource "aws_launch_template" "k3s" {
   name_prefix            = "${local.prefix}-${local.suffix}-${each.key}"
   vpc_security_group_ids = [aws_security_group.k3s-ec2.id]
   iam_instance_profile {
-    arn = aws_iam_instance_profile.k3s-ec2.arn
+    arn = each.key == "control-plane" ? aws_iam_instance_profile.k3s-ec2-controlplane.arn : aws_iam_instance_profile.k3s-ec2-nodes.arn
   }
   ebs_optimized = true
   image_id      = data.aws_ami.k3s[each.value.ami].id
@@ -91,5 +91,5 @@ resource "aws_autoscaling_group" "k3s" {
     propagate_at_launch = true
   }
 
-  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.scripts, aws_iam_role_policy_attachment.k3s-ec2, aws_iam_role_policy_attachment.k3s-ec2-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
+  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.scripts, aws_iam_role_policy_attachment.k3s-ec2-controlplane, aws_iam_role_policy_attachment.k3s-ec2-nodes, aws_iam_role_policy_attachment.k3s-ec2-controlplane-managed, aws_iam_role_policy_attachment.k3s-ec2-nodes-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
 }
