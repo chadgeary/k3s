@@ -39,7 +39,7 @@ override.tf.json
 *.zip
 
 # manifests
-**/manifests/irsa.yaml
+**/manifests/*.yaml
 
 # manifests
 **/containers/*
