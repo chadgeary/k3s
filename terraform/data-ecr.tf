@@ -24,7 +24,7 @@ data "archive_file" "containers-arm64" {
     })
     filename = "buildspec.yml"
   }
-  output_path = "./containers/arm64/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
+  output_path = "containers/arm64/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
 }
 
 data "archive_file" "containers-x86_64" {
@@ -53,6 +53,6 @@ data "archive_file" "containers-x86_64" {
     })
     filename = "buildspec.yml"
   }
-  output_path = "./containers/x86_64/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
+  output_path = "containers/x86_64/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
 }
 

@@ -13,7 +13,7 @@ vpc_cidr      = "172.16.0.0/16" # vpc_cidr is split across availability zones, m
 pod_cidr      = "172.17.0.0/16" # assigned to pods
 azs           = 2               # aws azs
 nat_gateways  = true            # permits internet egress
-vpc_endpoints = true            # required if nat_gateways = false, optional otherwise.
+vpc_endpoints = false           # required if nat_gateways = false, optional otherwise.
 
 ## Logs
 # codebuild, lambda
@@ -93,8 +93,8 @@ nodegroups = {
   generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
-      min = 0
-      max = 0
+      min = 2
+      max = 2
     }
     volume = {
       gb   = 100

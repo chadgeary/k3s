@@ -55,21 +55,19 @@ resource "aws_s3_object" "scripts" {
 
 # s3 objects (containers for codebuild)
 resource "aws_s3_object" "containers-arm64" {
-  for_each       = fileset("./containers/arm64/", "*.zip")
+  for_each       = data.archive_file.containers-arm64
   bucket         = aws_s3_bucket.k3s-private.id
-  key            = "containers/arm64/${each.value}"
-  content_base64 = filebase64("./containers/arm64/${each.value}")
+  key            = each.value.output_path
+  content_base64 = filebase64(each.value.output_path)
   kms_key_id     = aws_kms_key.k3s["s3"].arn
-
-  depends_on = [data.archive_file.containers-arm64]
+  depends_on     = [data.archive_file.containers-arm64]
 }
 
 resource "aws_s3_object" "containers-x86_64" {
-  for_each       = fileset("./containers/x86_64/", "*.zip")
+  for_each       = data.archive_file.containers-x86_64
   bucket         = aws_s3_bucket.k3s-private.id
-  key            = "containers/x86_64/${each.value}"
-  content_base64 = filebase64("./containers/x86_64/${each.value}")
+  key            = each.value.output_path
+  content_base64 = filebase64(each.value.output_path)
   kms_key_id     = aws_kms_key.k3s["s3"].arn
-
-  depends_on = [data.archive_file.containers-x86_64]
+  depends_on     = [data.archive_file.containers-x86_64]
 }
