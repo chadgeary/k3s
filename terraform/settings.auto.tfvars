@@ -93,14 +93,14 @@ nodegroups = {
   generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
-      min = 2
-      max = 2
+      min = 0
+      max = 0
     }
     volume = {
       gb   = 100
       type = "gp3"
     }
-    instance_types = ["t3a.small", "t3.small"]
+    instance_types = ["t3a.medium", "t3.medium"]
   }
   gpu = {
     ami = "gpu"

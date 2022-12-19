@@ -53,11 +53,12 @@ resource "aws_ssm_document" "k3s-scaledown" {
    "action": "aws:runShellScript",
    "name": "runShellScript",
    "inputs": {
-    "timeoutSeconds": "900",
+    "timeoutSeconds": "540",
     "runCommand": [
      "#!/bin/bash",
      "export LIFECYCLEHOOKNAME='{{ LIFECYCLEHOOKNAME }}'",
      "export ASGNAME='{{ ASGNAME }}'",
+     "export K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443",
      "/usr/local/bin/scaledown.sh"
     ]
    }

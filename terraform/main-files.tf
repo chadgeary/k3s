@@ -34,13 +34,15 @@ resource "local_file" "irsa" {
 }
 
 resource "local_file" "nginx-w-calico" {
-  filename        = "./manifests/nginx-w-calico-and-route53.yaml"
+  filename        = "./manifests/nginx-w-calico-externaldns.yaml"
   file_permission = "0600"
   content = templatefile(
-    "../templates/nginx-w-calico-and-route53.yaml.tftpl",
+    "../templates/nginx-w-calico-externaldns.yaml.tftpl",
     {
-      PREFIX = local.prefix
-      SUFFIX = local.suffix
+      ACCOUNT = data.aws_caller_identity.k3s.account_id
+      REGION  = var.region
+      PREFIX  = local.prefix
+      SUFFIX  = local.suffix
     }
   )
 }
