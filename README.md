@@ -2,8 +2,10 @@
 Deploys a low-cost, scalable, private K3s cluster on AWS.
 
 ## Requirements
-* aws account, [awscli v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), [ssm plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-linux)
-* terraform v1+
+* aws account
+* [awscli v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+* [ssm plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-linux)
+* [terraform v1+](https://developer.hashicorp.com/terraform/downloads)
 
 ## Deploy
 ```shell
@@ -20,10 +22,11 @@ terraform apply
 * offline
   * cluster functions without direct internet access
     * enable egress w/ `var.nat_gateways = true`
-  * container images available via (see tf output):
+  * container images available via:
     * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
     * codebuild => ecr mirroring (`var.container_images`)
-  * lambda+ssm manage k3s' [airgap](https://docs.k3s.io/installation/airgap) installation
+    * see `terraform output` for additional info
+  * lambda+ssm bootstrap k3s' [airgap](https://docs.k3s.io/installation/airgap) install
 * multiple scaling configurations
   * create any number of node groups
   * define the following components per node group, including the control-plane
@@ -41,12 +44,12 @@ terraform apply
   * post-apply: `./terraform/connect.sh`, see example image
   * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
-  * 7 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, ssm)
+  * 8 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, sns, ssm)
   * tailored kms key, bucket, iam, and trust policies
 * included charts:
-  * aws cloud controller + lb controller
+  * aws cloud controller
   * calico cni via tigera-operator
-  * external-dns (if `var.nat_gateways = true`)
+  * external-dns (req. `var.nat_gateways = true`)
 
 ![Output](k3s.png)
 

@@ -17,7 +17,6 @@ resource "aws_lambda_function" "k3s-getk3s" {
   environment {
     variables = {
       AWS_CLOUD_CONTROLLER = var.urls.AWS_CLOUD_CONTROLLER
-      AWS_LB_CONTROLLER    = var.urls.AWS_LB_CONTROLLER
       CALICO               = var.urls.CALICO
       EXTERNAL_DNS         = var.urls.EXTERNAL_DNS
       HELM_ARM64           = var.urls.HELM_ARM64

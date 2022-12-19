@@ -4,7 +4,8 @@ resource "aws_security_group" "k3s-ec2" {
   description = "SG for ${local.prefix}-${local.suffix} ec2"
   vpc_id      = aws_vpc.k3s.id
   tags = {
-    Name = "${local.prefix}-${local.suffix}-ec2"
+    Name                                                    = "${local.prefix}-${local.suffix}-ec2"
+    "kubernetes.io/cluster/${local.prefix}-${local.suffix}" = "shared"
   }
 }
 

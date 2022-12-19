@@ -42,3 +42,12 @@ resource "aws_cloudwatch_log_group" "k3s-lambda-oidcprovider" {
     Name = "/aws/lambda/${local.prefix}-${local.suffix}-oidcprovider"
   }
 }
+
+resource "aws_cloudwatch_log_group" "k3s-lambda-scaledown" {
+  name              = "/aws/lambda/${local.prefix}-${local.suffix}-scaledown"
+  retention_in_days = var.log_retention_in_days
+  kms_key_id        = aws_kms_key.k3s["cw"].arn
+  tags = {
+    Name = "/aws/lambda/${local.prefix}-${local.suffix}-scaledown"
+  }
+}

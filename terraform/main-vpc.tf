@@ -31,7 +31,8 @@ resource "aws_route_table" "k3s-private" {
     }
   }
   tags = {
-    Name = "${local.prefix}-${local.suffix}-${each.value.zone}"
+    Name                                                    = "${local.prefix}-${local.suffix}-${each.value.zone}"
+    "kubernetes.io/cluster/${local.prefix}-${local.suffix}" = "shared"
   }
 }
 
@@ -68,7 +69,7 @@ resource "aws_vpc_endpoint" "k3s-s3" {
 
 # ssm endpoints for private instance(s)
 resource "aws_vpc_endpoint" "k3s-vpces" {
-  for_each            = local.vpces
+  for_each            = var.vpc_endpoints ? local.vpces : toset([])
   vpc_id              = aws_vpc.k3s.id
   service_name        = "com.amazonaws.${var.region}.${each.key}"
   vpc_endpoint_type   = "Interface"
@@ -80,7 +81,7 @@ resource "aws_vpc_endpoint" "k3s-vpces" {
 }
 
 resource "aws_vpc_endpoint_subnet_association" "k3s-vpces" {
-  for_each        = local.subnet-vpce
+  for_each        = var.vpc_endpoints ? local.subnet-vpce : {}
   subnet_id       = each.value.subnet
   vpc_endpoint_id = each.value.vpce
 }

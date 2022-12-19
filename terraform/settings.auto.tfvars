@@ -8,12 +8,12 @@ suffix = ""
 profile = "default"
 region  = "us-east-1"
 
-## VPC
-# vpc_cidr is split across availability zones, minimum 2
-vpc_cidr     = "172.16.0.0/16"
-pod_cidr     = "172.17.0.0/16"
-azs          = 2
-nat_gateways = false
+## Networking
+vpc_cidr      = "172.16.0.0/16" # vpc_cidr is split across availability zones, minimum 2
+pod_cidr      = "172.17.0.0/16" # assigned to pods
+azs           = 2               # aws azs
+nat_gateways  = true            # permits internet egress
+vpc_endpoints = true            # required if nat_gateways = false, optional otherwise.
 
 ## Logs
 # codebuild, lambda
@@ -23,7 +23,6 @@ log_retention_in_days = 30 # 0 = never expire
 # helm @ https://github.com/helm/helm/releases
 # k3s @ https://github.com/k3s-io/k3s/releases
 # cloud controller @ https://kubernetes.github.io/cloud-provider-aws/index.yaml
-# lb controller @ https://aws.github.io/eks-charts/index.yaml
 # calico @ https://projectcalico.docs.tigera.io/charts/index.yaml
 # external-dns @ https://charts.bitnami.com/bitnami/index.yaml
 urls = {
@@ -35,7 +34,6 @@ urls = {
   K3S_TAR_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-arm64.tar"
   K3S_TAR_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-amd64.tar"
   AWS_CLOUD_CONTROLLER = "https://github.com/kubernetes/cloud-provider-aws/releases/download/helm-chart-aws-cloud-controller-manager-0.0.7/aws-cloud-controller-manager-0.0.7.tgz"
-  AWS_LB_CONTROLLER    = "https://aws.github.io/eks-charts/aws-load-balancer-controller-1.4.6.tgz"
   CALICO               = "https://github.com/projectcalico/calico/releases/download/v3.24.5/tigera-operator-v3.24.5.tgz"
   EXTERNAL_DNS         = "https://charts.bitnami.com/bitnami/external-dns-6.12.1.tgz"
 }

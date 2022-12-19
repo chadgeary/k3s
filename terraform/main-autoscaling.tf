@@ -93,3 +93,14 @@ resource "aws_autoscaling_group" "k3s" {
 
   depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.scripts, aws_iam_role_policy_attachment.k3s-ec2-controlplane, aws_iam_role_policy_attachment.k3s-ec2-nodes, aws_iam_role_policy_attachment.k3s-ec2-controlplane-managed, aws_iam_role_policy_attachment.k3s-ec2-nodes-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
 }
+
+resource "aws_autoscaling_lifecycle_hook" "k3s" {
+  for_each                = var.nodegroups
+  name                    = "${local.prefix}-${local.suffix}-${each.key}"
+  autoscaling_group_name  = aws_autoscaling_group.k3s[each.key].name
+  default_result          = "ABANDON"
+  heartbeat_timeout       = 600
+  lifecycle_transition    = "autoscaling:EC2_INSTANCE_TERMINATING"
+  notification_target_arn = aws_sns_topic.k3s-scaledown.arn
+  role_arn                = aws_iam_role.k3s-scaledown.arn
+}

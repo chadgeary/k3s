@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["codebuild", "cw", "ec2", "lambda", "rds", "s3", "ssm"])
+  for_each = toset(["codebuild", "cw", "ec2", "lambda", "rds", "s3", "sns", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -140,6 +140,27 @@ data "aws_iam_policy_document" "k3s-kms" {
         test     = "StringEquals"
         variable = "kms:ViaService"
         values   = ["lambda.${var.region}.amazonaws.com"]
+      }
+    }
+  }
+
+  ## sns statement(s)
+  #
+  dynamic "statement" {
+    for_each = each.value == "sns" ? [1] : []
+    content {
+      sid = "snsallow"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.k3s-scaledown.arn]
       }
     }
   }

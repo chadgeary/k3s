@@ -119,6 +119,15 @@ data "aws_iam_policy_document" "k3s-ec2-controlplane" {
   }
 
   statement {
+    sid = "UseASGLifecycle"
+    actions = [
+      "autoscaling:CompleteLifecycleAction"
+    ]
+    effect    = "Allow"
+    resources = ["arn:${data.aws_partition.k3s.partition}:autoscaling:${var.region}:${data.aws_caller_identity.k3s.account_id}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}-*"]
+  }
+
+  statement {
     sid = "cloudprovider"
     actions = [
       "autoscaling:DescribeAutoScalingGroups",
@@ -273,6 +282,15 @@ data "aws_iam_policy_document" "k3s-ec2-nodes" {
   }
 
   statement {
+    sid = "UseASGLifecycle"
+    actions = [
+      "autoscaling:CompleteLifecycleAction"
+    ]
+    effect    = "Allow"
+    resources = ["arn:${data.aws_partition.k3s.partition}:autoscaling:${var.region}:${data.aws_caller_identity.k3s.account_id}:autoScalingGroup:*:autoScalingGroupName/${local.prefix}-${local.suffix}-*"]
+  }
+
+  statement {
     sid = "cloudprovider"
     actions = [
       "ec2:DescribeInstances",
@@ -287,5 +305,54 @@ data "aws_iam_policy_document" "k3s-ec2-nodes" {
     ]
     effect    = "Allow"
     resources = ["*"]
+  }
+}
+
+# scaledown
+data "aws_iam_policy_document" "k3s-scaledown-trust" {
+  statement {
+    sid = "ForEc2Only"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["autoscaling.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "k3s-scaledown" {
+
+  statement {
+    sid = "snskms"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+    effect    = "Allow"
+    resources = [aws_kms_key.k3s["sns"].arn]
+  }
+
+  statement {
+    sid = "listkms"
+    actions = [
+      "kms:ListKeys"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "usesns"
+    actions = [
+      "sns:Publish"
+    ]
+    effect    = "Allow"
+    resources = [aws_sns_topic.k3s-scaledown.arn]
   }
 }

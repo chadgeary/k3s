@@ -7,12 +7,17 @@ namespace: "kube-system"
 args:
   - --v=2
   - --cloud-provider=aws
+  - --allocate-node-cidrs=false
+  - --configure-cloud-routes=false
+  - --cluster-cidr=$POD_CIDR
+  - --cluster-name=$PREFIX-$SUFFIX
+
 image:
-    repository: $ECR_URI_PREFIX-codebuild/$ARCH/registry.k8s.io/provider-aws/cloud-controller-manager/provider-aws/cloud-controller-manager
+    repository: $ECR_URI_PREFIX-codebuild/$ARCH/registry.k8s.io/provider-aws/cloud-controller-manager
     tag: v1.25.1
 nameOverride: "aws-cloud-controller-manager"
 nodeSelector:
-  node-role.kubernetes.io/control-plane: ""
+  node-role.kubernetes.io/control-plane: "true"
 
 clusterRoleRules:
 - apiGroups:
@@ -146,35 +151,6 @@ EOM
 helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system calico -f "$CHARTS_PATH"/calico.yaml \
     "$CHARTS_PATH"/calico.tgz
-
-# lb controller
-tee "$CHARTS_PATH"/aws-lb-controller.yaml <<EOM
-
-image:
-  repository: $AWS_ADDON_URI/amazon/aws-load-balancer-controller
-  tag: v2.4.5
-region: "$REGION"
-clusterName: $PREFIX-$SUFFIX
-cluster:
-  dnsDomain: $PREFIX-$SUFFIX.internal
-env:
-  AWS_DEFAULT_REGION: "$REGION"
-  AWS_ROLE_ARN: "arn:aws:iam::$ACCOUNT:role/$PREFIX-$SUFFIX-aws-lb-controller"
-  AWS_WEB_IDENTITY_TOKEN_FILE: "/var/run/secrets/kubernetes.io/serviceaccount/token"
-  AWS_STS_REGIONAL_ENDPOINTS: regional
-replicaCount: 1
-tolerations:
-- key: node-role.kubernetes.io/master
-  effect: NoSchedule
-- key: node-role.kubernetes.io/control-plane
-  effect: NoSchedule
-vpcId: $VPC
-
-EOM
-
-helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
-    --namespace kube-system aws-lb-controller -f "$CHARTS_PATH"/aws-lb-controller.yaml \
-    "$CHARTS_PATH"/aws-lb-controller.tgz
 
 # external-dns
 tee "$CHARTS_PATH"/external-dns.yaml <<EOM

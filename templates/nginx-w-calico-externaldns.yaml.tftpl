@@ -1,0 +1,104 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-website
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-nginx-deny
+spec:
+  selector: projectcalico.org/namespace in  {'external-website'}
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-ingress
+  namespace: external-website
+spec:
+  selector: app == 'external-website'
+  types:
+  - Ingress
+  ingress:
+  - action: Allow
+    source:
+      nets: ["0.0.0.0/0"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: external-website
+  namespace: external-website
+data:
+  index.html: |
+    <marquee
+      direction="down"
+      width="480"
+      height="320"
+      behavior="alternate"
+      style="border:solid;font-size:100px">
+      <marquee behavior="alternate">&#128019;</marquee>
+      <marquee behavior="alternate">&#128019;</marquee>
+      <marquee behavior="alternate">&#128019;</marquee>
+    </marquee>
+    </html>
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: external-website
+  labels:
+    app: external-website
+spec:
+  containers:
+  - name: nginx
+    image: ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-ecr/docker/library/nginx
+    resources:
+      limits:
+        memory: "48Mi"
+        cpu: "100m"
+    ports:
+    - containerPort: 80
+    volumeMounts:
+        - name: external-website
+          mountPath: /usr/share/nginx/html/
+  restartPolicy: Never
+  tolerations:
+    - operator: "Exists"
+  volumes:
+  - name: external-website
+    configMap:
+      name: external-website
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: external-website
+  name: external-website
+  namespace: external-website
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "app=external-website"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "3"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "6"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: external-website
+  type: LoadBalancer
+  externalTrafficPolicy: Local

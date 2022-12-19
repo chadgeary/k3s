@@ -100,7 +100,6 @@ def lambda_handler(event, context):
             ],
             "data/downloads/charts/calico.tgz": os.environ["CALICO"],
             "data/downloads/charts/external-dns.tgz": os.environ["EXTERNAL_DNS"],
-            "data/downloads/charts/aws-lb-controller.tgz": os.environ["AWS_LB_CONTROLLER"]
         }
         for key in urls:
             s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))

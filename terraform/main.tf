@@ -33,11 +33,11 @@ resource "local_file" "irsa" {
   )
 }
 
-resource "local_file" "website" {
-  filename        = "./manifests/website.yaml"
+resource "local_file" "nginx-w-calico" {
+  filename        = "./manifests/nginx-w-calico-externaldns.yaml"
   file_permission = "0600"
   content = templatefile(
-    "../templates/website.yaml.tftpl",
+    "../templates/nginx-w-calico-externaldns.yaml.tftpl",
     {
       ACCOUNT = data.aws_caller_identity.k3s.account_id
       REGION  = var.region

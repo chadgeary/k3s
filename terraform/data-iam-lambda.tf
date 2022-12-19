@@ -155,3 +155,54 @@ data "aws_iam_policy_document" "k3s-lambda-oidcprovider" {
     resources = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:oidc-provider/s3.${var.region}.amazonaws.com*"]
   }
 }
+
+data "aws_iam_policy" "k3s-lambda-scaledown-managed-1" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+data "aws_iam_policy" "k3s-lambda-scaledown-managed-2" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+data "aws_iam_policy_document" "k3s-lambda-scaledown-trust" {
+  statement {
+    sid = "ForLambdaOnly"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "k3s-lambda-scaledown" {
+
+  statement {
+    sid = "UseKMSLambda"
+    actions = [
+      "kms:Decrypt"
+    ]
+    effect    = "Allow"
+    resources = [aws_kms_key.k3s["lambda"].arn]
+  }
+
+  statement {
+    sid = "Autoscaledown"
+    actions = [
+      "autoscaledown:CompleteLifecycleAction"
+    ]
+    effect    = "Allow"
+    resources = [for asg in aws_autoscaling_group.k3s : asg.arn]
+  }
+
+  statement {
+    sid = "KMSList"
+    actions = [
+      "kms:ListKeys"
+    ]
+    resources = ["*"]
+  }
+}

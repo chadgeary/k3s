@@ -95,3 +95,8 @@ variable "nat_gateways" {
   type        = bool
   description = "Public internet access (outbound via nat_gateway(s))"
 }
+
+variable "vpc_endpoints" {
+  type        = bool
+  description = "Enable/disable private VPC endpoints for autoscaling, ecr, iam, etc."
+}
