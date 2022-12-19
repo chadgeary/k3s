@@ -96,7 +96,7 @@ resource "aws_codepipeline" "k3s-arm64" {
     }
   }
 
-  depends_on = [aws_iam_role_policy_attachment.k3s-codebuild, aws_cloudwatch_log_group.k3s-codebuild-x86_64, aws_s3_object.containers-arm64, data.archive_file.containers-arm64, aws_s3_object.containers-x86_64, data.archive_file.containers-x86_64]
+  depends_on = [aws_iam_role_policy_attachment.k3s-codebuild, aws_cloudwatch_log_group.k3s-codebuild-arm64, aws_s3_object.containers-arm64]
 }
 
 resource "aws_codepipeline" "k3s-x86_64" {
@@ -143,5 +143,5 @@ resource "aws_codepipeline" "k3s-x86_64" {
     }
   }
 
-  depends_on = [aws_iam_role_policy_attachment.k3s-codebuild, aws_cloudwatch_log_group.k3s-codebuild-x86_64, aws_s3_object.containers-arm64, data.archive_file.containers-arm64, aws_s3_object.containers-x86_64, data.archive_file.containers-x86_64]
+  depends_on = [aws_iam_role_policy_attachment.k3s-codebuild, aws_cloudwatch_log_group.k3s-codebuild-x86_64, aws_s3_object.containers-x86_64]
 }
