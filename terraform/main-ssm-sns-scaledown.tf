@@ -56,10 +56,9 @@ resource "aws_ssm_document" "k3s-scaledown" {
     "timeoutSeconds": "900",
     "runCommand": [
      "#!/bin/bash",
-     "su - nifi",
      "export LIFECYCLEHOOKNAME='{{ LIFECYCLEHOOKNAME }}'",
      "export ASGNAME='{{ ASGNAME }}'",
-     "/usr/local/bin/scale-down"
+     "/usr/local/bin/scaledown.sh"
     ]
    }
   }

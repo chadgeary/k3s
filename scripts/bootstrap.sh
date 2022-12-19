@@ -67,3 +67,6 @@ if [ "$K3S_NODEGROUP" == "control-plane" ]; then
 else
     bash worker.sh
 fi
+
+# copy scaledown.sh
+cp scaledown.sh /usr/local/bin/scaledown.sh
