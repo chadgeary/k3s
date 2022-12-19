@@ -6,7 +6,7 @@ INSTALL_K3S_EXEC="server --resolv-conf=/etc/rancher/k3s/resolv.conf --kubelet-ar
 export INSTALL_K3S_EXEC
 "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 
-echo "labeling node"
+echo "labeling + tainting node"
 
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     label --overwrite=true node "$(hostname -f)" \
@@ -20,6 +20,10 @@ echo "labeling node"
     label --overwrite=true node "$(hostname -f)" \
     node-role.kubernetes.io/control-plane="true"
 
+/usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
+    taint --overwrite=true node "$(hostname -f)" \
+    node-role.kubernetes.io/control-plane:NoSchedule
+
 if [ "$ARCH" == "arm64" ]; then
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
         label --overwrite=true node "$(hostname -f)" \
@@ -28,13 +32,6 @@ else
     /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
         label --overwrite=true node "$(hostname -f)" \
         kubernetes.io/arch="amd64"
-fi
-
-if [ "$K3S_CONTROLPLANE_NOSCHEDULE" == "true" ]; then
-    echo "tainting node (node-role.kubernetes.io/control-plane:NoSchedule)"
-    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        taint --overwrite=true node "$(hostname -f)" \
-        node-role.kubernetes.io/control-plane:NoSchedule
 fi
 
 echo "copying kube config to s3 (private)"

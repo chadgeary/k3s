@@ -127,6 +127,7 @@ helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade 
 
 # calico
 tee "$CHARTS_PATH"/calico.yaml <<EOM
+
 tigeraOperator:
   image: tigera/operator
   registry: $ECR_URI_PREFIX-quay
@@ -145,7 +146,13 @@ installation:
   containerIPForwarding: "Enabled"
   controlPlaneReplicas: 1
   registry: $ECR_URI_PREFIX-quay
-
+tolerations:
+- effect: NoExecute
+  operator: Exists
+- effect: NoSchedule
+  operator: Exists
+nodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
 EOM
 
 helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
@@ -175,7 +182,8 @@ extraEnvVars:
   value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 - name: AWS_STS_REGIONAL_ENDPOINTS
   value: regional
-
+nodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
 EOM
 
 if [ $NAT_GATEWAYS == "true" ]; then
