@@ -9,10 +9,10 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image
-      - docker build -t ${ PREFIX }-${ SUFFIX }-codebuild/${ ARCH }/${ IMAGE }:${ TAG } .
-      - docker tag ${ PREFIX }-${ SUFFIX }-codebuild/${ ARCH }/${ IMAGE }:${ TAG } ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-codebuild/${ ARCH }/${ IMAGE }:${ TAG }
+      - docker build -t ${ PREFIX }-${ SUFFIX }-codebuild/${ IMAGE }:${ TAG } .
+      - docker tag ${ PREFIX }-${ SUFFIX }-codebuild/${ IMAGE }:${ TAG } ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-codebuild/${ IMAGE }:${ TAG }-$BUILD_ARCH
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image
-      - docker push ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-codebuild/${ ARCH }/${ IMAGE }:${ TAG }
+      - docker push ${ ACCOUNT }.dkr.ecr.${ REGION }.amazonaws.com/${ PREFIX }-${ SUFFIX }-codebuild/${ IMAGE }:${ TAG }-$BUILD_ARCH

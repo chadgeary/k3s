@@ -211,7 +211,6 @@ resource "aws_iam_role" "k3s-irsa" {
   name               = "${local.prefix}-${local.suffix}-irsa"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.k3s-irsa-trust.json
-  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
 }
 
 resource "aws_iam_policy" "k3s-irsa" {
@@ -230,7 +229,6 @@ resource "aws_iam_role" "k3s-aws-cloud-controller-manager" {
   name               = "${local.prefix}-${local.suffix}-aws-cloud-controller-manager"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.k3s-aws-cloud-controller-manager-trust.json
-  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
 }
 
 resource "aws_iam_policy" "k3s-aws-cloud-controller-manager" {
@@ -244,23 +242,22 @@ resource "aws_iam_role_policy_attachment" "k3s-aws-cloud-controller-manager" {
   policy_arn = aws_iam_policy.k3s-aws-cloud-controller-manager.arn
 }
 
-## aws-vpc-cni
-resource "aws_iam_role" "k3s-aws-vpc-cni" {
-  name               = "${local.prefix}-${local.suffix}-aws-vpc-cni"
+## aws-ebs-csi-driver
+resource "aws_iam_role" "k3s-aws-ebs-csi-driver" {
+  name               = "${local.prefix}-${local.suffix}-aws-ebs-csi-driver"
   path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.k3s-aws-vpc-cni-trust.json
-  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
+  assume_role_policy = data.aws_iam_policy_document.k3s-aws-ebs-csi-driver-trust.json
 }
 
-resource "aws_iam_policy" "k3s-aws-vpc-cni" {
-  name   = "${local.prefix}-${local.suffix}-aws-vpc-cni"
+resource "aws_iam_policy" "k3s-aws-ebs-csi-driver" {
+  name   = "${local.prefix}-${local.suffix}-aws-ebs-csi-driver"
   path   = "/"
-  policy = data.aws_iam_policy_document.k3s-aws-vpc-cni.json
+  policy = data.aws_iam_policy_document.k3s-aws-ebs-csi-driver.json
 }
 
-resource "aws_iam_role_policy_attachment" "k3s-aws-vpc-cni" {
-  role       = aws_iam_role.k3s-aws-vpc-cni.name
-  policy_arn = aws_iam_policy.k3s-aws-vpc-cni.arn
+resource "aws_iam_role_policy_attachment" "k3s-aws-ebs-csi-driver" {
+  role       = aws_iam_role.k3s-aws-ebs-csi-driver.name
+  policy_arn = aws_iam_policy.k3s-aws-ebs-csi-driver.arn
 }
 
 ## external-dns - only viable if using nat gateway(s)
@@ -269,7 +266,6 @@ resource "aws_iam_role" "k3s-external-dns" {
   name               = "${local.prefix}-${local.suffix}-external-dns"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.k3s-external-dns-trust["external-dns"].json
-  depends_on         = [data.aws_lambda_invocation.k3s-oidcprovider]
 }
 
 resource "aws_iam_policy" "k3s-external-dns" {

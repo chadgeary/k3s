@@ -19,7 +19,7 @@ resource "aws_lambda_function" "k3s-scaledown" {
       SSMDOCUMENTNAME = aws_ssm_document.k3s-scaledown.name
     }
   }
-  depends_on = [aws_cloudwatch_log_group.k3s-lambda-scaledown, aws_autoscaling_group.k3s["control-plane"]]
+  depends_on = [aws_cloudwatch_log_group.k3s-lambda-scaledown]
 }
 
 # allow sns to call lambda

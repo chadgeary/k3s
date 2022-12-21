@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["codebuild", "cw", "ec2", "lambda", "rds", "s3", "sns", "ssm"])
+  for_each = toset(["codebuild", "cw", "ec2", "efs", "lambda", "rds", "s3", "sns", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -113,6 +113,61 @@ data "aws_iam_policy_document" "k3s-kms" {
         test     = "Bool"
         variable = "kms:GrantIsForAWSResource"
         values   = ["true"]
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.value == "ec2" ? [1] : []
+    content {
+      sid = "CSIUse"
+      actions = [
+        "kms:CreateGrant"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:root"]
+      }
+      condition {
+        test     = "Bool"
+        variable = "kms:GrantIsForAWSResource"
+        values   = ["true"]
+      }
+      condition {
+        test     = "Bool"
+        variable = "aws:PrincipalArn"
+        values   = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:role/${local.prefix}-${local.suffix}-aws-ebs-csi-driver"]
+      }
+    }
+  }
+
+  ## efs statement(s)
+  dynamic "statement" {
+    for_each = each.value == "efs" ? [1] : []
+    content {
+      sid = "EfsUse"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:CallerAccount"
+        values   = [data.aws_caller_identity.k3s.account_id]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:ViaService"
+        values   = ["efs.${var.region}.amazonaws.com"]
       }
     }
   }

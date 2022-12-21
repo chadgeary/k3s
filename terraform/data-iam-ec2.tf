@@ -198,6 +198,48 @@ data "aws_iam_policy_document" "k3s-ec2-controlplane" {
     resources = ["*"]
   }
 
+  statement {
+    sid = "efs1"
+    actions = [
+      "elasticfilesystem:DescribeAccessPoints",
+      "elasticfilesystem:DescribeFileSystems",
+      "elasticfilesystem:DescribeMountTargets",
+      "ec2:DescribeAvailabilityZones"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "efs2"
+    actions = [
+      "elasticfilesystem:CreateAccessPoint"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+
+
+    condition {
+      test     = "StringLike"
+      variable = "aws:RequestTag/efs.csi.aws.com/cluster"
+      values   = ["true"]
+    }
+  }
+
+  statement {
+    sid = "efs3"
+    actions = [
+      "elasticfilesystem:DeleteAccessPoint"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/efs.csi.aws.com/cluster"
+      values   = ["true"]
+    }
+  }
+
 }
 
 data "aws_iam_policy_document" "k3s-ec2-nodes" {
@@ -305,6 +347,48 @@ data "aws_iam_policy_document" "k3s-ec2-nodes" {
     ]
     effect    = "Allow"
     resources = ["*"]
+  }
+
+  statement {
+    sid = "efs1"
+    actions = [
+      "elasticfilesystem:DescribeAccessPoints",
+      "elasticfilesystem:DescribeFileSystems",
+      "elasticfilesystem:DescribeMountTargets",
+      "ec2:DescribeAvailabilityZones"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "efs2"
+    actions = [
+      "elasticfilesystem:CreateAccessPoint"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+
+
+    condition {
+      test     = "StringLike"
+      variable = "aws:RequestTag/efs.csi.aws.com/cluster"
+      values   = ["true"]
+    }
+  }
+
+  statement {
+    sid = "efs3"
+    actions = [
+      "elasticfilesystem:DeleteAccessPoint"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/efs.csi.aws.com/cluster"
+      values   = ["true"]
+    }
   }
 }
 

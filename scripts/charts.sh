@@ -13,7 +13,7 @@ args:
   - --cluster-name=$PREFIX-$SUFFIX
 
 image:
-    repository: $ECR_URI_PREFIX-codebuild/$ARCH/registry.k8s.io/provider-aws/cloud-controller-manager
+    repository: $ECR_URI_PREFIX-codebuild/registry.k8s.io/provider-aws/cloud-controller-manager
     tag: v1.25.1
 nameOverride: "aws-cloud-controller-manager"
 nodeSelector:
@@ -125,6 +125,145 @@ helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade 
     --namespace kube-system aws-cloud-controller-manager -f "$CHARTS_PATH"/aws-cloud-controller-manager.yaml \
     "$CHARTS_PATH"/aws-cloud-controller-manager.tgz
 
+# aws-ebs-csi-driver
+tee "$CHARTS_PATH"/aws-ebs-csi-driver.yaml <<EOM
+
+image:
+  repository: $ECR_URI_PREFIX-ecr/ebs-csi-driver/aws-ebs-csi-driver
+
+sidecars:
+  provisioner:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-provisioner
+      tag: "v3.1.0"
+  attacher:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-attacher
+      tag: "v3.4.0"
+  snapshotter:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-snapshotter
+      tag: "v6.0.1"
+  livenessProbe:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/livenessprobe
+      tag: "v2.6.0"
+  resizer:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-resizer
+      tag: "v1.4.0"
+  nodeDriverRegistrar:
+    image:
+      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-node-driver-registrar
+      tag: "v2.5.1"
+
+controller:
+  env:
+  - name: AWS_DEFAULT_REGION
+    value: "$REGION"
+  - name: AWS_ROLE_ARN
+    value: "arn:aws:iam::$ACCOUNT:role/$PREFIX-$SUFFIX-aws-ebs-csi-driver"
+  - name: AWS_WEB_IDENTITY_TOKEN_FILE
+    value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  - name: AWS_STS_REGIONAL_ENDPOINTS
+    value: regional
+
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: "true"
+  region: $REGION
+  replicaCount: 1
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+  volumes:
+  - name: serviceaccount
+    projected:
+      sources:
+      - serviceAccountToken:
+          path: token
+          expirationSeconds: 43200
+          audience: $PREFIX-$SUFFIX
+  volumeMounts:
+  - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount/"
+    name: serviceaccount
+
+node:
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+storageClasses:
+- name: gp3
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+  mountOptions:
+  - tls
+  parameters:
+    encrypted: "true"
+    kmsKeyId: "$EBS_KMS_ARN"
+  reclaimPolicy: Delete
+  volumeBindingMode: WaitForFirstConsumer
+EOM
+
+helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --namespace kube-system aws-ebs-csi-driver -f "$CHARTS_PATH"/aws-ebs-csi-driver.yaml \
+    "$CHARTS_PATH"/aws-ebs-csi-driver.tgz
+
+# aws-efs-csi-driver
+tee "$CHARTS_PATH"/aws-efs-csi-driver.yaml <<EOM
+
+controller:
+  tags:
+    cluster: $PREFIX-$SUFFIX
+  regionalStsEndpoints: true
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: "true"
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+image:
+  repository: $ECR_URI_PREFIX-codebuild/amazon/aws-efs-csi-driver
+  tag: "v1.4.8"
+
+sidecars:
+  livenessProbe:
+    image:
+      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/livenessprobe
+      tag: "v2.8.0-eks-1-24-5"
+  nodeDriverRegistrar:
+    image:
+      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/node-driver-registrar
+      tag: "v2.6.2-eks-1-24-5"
+  csiProvisioner:
+    image:
+      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/external-provisioner
+      tag: "v3.3.0-eks-1-24-5"
+
+replicaCount: 1
+
+storageClasses:
+- name: efs
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+  mountOptions:
+  - tls
+  parameters:
+    provisioningMode: efs-ap
+    fileSystemId: "$EFS_ID"
+    directoryPerms: "700"
+    gidRangeStart: "1000"
+    gidRangeEnd: "9000"
+  reclaimPolicy: Delete
+  volumeBindingMode: WaitForFirstConsumer
+
+EOM
+
+helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --namespace kube-system aws-efs-csi-driver -f "$CHARTS_PATH"/aws-efs-csi-driver.yaml \
+    "$CHARTS_PATH"/aws-efs-csi-driver.tgz
+
 # calico
 tee "$CHARTS_PATH"/calico.yaml <<EOM
 
@@ -163,7 +302,7 @@ helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade 
 tee "$CHARTS_PATH"/external-dns.yaml <<EOM
 
 image:
-  registry: $ECR_URI_PREFIX-codebuild/$ARCH
+  registry: $ECR_URI_PREFIX-codebuild
   repository: ghcr.io/zcube/bitnami-compat/external-dns
   tag: 0
 aws:

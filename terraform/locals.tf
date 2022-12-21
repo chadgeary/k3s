@@ -18,7 +18,7 @@ locals {
     }
   }
 
-  vpces = toset(["ec2messages", "ecr.api", "ecr.dkr", "kms", "ssm", "ssmmessages", "sts"])
+  vpces = toset(["ebs", "ec2", "ec2messages", "ecr.api", "ecr.dkr", "elasticfilesystem", "kms", "ssm", "ssmmessages", "sts"])
 
   subnet-vpce = merge([for subnet in aws_subnet.k3s-private : { for vpce in aws_vpc_endpoint.k3s-vpces : "${subnet.availability_zone}-${strrev(element(split(".", strrev(vpce.service_name)), 0))}" => { "subnet" = subnet.id, "vpce" = vpce.id } }]...)
 

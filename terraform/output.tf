@@ -7,8 +7,7 @@ ${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/$
 ## quay.io
 ${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-quay/<path>:<tag>%{endif}
 ## var.container_images
-%{for container in var.container_images["arm64"]}${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-codebuild/arm64/${container}
-%{endfor}%{for container in var.container_images["x86_64"]}${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-codebuild/x86_64/${container}
+%{for container in var.container_images}${data.aws_caller_identity.k3s.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.prefix}-${local.suffix}-codebuild/${container}
 %{endfor}
 # To fetch the kubeconfig from s3
 # and open a tunnel to the k3s cluster

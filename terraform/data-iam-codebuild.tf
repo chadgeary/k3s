@@ -49,8 +49,11 @@ data "aws_iam_policy_document" "k3s-codebuild" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    effect    = "Allow"
-    resources = [aws_cloudwatch_log_group.k3s-codebuild-arm64.arn, aws_cloudwatch_log_group.k3s-codebuild-x86_64.arn, "arn:${data.aws_partition.k3s.partition}:logs:${var.region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-codebuild*"]
+    effect = "Allow"
+    resources = [
+      aws_cloudwatch_log_group.k3s-codebuild.arn,
+      "arn:${data.aws_partition.k3s.partition}:logs:${var.region}:${data.aws_caller_identity.k3s.account_id}:log-group:/aws/codebuild/${local.prefix}-${local.suffix}-codebuild*"
+    ]
   }
 
   statement {

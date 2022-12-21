@@ -29,6 +29,7 @@ resource "aws_lambda_function" "k3s-oidcprovider" {
 }
 
 data "aws_lambda_invocation" "k3s-oidcprovider" {
+  count         = var.nodegroups["control-plane"].scaling_count.min > 0 ? 1 : 0
   function_name = aws_lambda_function.k3s-oidcprovider.function_name
   input         = <<JSON
 {
@@ -39,6 +40,7 @@ JSON
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider,
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-1,
     aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-2,
-    aws_autoscaling_group.k3s
+    aws_autoscaling_group.k3s,
+    aws_ssm_association.k3s
   ]
 }

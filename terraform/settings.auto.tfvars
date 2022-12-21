@@ -23,6 +23,8 @@ log_retention_in_days = 30 # 0 = never expire
 # helm @ https://github.com/helm/helm/releases
 # k3s @ https://github.com/k3s-io/k3s/releases
 # cloud controller @ https://kubernetes.github.io/cloud-provider-aws/index.yaml
+# ebs @ https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases
+# efs @ https://github.com/kubernetes-sigs/aws-efs-csi-driver/releases
 # calico @ https://projectcalico.docs.tigera.io/charts/index.yaml
 # external-dns @ https://charts.bitnami.com/bitnami/index.yaml
 urls = {
@@ -34,6 +36,8 @@ urls = {
   K3S_TAR_ARM64        = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-arm64.tar"
   K3S_TAR_X86_64       = "https://github.com/k3s-io/k3s/releases/download/v1.25.4%2Bk3s1/k3s-airgap-images-amd64.tar"
   AWS_CLOUD_CONTROLLER = "https://github.com/kubernetes/cloud-provider-aws/releases/download/helm-chart-aws-cloud-controller-manager-0.0.7/aws-cloud-controller-manager-0.0.7.tgz"
+  AWS_EBS_CSI_DRIVER   = "https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/helm-chart-aws-ebs-csi-driver-2.13.0/aws-ebs-csi-driver-2.13.0.tgz"
+  AWS_EFS_CSI_DRIVER   = "https://github.com/kubernetes-sigs/aws-efs-csi-driver/releases/download/helm-chart-aws-efs-csi-driver-2.3.5/aws-efs-csi-driver-2.3.5.tgz"
   CALICO               = "https://github.com/projectcalico/calico/releases/download/v3.24.5/tigera-operator-v3.24.5.tgz"
   EXTERNAL_DNS         = "https://charts.bitnami.com/bitnami/external-dns-6.12.1.tgz"
 }
@@ -62,21 +66,21 @@ amis = {
 
 ## Container Images
 # Images cloned to Private ECR via codebuild
-container_images = {
-  arm64 = [
-    "amazon/aws-cli:arm64",
-    "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1", # ensure scripts/charts.sh ref is up-to-date
-    "ghcr.io/zcube/bitnami-compat/external-dns:0"
-  ]
-  x86_64 = [
-    "amazon/aws-cli:amd64",
-    "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1", # ensure scripts/charts.sh ref is up-to-date
-    "ghcr.io/zcube/bitnami-compat/external-dns:0"
-  ]
-}
+# ensure charts.sh tags match
+container_images = [
+  "amazon/aws-efs-csi-driver:v1.4.8",
+  "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1",
+  "ghcr.io/zcube/bitnami-compat/external-dns:0",
+  "k8s.gcr.io/sig-storage/csi-provisioner:v3.1.0",
+  "k8s.gcr.io/sig-storage/csi-attacher:v3.4.0",
+  "k8s.gcr.io/sig-storage/csi-snapshotter:v6.0.1",
+  "k8s.gcr.io/sig-storage/livenessprobe:v2.6.0",
+  "k8s.gcr.io/sig-storage/csi-resizer:v1.4.0",
+  "k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1"
+]
 
 ## Node groups via ASGs
-# one group must be named 'control-plane'
+# one group must be named 'control-plane' with a min of 1
 nodegroups = {
   control-plane = {
     ami = "arm64"
@@ -93,8 +97,8 @@ nodegroups = {
   generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
-      min = 0
-      max = 0
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 100

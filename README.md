@@ -22,11 +22,14 @@ terraform apply
 * offline
   * cluster functions without direct internet access
     * enable egress w/ `var.nat_gateways = true`
-  * container images available via:
-    * ecr pull through for [public-ecr](https://gallery.ecr.aws/docker) and [quay.io](https://quay.io/search)
-    * codebuild => ecr mirroring (`var.container_images`)
-    * see `terraform output` for additional info
-  * lambda+ssm bootstrap k3s' [airgap](https://docs.k3s.io/installation/airgap) install
+    * lambda+ssm bootstrap k3s' [airgap](https://docs.k3s.io/installation/
+  * container image mirror via ecr with:
+    * [pull-through-cache](https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html) for images @
+      * [public-ecr](https://gallery.ecr.aws/docker)
+      * [quay.io](https://quay.io/search)
+    * any other public image using codebuild (`var.container_images`)
+      * supports multi-arch
+      * see `terraform/settings.auto.tfvars => container_images[]`
 * multiple scaling configurations
   * create any number of node groups
   * define the following components per node group, including the control-plane

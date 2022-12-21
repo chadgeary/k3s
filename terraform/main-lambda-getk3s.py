@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     http = urllib3.PoolManager()
 
     # k3s x86_64
-    if event["files"] == "k3s-x86_64":
+    if event["invoker"] == "k3s-x86_64":
 
         urls = {
             "data/downloads/k3s/k3s-airgap-images-x86_64.tar": os.environ[
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
                 print(key + " put to s3.")
 
     # k3s arm64
-    if event["files"] == "k3s-arm64":
+    if event["invoker"] == "k3s-arm64":
 
         urls = {
             "data/downloads/k3s/k3s-airgap-images-arm64.tar": os.environ[
@@ -64,7 +64,7 @@ def lambda_handler(event, context):
                 print(key + " put to s3.")
 
     # k3s binary and install.sh
-    if event["files"] == "k3s-bin":
+    if event["invoker"] == "k3s-bin":
 
         urls = {
             "data/downloads/k3s/k3s-x86_64": os.environ["K3S_BIN_X86_64"],
@@ -92,11 +92,17 @@ def lambda_handler(event, context):
                 print(key + " put to s3.")
 
     # k3s binary and install.sh
-    if event["files"] == "k3s-charts":
+    if event["invoker"] == "k3s-charts":
 
         urls = {
             "data/downloads/charts/aws-cloud-controller-manager.tgz": os.environ[
                 "AWS_CLOUD_CONTROLLER"
+            ],
+            "data/downloads/charts/aws-ebs-csi-driver.tgz": os.environ[
+                "AWS_EBS_CSI_DRIVER"
+            ],
+            "data/downloads/charts/aws-efs-csi-driver.tgz": os.environ[
+                "AWS_EFS_CSI_DRIVER"
             ],
             "data/downloads/charts/calico.tgz": os.environ["CALICO"],
             "data/downloads/charts/external-dns.tgz": os.environ["EXTERNAL_DNS"],

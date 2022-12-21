@@ -17,6 +17,8 @@ resource "aws_lambda_function" "k3s-getk3s" {
   environment {
     variables = {
       AWS_CLOUD_CONTROLLER = var.urls.AWS_CLOUD_CONTROLLER
+      AWS_EBS_CSI_DRIVER   = var.urls.AWS_EBS_CSI_DRIVER
+      AWS_EFS_CSI_DRIVER   = var.urls.AWS_EFS_CSI_DRIVER
       CALICO               = var.urls.CALICO
       EXTERNAL_DNS         = var.urls.EXTERNAL_DNS
       HELM_ARM64           = var.urls.HELM_ARM64
@@ -41,7 +43,7 @@ data "aws_lambda_invocation" "k3s-getk3s" {
   function_name = aws_lambda_function.k3s-getk3s.function_name
   input         = <<JSON
 {
- "files":"${each.key}"
+ "invoker":"${each.key}"
 }
 JSON
   depends_on = [

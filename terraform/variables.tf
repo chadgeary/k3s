@@ -35,7 +35,7 @@ variable "urls" {
 
 # container images
 variable "container_images" {
-  type        = map(list(string))
+  type        = list(string)
   description = "Images to clone from public repositories to ECR"
 }
 

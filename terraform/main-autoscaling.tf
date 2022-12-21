@@ -91,7 +91,22 @@ resource "aws_autoscaling_group" "k3s" {
     propagate_at_launch = true
   }
 
-  depends_on = [aws_iam_user_policy_attachment.k3s-ec2-passrole, aws_s3_bucket_policy.k3s-private, aws_s3_bucket_policy.k3s-public, aws_cloudwatch_log_group.k3s-ec2, aws_s3_object.scripts, aws_iam_role_policy_attachment.k3s-ec2-controlplane, aws_iam_role_policy_attachment.k3s-ec2-nodes, aws_iam_role_policy_attachment.k3s-ec2-controlplane-managed, aws_iam_role_policy_attachment.k3s-ec2-nodes-managed, aws_route53_zone.k3s, aws_route53_record.k3s-private, aws_lb.k3s-private, aws_vpc_endpoint_subnet_association.k3s-vpces, aws_db_instance.k3s]
+  depends_on = [
+    aws_db_instance.k3s,
+    aws_iam_user_policy_attachment.k3s-ec2-passrole,
+    aws_iam_role_policy_attachment.k3s-ec2-controlplane,
+    aws_iam_role_policy_attachment.k3s-ec2-nodes,
+    aws_iam_role_policy_attachment.k3s-ec2-controlplane-managed,
+    aws_iam_role_policy_attachment.k3s-ec2-nodes-managed,
+    aws_lb.k3s-private,
+    aws_route53_zone.k3s,
+    aws_route53_record.k3s-private,
+    aws_s3_bucket_policy.k3s-private,
+    aws_s3_bucket_policy.k3s-public,
+    aws_s3_object.scripts,
+    aws_ssm_association.k3s,
+    aws_vpc_endpoint_subnet_association.k3s-vpces,
+  ]
 }
 
 resource "aws_autoscaling_lifecycle_hook" "k3s" {
