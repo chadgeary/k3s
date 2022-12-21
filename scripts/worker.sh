@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "running installer ($K3S_NODEGROUP/agent)"
-INSTALL_K3S_EXEC="agent --kubelet-arg=provider-id=aws:///$AZ/$INSTANCE_ID --resolv-conf=/etc/rancher/k3s/resolv.conf"
+INSTALL_K3S_EXEC="agent --kubelet-arg=provider-id=aws:///$AZ/$INSTANCE_ID --resolv-conf=/etc/rancher/k3s/resolv.conf --node-label=node.kubernetes.io/instance-type=$INSTANCE_TYPE"
 export INSTALL_K3S_EXEC
 "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 echo "copying kube config from s3"

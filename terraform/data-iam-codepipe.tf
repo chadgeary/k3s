@@ -49,8 +49,7 @@ data "aws_iam_policy_document" "k3s-codepipeline" {
       "codebuild:BatchGetBuilds",
       "codebuild:StartBuild"
     ]
-    effect = "Allow"
-    # resources = [aws_codebuild_project.k3s["arm64"].arn, aws_codebuild_project.k3s["x86_64"].arn]
+    effect    = "Allow"
     resources = [for project in aws_codebuild_project.k3s : project.arn]
   }
 

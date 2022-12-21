@@ -48,6 +48,12 @@ resource "aws_codebuild_project" "k3s" {
   depends_on = [aws_iam_role_policy_attachment.k3s-codebuild, aws_cloudwatch_log_group.k3s-codebuild, aws_s3_object.containers]
 }
 
+# codepipeline can start faster than IAM propagates
+resource "time_sleep" "codepipeline_iam" {
+  depends_on      = [aws_iam_role_policy_attachment.k3s-codepipeline]
+  create_duration = "15s"
+}
+
 resource "aws_codepipeline" "k3s" {
   for_each = aws_s3_object.containers
   name     = "containers-${local.prefix}-${local.suffix}-${replace(element(split(":", each.key), 0), "/", "-")}"
@@ -115,5 +121,5 @@ resource "aws_codepipeline" "k3s" {
       }
     }
   }
-  depends_on = [aws_iam_role_policy_attachment.k3s-codepipeline]
+  depends_on = [aws_iam_role_policy_attachment.k3s-codepipeline, time_sleep.codepipeline_iam]
 }
