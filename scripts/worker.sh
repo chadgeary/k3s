@@ -15,8 +15,6 @@ echo "labeling node"
 
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     label --overwrite=true node "$(hostname -f)" \
-    failure-domain.beta.kubernetes.io/region="$REGION" \
-    failure-domain.beta.kubernetes.io/zone="$AZ" \
     kubernetes.io/arch="$ARCH" \
     kubernetes.io/cluster="$PREFIX"-"$SUFFIX" \
     kubernetes.io/node-group="$K3S_NODEGROUP" \
