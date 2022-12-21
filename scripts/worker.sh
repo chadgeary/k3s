@@ -15,25 +15,14 @@ echo "labeling node"
 
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     label --overwrite=true node "$(hostname -f)" \
-    kubernetes.io/cluster="$PREFIX"-"$SUFFIX"
-
-/usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-    label --overwrite=true node "$(hostname -f)" \
-    kubernetes.io/node-group="$K3S_NODEGROUP"
-
-/usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-    label --overwrite=true node "$(hostname -f)" \
-    node-role.kubernetes.io/worker="true"
-
-if [ "$ARCH" == "arm64" ]; then
-    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch="arm64"
-else
-    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch="amd64"
-fi
+    failure-domain.beta.kubernetes.io/region="$REGION" \
+    failure-domain.beta.kubernetes.io/zone="$AZ" \
+    kubernetes.io/arch="$ARCH" \
+    kubernetes.io/cluster="$PREFIX"-"$SUFFIX" \
+    kubernetes.io/node-group="$K3S_NODEGROUP" \
+    node.kubernetes.io/instance-type="$INSTANCE_TYPE" \
+    topology.kubernetes.io/region="$REGION" \
+    topology.kubernetes.io/zone="$AZ"
 
 # oidc (irsa)
 echo "generating registries script and systemd service+timer"

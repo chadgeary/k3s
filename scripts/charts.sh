@@ -161,6 +161,8 @@ controller:
   env:
   - name: AWS_DEFAULT_REGION
     value: "$REGION"
+  - name: AWS_REGION
+    value: "$REGION"
   - name: AWS_ROLE_ARN
     value: "arn:aws:iam::$ACCOUNT:role/$PREFIX-$SUFFIX-aws-ebs-csi-driver"
   - name: AWS_WEB_IDENTITY_TOKEN_FILE
@@ -189,6 +191,11 @@ controller:
     name: serviceaccount
 
 node:
+  env:
+  - name: AWS_DEFAULT_REGION
+    value: "$REGION"
+  - name: AWS_REGION
+    value: "$REGION"
   tolerations:
   - effect: NoSchedule
     operator: Exists

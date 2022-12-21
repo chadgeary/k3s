@@ -8,31 +8,22 @@ export INSTALL_K3S_EXEC
 
 echo "labeling + tainting node"
 
+# labels
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     label --overwrite=true node "$(hostname -f)" \
-    kubernetes.io/cluster="$PREFIX"-"$SUFFIX"
+    failure-domain.beta.kubernetes.io/region="$REGION" \
+    failure-domain.beta.kubernetes.io/zone="$AZ" \
+    kubernetes.io/arch="$ARCH" \
+    kubernetes.io/cluster="$PREFIX"-"$SUFFIX" \
+    kubernetes.io/node-group="$K3S_NODEGROUP" \
+    node.kubernetes.io/instance-type="$INSTANCE_TYPE" \
+    topology.kubernetes.io/region="$REGION" \
+    topology.kubernetes.io/zone="$AZ"
 
-/usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-    label --overwrite=true node "$(hostname -f)" \
-    kubernetes.io/node-group="$K3S_NODEGROUP"
-
-/usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-    label --overwrite=true node "$(hostname -f)" \
-    node-role.kubernetes.io/control-plane="true"
-
+# taint(s)
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     taint --overwrite=true node "$(hostname -f)" \
     node-role.kubernetes.io/control-plane:NoSchedule
-
-if [ "$ARCH" == "arm64" ]; then
-    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch="arm64"
-else
-    /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
-        label --overwrite=true node "$(hostname -f)" \
-        kubernetes.io/arch="amd64"
-fi
 
 echo "copying kube config to s3 (private)"
 for i in {1..120}; do

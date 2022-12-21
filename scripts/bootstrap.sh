@@ -6,6 +6,7 @@ ARCH=$(uname -m); if [ $ARCH = "aarch64" ]; then ARCH="arm64"; fi
 AWS_METADATA_TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 AZ=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+INSTANCE_TYPE=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/instance-type)
 DB_PASS=$(aws --region "$REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/DB_PASS --query Parameter.Value --output text)
 ECR_URI_PREFIX="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$PREFIX-$SUFFIX"
 K3S_TOKEN=$(aws --region "$REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/K3S_TOKEN --query Parameter.Value --output text)
@@ -20,7 +21,7 @@ CHARTS_PATH="/opt/charts"
 K3S_DATASTORE_ENDPOINT="postgres://$PREFIX$SUFFIX:$DB_PASS@$DB_ENDPOINT/$PREFIX$SUFFIX"
 INSTALL_K3S_SKIP_DOWNLOAD="true"
 
-export ARCH AWS_METADATA_TOKEN AWS_ADDON_URI AZ EBS_KMS_ARN EFS_ID ECR_URI_PREFIX DB_PASS INSTANCE_ID K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD HELM_BIN_FILE CHARTS_PATH POD_CIDR NAT_GATEWAYS VPC
+export ARCH AWS_METADATA_TOKEN AWS_ADDON_URI AZ EBS_KMS_ARN EFS_ID ECR_URI_PREFIX DB_PASS INSTANCE_ID INSTANCE_TYPE K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD HELM_BIN_FILE CHARTS_PATH POD_CIDR NAT_GATEWAYS VPC
 
 # k3s binary
 if [ -f "$K3S_BIN_PATH/$K3S_BIN_FILE" ]; then
