@@ -59,19 +59,26 @@ terraform apply
   * bug: is incompatible with the k3s CCM (cloud controller manager)
     * k3s CCM labels nodes with values that are incompatible
     * especially `node.kubernetes.io/instance-type` used by `aws-ebs-csi-driver`
-  * fix: disabled k3s ccm, replaced with aws ccm
+    * fix: disabled k3s ccm, replaced with aws ccm
 * `aws-efs-csi-driver`
   * bug: official helm chart does not support passing mounts + envvars
     * mounts + envvars are required for non-eks IRSA, e.g: see `./terraform/templates/irsa.yaml.tftpl`
-  * fix: granted control-plane nodes' iam instance profile the permissions required for efs
+    * fix: granted control-plane nodes' iam instance profile the permissions required for efs
 * `aws-load-balancer-controller`
   * bug: nodes (ec2 instances) are not attached to associated nlb target group(s)
     * likely related to cni being non-native (calico instead of eni)
-  * fix: used aws ccm's native lb controller
+    * fix: used aws ccm's native lb controller
 * `external-dns`
   * bug: use of route53 requires internet egress
     * route53 has no regional endpoints (therefore no vpc endpoint support)
-  * fix: added option to enable a nat gateway
+    * fix: added option to enable a nat gateway
+  * bug: `kubernetes-sigs/external-dns`' helm chart does not support serviceaccount `automountServiceAccountToken`
+    * the token must be mounted for non-eks IRSA, e.g: see `./terraform/templates/irsa.yaml.tftpl`
+    * fix: used `bitnami/charts`'s external-dns w/ `.Values.serviceAccount.automountServiceAccountToken: true`
+      * this introduces another bug
+  * bug: `bitnami/external-dns` container image only supports x86_64
+    * node architecture may be arm64
+    * fix: used `ghcr.io/zcube/bitnami-compat/external-dns` which supports multi-arch
 
 ![Output](k3s.png)
 
