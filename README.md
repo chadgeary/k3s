@@ -22,7 +22,7 @@ terraform apply
 * offline
   * cluster functions without direct internet access
     * enable egress w/ `var.nat_gateways = true`
-    * lambda+ssm bootstrap k3s' [airgap](https://docs.k3s.io/installation/
+    * lambda+ssm bootstrap k3s' [airgap](https://docs.k3s.io/installation/airgap)
   * container image mirror via ecr with:
     * [pull-through-cache](https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html) for images @
       * [public-ecr](https://gallery.ecr.aws/docker)
