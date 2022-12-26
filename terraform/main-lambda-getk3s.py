@@ -72,6 +72,10 @@ def lambda_handler(event, context):
             "data/downloads/k3s/helm-x86_64.tar.gz": os.environ["HELM_X86_64"],
             "data/downloads/k3s/helm-arm64.tar.gz": os.environ["HELM_ARM64"],
             "scripts/install.sh": os.environ["K3S_INSTALL"],
+            "scripts/awscli-exe-linux-x86_64.zip": os.environ["AWSCLIV2_X86_64"],
+            "scripts/awscli-exe-linux-arm64.zip": os.environ["AWSCLIV2_ARM64"],
+            "scripts/unzip-x86_64.deb": os.environ["UNZIP_X86_64"],
+            "scripts/unzip-arm64.deb": os.environ["UNZIP_ARM64"]
         }
         for key in urls:
             s3_object = list(s3.Bucket(os.environ["BUCKET"]).objects.filter(Prefix=key))
@@ -104,7 +108,7 @@ def lambda_handler(event, context):
             "data/downloads/charts/aws-efs-csi-driver.tgz": os.environ[
                 "AWS_EFS_CSI_DRIVER"
             ],
-            "data/downloads/charts/calico.tgz": os.environ["CALICO"],
+            "data/downloads/charts/cilium.tgz": os.environ["CILIUM"],
             "data/downloads/charts/external-dns.tgz": os.environ["EXTERNAL_DNS"],
         }
         for key in urls:

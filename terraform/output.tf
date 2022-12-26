@@ -18,6 +18,12 @@ repos=$(aws ecr describe-repositories --query "repositories[?starts_with(reposit
 for repo in $repos; do
   aws ecr delete-repository --repository-name $repo --force
 done
+
+# To cleanup OIDC provider
+oidcproviders=$(aws iam list-open-id-connect-providers --query "OpenIDConnectProviderList[?contains(Arn, '${local.prefix}-${local.suffix}')].Arn" --output text)
+for oidcprovider in $oidcproviders; do
+  aws iam delete-open-id-connect-provider --open-id-connect-provider-arn $oidcprovider
+done
 EOT
 
 }

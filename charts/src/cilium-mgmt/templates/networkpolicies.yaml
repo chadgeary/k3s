@@ -1,0 +1,99 @@
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-system-to-kube-apiserver
+  namespace: kube-system
+spec:
+  description: "ns:kube-system to kube-apiserver"
+  endpointSelector:
+    matchLabels:
+      {}
+  egress:
+  - toEntities:
+    - kube-apiserver
+  - toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+      - port: "6443"
+        protocol: TCP
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-system-to-aws443
+  namespace: kube-system
+spec:
+  description: "ns:kube-system to *.amazonaws.com on 443"
+  endpointSelector:
+    matchLabels:
+      {}
+  egress:
+  - toFQDNs:
+    - matchPattern: "*.amazonaws.com"
+  - toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-system-to-vpc
+  namespace: kube-system
+spec:
+  description: "ns:kube-system to vpc_cidr"
+  endpointSelector:
+    matchLabels:
+      {}
+  egress:
+  - toCIDR:
+    - {{ .Values.vpc_cidr }}
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: kube-dns-to-ec2-dns
+  namespace: kube-system
+spec:
+  description: "kube-dns to instance dns"
+  endpointSelector:
+    matchLabels:
+      k8s-app: kube-dns
+  egress:
+  - toCIDR:
+    - 169.254.169.253/32
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: ccm-to-ec2-metadata
+  namespace: kube-system
+spec:
+  description: "aws-ccm to instance dns and metadata"
+  endpointSelector:
+    matchLabels:
+      k8s-app: aws-cloud-controller-manager
+  egress:
+  - toCIDR:
+    - 169.254.169.253/32
+    - 169.254.169.254/32
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: metrics-server-to-kubelet
+  namespace: kube-system
+spec:
+  description: "ns:kube-system to kube-apiserver"
+  endpointSelector:
+    matchLabels:
+      k8s-app: metrics-server
+  egress:
+  - toEntities:
+    - host
+  - toPorts:
+    - ports:
+      - port: "10250"
+        protocol: TCP

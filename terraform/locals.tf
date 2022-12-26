@@ -52,9 +52,20 @@ locals {
     us-west-2      = "602401143452.dkr.ecr.us-west-2.amazonaws.com"
   }
 
+  aws_partition_ami_owner = {
+    aws        = ["099720109477", "898082745236"]
+    aws-cn     = ["837727238323"]
+    aws-us-gov = ["513442679011"]
+  }
+
   ecr_pull_through_caches = data.aws_partition.k3s.partition == "aws" ? {
     quay = "quay.io"
     ecr  = "public.ecr.aws"
   } : {}
+
+  # split cluster_cidr in half, and assign an ip for kubedns
+  pod_cidr   = cidrsubnet(var.cluster_cidr, 2, 1)
+  svc_cidr   = cidrsubnet(var.cluster_cidr, 2, 2)
+  kubedns_ip = cidrhost(local.svc_cidr, 10)
 
 }

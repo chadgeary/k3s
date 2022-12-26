@@ -38,3 +38,10 @@ data "archive_file" "containers" {
   }
   output_path = "containers/${replace(element(split(":", each.key), 0), "/", "-")}.zip"
 }
+
+data "archive_file" "charts" {
+  for_each    = toset(distinct([for k in fileset("../charts/src", "**") : "${element(split("/", k), 0)}"]))
+  type        = "zip"
+  source_dir  = "../charts/src/${each.key}"
+  output_path = "../charts/archives/${each.key}.zip"
+}

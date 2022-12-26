@@ -82,9 +82,9 @@ variable "vpc_cidr" {
   description = "The network in CIDR notation used by AWS for VPC+Subnets"
 }
 
-variable "pod_cidr" {
+variable "cluster_cidr" {
   type        = string
-  description = "The network in CIDR notation used by Calico for pods"
+  description = "The network in CIDR notation used by k3s for pods and services"
 }
 
 variable "azs" {

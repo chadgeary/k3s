@@ -115,6 +115,7 @@ No modules.
 | [aws_s3_bucket_server_side_encryption_configuration.k3s-private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_s3_bucket_versioning.k3s-private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
 | [aws_s3_bucket_versioning.k3s-public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_s3_object.charts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_s3_object.containers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_s3_object.scripts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_security_group.k3s-ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
@@ -153,6 +154,7 @@ No modules.
 | [local_file.nginx-w-calico](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [random_string.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [time_sleep.codepipeline_iam](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
+| [archive_file.charts](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.containers](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.k3s-getk3s](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.k3s-oidcprovider](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
@@ -204,11 +206,11 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_amis"></a> [amis](#input\_amis) | AMI key:values for node groups to reference | `map(string)` | n/a | yes |
 | <a name="input_azs"></a> [azs](#input\_azs) | The number of azs to use, min is 1 & max is number of azs in the region | `number` | n/a | yes |
+| <a name="input_cluster_cidr"></a> [cluster\_cidr](#input\_cluster\_cidr) | The network in CIDR notation used by k3s for pods and services | `string` | n/a | yes |
 | <a name="input_container_images"></a> [container\_images](#input\_container\_images) | Images to clone from public repositories to ECR | `list(string)` | n/a | yes |
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | cloudwatch log retention days | `number` | n/a | yes |
 | <a name="input_nat_gateways"></a> [nat\_gateways](#input\_nat\_gateways) | Public internet access (outbound via nat\_gateway(s)) | `bool` | n/a | yes |
 | <a name="input_nodegroups"></a> [nodegroups](#input\_nodegroups) | Instance configuration | <pre>map(object(<br>    {<br>      ami            = string,<br>      scaling_count  = map(any),<br>      volume         = map(any),<br>      instance_types = list(string)<br>    })<br>  )</pre> | n/a | yes |
-| <a name="input_pod_cidr"></a> [pod\_cidr](#input\_pod\_cidr) | The network in CIDR notation used by Calico for pods | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Short, friendly, and alphanumeric for naming resources | `string` | n/a | yes |
 | <a name="input_profile"></a> [profile](#input\_profile) | The aws profile to deploy the service | `string` | n/a | yes |
 | <a name="input_rds"></a> [rds](#input\_rds) | rds (k3s datastore) | <pre>object({<br>    allocated_storage       = number<br>    backup_retention_period = number<br>    engine                  = string<br>    engine_version          = string<br>    instance_class          = string<br>    storage_type            = string<br>  })</pre> | n/a | yes |

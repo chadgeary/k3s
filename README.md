@@ -47,11 +47,16 @@ terraform apply
   * post-apply: `./terraform/connect.sh`, see example image
   * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
-  * 8 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, sns, ssm)
-  * tailored kms key, bucket, iam, and trust policies
+  * at-rest:
+    * 8 independent kms keys (codebuild, cloudwatch, ec2, lambda, rds, s3, sns, ssm)
+    * tailored kms key, bucket, iam, and trust policies
+  * in-transit:
+    * IPSec via Cilium
+    * Cilium network policies
 * included charts:
   * aws cloud controller
-  * calico cni via tigera-operator
+  * aws-ebs-csi-controller and aws-efs-csi-controller
+  * cilium cni w/ base network policies
   * external-dns (req. `var.nat_gateways = true`)
 
 ## Known Bugs + Fixes

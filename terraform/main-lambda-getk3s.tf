@@ -16,10 +16,12 @@ resource "aws_lambda_function" "k3s-getk3s" {
   timeout          = 900
   environment {
     variables = {
+      AWSCLIV2_X86_64      = var.urls.AWSCLIV2_X86_64
+      AWSCLIV2_ARM64       = var.urls.AWSCLIV2_ARM64
       AWS_CLOUD_CONTROLLER = var.urls.AWS_CLOUD_CONTROLLER
       AWS_EBS_CSI_DRIVER   = var.urls.AWS_EBS_CSI_DRIVER
       AWS_EFS_CSI_DRIVER   = var.urls.AWS_EFS_CSI_DRIVER
-      CALICO               = var.urls.CALICO
+      CILIUM               = var.urls.CILIUM
       EXTERNAL_DNS         = var.urls.EXTERNAL_DNS
       HELM_ARM64           = var.urls.HELM_ARM64
       HELM_X86_64          = var.urls.HELM_X86_64
@@ -28,10 +30,11 @@ resource "aws_lambda_function" "k3s-getk3s" {
       K3S_BIN_X86_64       = var.urls.K3S_BIN_X86_64
       K3S_TAR_ARM64        = var.urls.K3S_TAR_ARM64
       K3S_TAR_X86_64       = var.urls.K3S_TAR_X86_64
+      UNZIP_ARM64          = var.urls.UNZIP_ARM64
+      UNZIP_X86_64         = var.urls.UNZIP_X86_64
       BUCKET               = aws_s3_bucket.k3s-private.id
       REGION               = var.region
       KEY                  = aws_kms_key.k3s["s3"].arn
-
     }
   }
   depends_on = [aws_cloudwatch_log_group.k3s-lambda-getk3s]

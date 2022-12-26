@@ -1,5 +1,75 @@
 #!/bin/bash
 
+# run by control-plane.sh
+
+mkdir -p "$CHARTS_PATH"
+
+# charts from tf -> getk3s lambda -> s3
+/usr/local/bin/aws --region "$REGION" s3 sync s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/charts/ "$CHARTS_PATH"/ --quiet
+
+# charts from tf -> ../charts/ -> s3 -> ssm (scripts/charts/*.zip)
+cd charts/
+for CHART_ZIP in *.zip; do
+    CHART_NAME=$(echo $CHART_ZIP | awk -F'.' '{print $1}')
+    rm -rf "$CHARTS_PATH"/"$CHART_NAME"
+    unzip $CHART_ZIP -d "$CHARTS_PATH"/"$CHART_NAME"
+done
+cd ../
+
+# cilium
+tee "$CHARTS_PATH"/cilium.yaml <<EOM
+
+certgen:
+  image:
+    repository: $ECR_URI_PREFIX-quay/cilium/certgen
+    tag: "v0.1.8@sha256:4a456552a5f192992a6edcec2febb1c54870d665173a33dc7d876129b199ddbd"
+
+encryption:
+  enabled: true
+  type: ipsec
+  secretName: cilium-ipsec-keys
+
+hubble:
+  enabled: false
+
+image:
+  repository: $ECR_URI_PREFIX-quay/cilium/cilium
+  tag: "v1.13.0-rc4"
+
+ipam:
+  mode: "cluster-pool"
+  operator:
+    clusterPoolIPv4PodCIDR: "$POD_CIDR"
+    clusterPoolIPv4MaskSize: 24
+
+operator:
+  enabled: true
+  image:
+    repository: $ECR_URI_PREFIX-quay/cilium/operator
+    tag: "v1.13.0-rc4"
+  replicas: 1
+
+proxy:
+  sidecarImageRegex:
+
+EOM
+
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --namespace kube-system cilium -f "$CHARTS_PATH"/cilium.yaml \
+    "$CHARTS_PATH"/cilium.tgz
+
+# cilium-mgmt
+tee "$CHARTS_PATH"/cilium-mgmt.yaml <<EOM
+
+vpc_cidr: $VPC_CIDR
+
+EOM
+
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --create-namespace \
+    --namespace kube-system cilium-mgmt -f "$CHARTS_PATH"/cilium-mgmt.yaml \
+    "$CHARTS_PATH"/cilium-mgmt
+
 # aws-cloud-controller-manager
 tee "$CHARTS_PATH"/aws-cloud-controller-manager.yaml <<EOM
 
@@ -121,7 +191,7 @@ roleName: extension-apiserver-authentication-reader
 
 EOM
 
-helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system aws-cloud-controller-manager -f "$CHARTS_PATH"/aws-cloud-controller-manager.yaml \
     "$CHARTS_PATH"/aws-cloud-controller-manager.tgz
 
@@ -213,7 +283,7 @@ storageClasses:
   volumeBindingMode: WaitForFirstConsumer
 EOM
 
-helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system aws-ebs-csi-driver -f "$CHARTS_PATH"/aws-ebs-csi-driver.yaml \
     "$CHARTS_PATH"/aws-ebs-csi-driver.tgz
 
@@ -267,43 +337,9 @@ storageClasses:
 
 EOM
 
-helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system aws-efs-csi-driver -f "$CHARTS_PATH"/aws-efs-csi-driver.yaml \
     "$CHARTS_PATH"/aws-efs-csi-driver.tgz
-
-# calico
-tee "$CHARTS_PATH"/calico.yaml <<EOM
-
-tigeraOperator:
-  image: tigera/operator
-  registry: $ECR_URI_PREFIX-quay
-calicoctl:
-  image: $ECR_URI_PREFIX-quay/calico/ctl
-installation:
-  kubernetesProvider: EKS
-  cni:
-    type: Calico
-  calicoNetwork:
-    bgp: Disabled
-    ipPools:
-    - blockSize: 24
-      cidr: $POD_CIDR
-      encapsulation: VXLANCrossSubnet
-  containerIPForwarding: "Enabled"
-  controlPlaneReplicas: 1
-  registry: $ECR_URI_PREFIX-quay
-tolerations:
-- effect: NoExecute
-  operator: Exists
-- effect: NoSchedule
-  operator: Exists
-nodeSelector:
-  node-role.kubernetes.io/control-plane: "true"
-EOM
-
-helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
-    --namespace kube-system calico -f "$CHARTS_PATH"/calico.yaml \
-    "$CHARTS_PATH"/calico.tgz
 
 # external-dns
 tee "$CHARTS_PATH"/external-dns.yaml <<EOM
@@ -333,7 +369,7 @@ nodeSelector:
 EOM
 
 if [ $NAT_GATEWAYS == "true" ]; then
-  helm --kube-apiserver "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+  helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
       --namespace kube-system external-dns -f "$CHARTS_PATH"/external-dns.yaml \
       "$CHARTS_PATH"/external-dns.tgz
 else

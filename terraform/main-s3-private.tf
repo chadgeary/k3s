@@ -44,16 +44,26 @@ resource "aws_s3_bucket_public_access_block" "k3s-private" {
   restrict_public_buckets = true
 }
 
-# s3 objects (playbook)
+# s3 objects (./scripts/ -> s3://scripts/)
 resource "aws_s3_object" "scripts" {
-  for_each       = fileset("../scripts/", "*.sh")
+  for_each       = fileset("../scripts/", "**")
   bucket         = aws_s3_bucket.k3s-private.id
   key            = "scripts/${each.value}"
   content_base64 = base64encode(file("../scripts/${each.value}"))
   kms_key_id     = aws_kms_key.k3s["s3"].arn
 }
 
-# s3 objects (containers for codebuild)
+# s3 objects (for each ./charts/src/dir -> s3://scripts/charts/each.zip)
+resource "aws_s3_object" "charts" {
+  for_each    = data.archive_file.charts
+  bucket      = aws_s3_bucket.k3s-private.id
+  key         = "scripts/charts/${element(split("/", each.value.output_path), length(split("/", each.value.output_path)) - 1)}"
+  source      = each.value.output_path
+  source_hash = each.value.output_base64sha256
+  kms_key_id  = aws_kms_key.k3s["s3"].arn
+}
+
+# s3 objects (for each var.container_images -> s3://containers/each.zip)
 resource "aws_s3_object" "containers" {
   for_each    = data.archive_file.containers
   bucket      = aws_s3_bucket.k3s-private.id

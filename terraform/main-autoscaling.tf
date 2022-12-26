@@ -21,7 +21,7 @@ resource "aws_launch_template" "k3s" {
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
-    http_put_response_hop_limit = each.key == "control-plane" ? 2 : 1
+    http_put_response_hop_limit = each.key == "control-plane" ? 3 : 1
   }
   private_dns_name_options {
     hostname_type = "resource-name"
@@ -104,6 +104,7 @@ resource "aws_autoscaling_group" "k3s" {
     aws_s3_bucket_policy.k3s-private,
     aws_s3_bucket_policy.k3s-public,
     aws_s3_object.scripts,
+    aws_s3_object.charts,
     aws_ssm_association.k3s,
     aws_vpc_endpoint_subnet_association.k3s-vpces,
   ]
