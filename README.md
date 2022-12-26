@@ -71,7 +71,7 @@ terraform apply
     * fix: granted control-plane nodes' iam instance profile the permissions required for efs
 * `aws-load-balancer-controller`
   * bug: nodes (ec2 instances) are not attached to associated nlb target group(s)
-    * likely related to cni being non-native (calico instead of eni)
+    * likely related to cni being non-native (cilium instead of eni)
     * fix: used aws ccm's native lb controller
 * `external-dns`
   * bug: use of route53 requires internet egress

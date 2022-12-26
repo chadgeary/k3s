@@ -33,7 +33,7 @@ resource "local_file" "irsa" {
   )
 }
 
-resource "local_file" "nginx-w-calico" {
+resource "local_file" "nginx-w-cilium" {
   filename        = "./manifests/web-test.yaml"
   file_permission = "0600"
   content = templatefile(

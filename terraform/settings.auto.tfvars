@@ -26,7 +26,7 @@ log_retention_in_days = 30 # 0 = never expire
 # cloud controller @ https://kubernetes.github.io/cloud-provider-aws/index.yaml
 # ebs @ https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases
 # efs @ https://github.com/kubernetes-sigs/aws-efs-csi-driver/releases
-# calico @ https://projectcalico.docs.tigera.io/charts/index.yaml
+# cilium @ https://helm.cilium.io/index.yaml
 # external-dns @ https://charts.bitnami.com/bitnami/index.yaml
 # unzip @ http://us-east-1.ec2.ports.ubuntu.com/ubuntu-ports/pool/main/u/unzip/ & http://us-east-1.ec2.archive.ubuntu.com/ubuntu/pool/main/u/unzip/
 urls = {

@@ -4,29 +4,18 @@ kind: Namespace
 metadata:
   name: external-website
 ---
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
 metadata:
-  name: default-nginx-deny
-spec:
-  selector: projectcalico.org/namespace in  {'external-website'}
-  types:
-  - Ingress
-  - Egress
----
-apiVersion: projectcalico.org/v3
-kind: NetworkPolicy
-metadata:
-  name: allow-nginx-ingress
+  name: "from-world-to-external-website"
   namespace: external-website
 spec:
-  selector: app == 'external-website'
-  types:
-  - Ingress
+  endpointSelector:
+    matchLabels:
+      app: external-website
   ingress:
-  - action: Allow
-    source:
-      nets: ["0.0.0.0/0"]
+    - fromEntities:
+      - world
 ---
 apiVersion: v1
 kind: ConfigMap
