@@ -27,10 +27,10 @@ variable "amis" {
   description = "AMI key:values for node groups to reference"
 }
 
-# urls
-variable "urls" {
+# lambda_to_s3
+variable "lambda_to_s3" {
   type        = map(any)
-  description = "Location K3s bin/tar are downloaded from via lambda"
+  description = "url/prefix pairs invoke lambda which downloads to s3 (if not exists)"
 }
 
 # container images

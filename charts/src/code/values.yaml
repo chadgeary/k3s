@@ -1,0 +1,7 @@
+persistence:
+  code:
+    storageClassName: local-path
+    storageClassSize: 5Gi
+  docker:
+    storageClassName: local-path
+    storageClassSize: 5Gi

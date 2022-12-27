@@ -184,7 +184,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
+        identifiers = [aws_iam_role.k3s-lambda-getfiles.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
       }
       condition {
         test     = "StringEquals"
@@ -255,7 +255,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn, aws_iam_role.k3s-lambda-getk3s.arn, aws_iam_role.k3s-lambda-oidcprovider.arn, aws_iam_role.k3s-codebuild.arn, aws_iam_role.k3s-codepipeline.arn]
+        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn, aws_iam_role.k3s-lambda-getfiles.arn, aws_iam_role.k3s-lambda-oidcprovider.arn, aws_iam_role.k3s-codebuild.arn, aws_iam_role.k3s-codepipeline.arn]
       }
     }
   }

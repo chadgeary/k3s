@@ -68,7 +68,7 @@ data "aws_iam_policy_document" "k3s-s3-private" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.k3s-lambda-getk3s.arn]
+      identifiers = [aws_iam_role.k3s-lambda-getfiles.arn]
     }
   }
 

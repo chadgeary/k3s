@@ -96,4 +96,5 @@ resource "aws_ssm_association" "k3s" {
     SourceInfo      = "{\"path\":\"https://s3.${var.region}.amazonaws.com/${aws_s3_bucket.k3s-private.id}/scripts/\"}"
     SourceType      = "S3"
   }
+  depends_on = [aws_lambda_function.k3s-getk3s, data.aws_lambda_invocation.k3s-getk3s]
 }

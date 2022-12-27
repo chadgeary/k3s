@@ -16,7 +16,7 @@ resource "aws_cloudwatch_log_group" "k3s-ec2" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "k3s-lambda-getk3s" {
+resource "aws_cloudwatch_log_group" "k3s-lambda-getfiles" {
   name              = "/aws/lambda/${local.prefix}-${local.suffix}-getk3s"
   retention_in_days = var.log_retention_in_days
   kms_key_id        = aws_kms_key.k3s["cw"].arn

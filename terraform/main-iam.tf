@@ -125,31 +125,31 @@ resource "aws_iam_instance_profile" "k3s-ec2-nodes" {
 }
 
 ## lambda
-resource "aws_iam_role" "k3s-lambda-getk3s" {
-  name               = "${local.prefix}-${local.suffix}-lambda-getk3s"
+resource "aws_iam_role" "k3s-lambda-getfiles" {
+  name               = "${local.prefix}-${local.suffix}-lambda-getfiles"
   path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.k3s-lambda-getk3s-trust.json
+  assume_role_policy = data.aws_iam_policy_document.k3s-lambda-getfiles-trust.json
 }
 
-resource "aws_iam_policy" "k3s-lambda-getk3s" {
-  name   = "${local.prefix}-${local.suffix}-lambda-getk3s"
+resource "aws_iam_policy" "k3s-lambda-getfiles" {
+  name   = "${local.prefix}-${local.suffix}-lambda-getfiles"
   path   = "/"
-  policy = data.aws_iam_policy_document.k3s-lambda-getk3s.json
+  policy = data.aws_iam_policy_document.k3s-lambda-getfiles.json
 }
 
-resource "aws_iam_role_policy_attachment" "k3s-lambda-getk3s" {
-  role       = aws_iam_role.k3s-lambda-getk3s.name
-  policy_arn = aws_iam_policy.k3s-lambda-getk3s.arn
+resource "aws_iam_role_policy_attachment" "k3s-lambda-getfiles" {
+  role       = aws_iam_role.k3s-lambda-getfiles.name
+  policy_arn = aws_iam_policy.k3s-lambda-getfiles.arn
 }
 
-resource "aws_iam_role_policy_attachment" "k3s-lambda-getk3s-managed-1" {
-  role       = aws_iam_role.k3s-lambda-getk3s.name
-  policy_arn = data.aws_iam_policy.k3s-lambda-getk3s-managed-1.arn
+resource "aws_iam_role_policy_attachment" "k3s-lambda-getfiles-managed-1" {
+  role       = aws_iam_role.k3s-lambda-getfiles.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-getfiles-managed-1.arn
 }
 
-resource "aws_iam_role_policy_attachment" "k3s-lambda-getk3s-managed-2" {
-  role       = aws_iam_role.k3s-lambda-getk3s.name
-  policy_arn = data.aws_iam_policy.k3s-lambda-getk3s-managed-2.arn
+resource "aws_iam_role_policy_attachment" "k3s-lambda-getfiles-managed-2" {
+  role       = aws_iam_role.k3s-lambda-getfiles.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-getfiles-managed-2.arn
 }
 
 resource "aws_iam_role" "k3s-lambda-oidcprovider" {

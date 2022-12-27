@@ -1,12 +1,12 @@
-data "aws_iam_policy" "k3s-lambda-getk3s-managed-1" {
+data "aws_iam_policy" "k3s-lambda-getfiles-managed-1" {
   arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/AmazonSSMFullAccess"
 }
 
-data "aws_iam_policy" "k3s-lambda-getk3s-managed-2" {
+data "aws_iam_policy" "k3s-lambda-getfiles-managed-2" {
   arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-data "aws_iam_policy_document" "k3s-lambda-getk3s-trust" {
+data "aws_iam_policy_document" "k3s-lambda-getfiles-trust" {
   statement {
     sid = "ForLambdaOnly"
     actions = [
@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "k3s-lambda-getk3s-trust" {
   }
 }
 
-data "aws_iam_policy_document" "k3s-lambda-getk3s" {
+data "aws_iam_policy_document" "k3s-lambda-getfiles" {
 
   statement {
     sid = "ListBucket"

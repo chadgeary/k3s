@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: docker-storage
+  labels:
+    app: code
+spec:
+  storageClassName: {{ .Values.persistence.docker.storageClassName }}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.docker.storageClassSize }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: code-storage
+  labels:
+    app: code
+spec:
+  storageClassName: {{ .Values.persistence.code.storageClassName }}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.code.storageClassSize }}

@@ -6,8 +6,8 @@ ARCH=$(uname -m); if [ $ARCH = "aarch64" ]; then ARCH="arm64"; fi
 
 # unzip + awscli install
 dpkg -i $PWD/unzip-$ARCH.deb
-unzip awscli-exe-linux-$ARCH.zip
-./aws/install --bin-dir /usr/local/bin --install-dir /opt/awscli
+unzip -o awscli-exe-linux-$ARCH.zip
+./aws/install --bin-dir /usr/local/bin --install-dir /opt/awscli --update
 
 # add'l vars
 AWS_METADATA_TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")

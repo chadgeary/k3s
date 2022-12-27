@@ -25,7 +25,7 @@ No modules.
 | [aws_autoscaling_lifecycle_hook.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_lifecycle_hook) | resource |
 | [aws_cloudwatch_log_group.k3s-codebuild](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_group.k3s-ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
-| [aws_cloudwatch_log_group.k3s-lambda-getk3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.k3s-lambda-getfiles](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_group.k3s-lambda-oidcprovider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_group.k3s-lambda-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_codebuild_project.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codebuild_project) | resource |
@@ -49,7 +49,7 @@ No modules.
 | [aws_iam_policy.k3s-ec2-passrole](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.k3s-external-dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.k3s-irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.k3s-lambda-getk3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.k3s-lambda-getfiles](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.k3s-lambda-oidcprovider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.k3s-lambda-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.k3s-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -61,7 +61,7 @@ No modules.
 | [aws_iam_role.k3s-ec2-nodes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.k3s-external-dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.k3s-irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role.k3s-lambda-getk3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.k3s-lambda-getfiles](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.k3s-lambda-oidcprovider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.k3s-lambda-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.k3s-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -75,9 +75,9 @@ No modules.
 | [aws_iam_role_policy_attachment.k3s-ec2-nodes-managed](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.k3s-external-dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.k3s-irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.k3s-lambda-getk3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.k3s-lambda-getk3s-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.k3s-lambda-getk3s-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.k3s-lambda-getfiles](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.k3s-lambda-getfiles-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.k3s-lambda-getfiles-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.k3s-lambda-oidcprovider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.k3s-lambda-oidcprovider-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -163,8 +163,8 @@ No modules.
 | [aws_availability_zones.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_caller_identity.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy.k3s-ec2-managed](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
-| [aws_iam_policy.k3s-lambda-getk3s-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
-| [aws_iam_policy.k3s-lambda-getk3s-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy.k3s-lambda-getfiles-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy.k3s-lambda-getfiles-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.k3s-lambda-oidcprovider-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.k3s-lambda-oidcprovider-managed-2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.k3s-lambda-scaledown-managed-1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
@@ -186,8 +186,8 @@ No modules.
 | [aws_iam_policy_document.k3s-irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.k3s-irsa-trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.k3s-kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.k3s-lambda-getk3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.k3s-lambda-getk3s-trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.k3s-lambda-getfiles](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.k3s-lambda-getfiles-trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.k3s-lambda-oidcprovider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.k3s-lambda-oidcprovider-trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.k3s-lambda-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -208,6 +208,7 @@ No modules.
 | <a name="input_azs"></a> [azs](#input\_azs) | The number of azs to use, min is 1 & max is number of azs in the region | `number` | n/a | yes |
 | <a name="input_cluster_cidr"></a> [cluster\_cidr](#input\_cluster\_cidr) | The network in CIDR notation used by k3s for pods and services | `string` | n/a | yes |
 | <a name="input_container_images"></a> [container\_images](#input\_container\_images) | Images to clone from public repositories to ECR | `list(string)` | n/a | yes |
+| <a name="input_lambda_to_s3"></a> [lambda\_to\_s3](#input\_lambda\_to\_s3) | url/prefix pairs invoke lambda which downloads to s3 (if not exists) | `map(any)` | n/a | yes |
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | cloudwatch log retention days | `number` | n/a | yes |
 | <a name="input_nat_gateways"></a> [nat\_gateways](#input\_nat\_gateways) | Public internet access (outbound via nat\_gateway(s)) | `bool` | n/a | yes |
 | <a name="input_nodegroups"></a> [nodegroups](#input\_nodegroups) | Instance configuration | <pre>map(object(<br>    {<br>      ami            = string,<br>      scaling_count  = map(any),<br>      volume         = map(any),<br>      instance_types = list(string)<br>    })<br>  )</pre> | n/a | yes |
@@ -217,7 +218,6 @@ No modules.
 | <a name="input_region"></a> [region](#input\_region) | The aws region to deploy the service | `string` | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | A map of secret strings stored encrypted in SSM. Readable by instances | `map(any)` | n/a | yes |
 | <a name="input_suffix"></a> [suffix](#input\_suffix) | Optional short, friendly, and alphanumeric for naming resources. If empty, a random 2 digit suffix is used. | `string` | `""` | no |
-| <a name="input_urls"></a> [urls](#input\_urls) | Location K3s bin/tar are downloaded from via lambda | `map(any)` | n/a | yes |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | The network in CIDR notation used by AWS for VPC+Subnets | `string` | n/a | yes |
 | <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | Enable/disable private VPC endpoints for autoscaling, ecr, iam, etc. | `bool` | n/a | yes |
 

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: code
+description: ARCHIVE a code server capabale of running docker
+sources:
+- https://docs.linuxserver.io/images/docker-code-server
+- https://hub.docker.com/_/docker/tags?page=1&name=dind
+version: 0.0.1
