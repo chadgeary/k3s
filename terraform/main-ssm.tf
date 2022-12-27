@@ -59,9 +59,6 @@ resource "aws_ssm_document" "k3s" {
       "inputs": {
       "runCommand": [
         "#!/bin/bash",
-        "for zip in $(find -iname '*.zip'); do",
-        "  unzip -o $zip",
-        "done",
         "ShellScriptFile=\"{{ShellScriptFile}}\"",
         "export {{EnvVars}}",
         "if [ ! -f  \"$${ShellScriptFile}\" ] ; then",

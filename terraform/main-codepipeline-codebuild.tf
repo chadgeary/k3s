@@ -121,5 +121,5 @@ resource "aws_codepipeline" "k3s" {
       }
     }
   }
-  depends_on = [aws_iam_role_policy_attachment.k3s-codepipeline, time_sleep.codepipeline_iam]
+  depends_on = [aws_ecr_repository.k3s, aws_iam_role_policy_attachment.k3s-codepipeline, time_sleep.codepipeline_iam]
 }

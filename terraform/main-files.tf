@@ -32,17 +32,3 @@ resource "local_file" "irsa" {
     }
   )
 }
-
-resource "local_file" "nginx-w-cilium" {
-  filename        = "./manifests/web-test.yaml"
-  file_permission = "0600"
-  content = templatefile(
-    "../templates/web-test.yaml.tftpl",
-    {
-      ACCOUNT = data.aws_caller_identity.k3s.account_id
-      REGION  = var.region
-      PREFIX  = local.prefix
-      SUFFIX  = local.suffix
-    }
-  )
-}

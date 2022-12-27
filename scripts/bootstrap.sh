@@ -6,7 +6,7 @@ ARCH=$(uname -m); if [ $ARCH = "aarch64" ]; then ARCH="arm64"; fi
 
 # unzip + awscli install
 dpkg -i $PWD/unzip-$ARCH.deb
-unzip -o awscli-exe-linux-$ARCH.zip
+unzip -q -o awscli-exe-linux-$ARCH.zip
 ./aws/install --bin-dir /usr/local/bin --install-dir /opt/awscli --update
 
 # add'l vars

@@ -65,10 +65,14 @@ vpc_cidr: $VPC_CIDR
 
 EOM
 
-helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --create-namespace \
     --namespace kube-system cilium-mgmt -f "$CHARTS_PATH"/cilium-mgmt.yaml \
     "$CHARTS_PATH"/cilium-mgmt
+do
+  echo "Installing chart.."
+  sleep 1
+done
 
 # aws-cloud-controller-manager
 tee "$CHARTS_PATH"/aws-cloud-controller-manager.yaml <<EOM

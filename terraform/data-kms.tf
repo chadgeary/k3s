@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["codebuild", "cw", "ec2", "efs", "lambda", "rds", "s3", "sns", "ssm"])
+  for_each = toset(["codebuild", "cw", "ec2", "ecr", "efs", "lambda", "rds", "s3", "sns", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -138,6 +138,37 @@ data "aws_iam_policy_document" "k3s-kms" {
         test     = "Bool"
         variable = "aws:PrincipalArn"
         values   = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:role/${local.prefix}-${local.suffix}-aws-ebs-csi-driver"]
+      }
+    }
+  }
+
+  ## ecr statement(s)
+  dynamic "statement" {
+    for_each = each.value == "ecr" ? [1] : []
+    content {
+      sid = "EcrUse"
+      actions = [
+        "kms:CreateGrant",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:${data.aws_partition.k3s.partition}:iam::${data.aws_caller_identity.k3s.account_id}:root"]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:CallerAccount"
+        values   = [data.aws_caller_identity.k3s.account_id]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "kms:ViaService"
+        values   = ["ecr.${var.region}.amazonaws.com"]
       }
     }
   }

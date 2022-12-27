@@ -1,5 +1,5 @@
 resource "aws_kms_key" "k3s" {
-  for_each                 = toset(["codebuild", "cw", "ec2", "efs", "lambda", "rds", "s3", "sns", "ssm"])
+  for_each                 = toset(["codebuild", "cw", "ec2", "ecr", "efs", "lambda", "rds", "s3", "sns", "ssm"])
   description              = "${local.prefix}-${local.suffix}-${each.value}"
   key_usage                = "ENCRYPT_DECRYPT"
   customer_master_key_spec = "SYMMETRIC_DEFAULT"

@@ -12,6 +12,10 @@ resource "aws_ecr_repository" "k3s" {
   image_scanning_configuration {
     scan_on_push = true
   }
+  encryption_configuration {
+    encryption_type = "KMS"
+    kms_key         = aws_kms_key.k3s["ecr"].arn
+  }
 
   tags = {
     Name = "${local.prefix}-${local.suffix}-codebuild/${element(split(":", each.key), 0)}"
