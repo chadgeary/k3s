@@ -28,7 +28,7 @@ secrets = {
 }
 
 ## AMIs
-# Ubuntu 20.04 (will bump to 22.04 when a deep learning AMI is released)
+# Ubuntu 22.04 (gpu (deep learning) still 20.04)
 # https://cloud-images.ubuntu.com/locator/ec2/
 # https://docs.aws.amazon.com/dlami/latest/devguide/appendix-ami-release-notes.html
 amis = {
