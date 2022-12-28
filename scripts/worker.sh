@@ -29,7 +29,7 @@ done
 
 # oidc (irsa)
 echo "generating registries script and systemd service+timer"
-tee /usr/local/bin/registries << EOM
+tee /usr/local/bin/registries >/dev/null << EOM
 #!/bin/bash
 
 echo "getting ecr password"
@@ -61,7 +61,7 @@ systemctl restart k3s-agent
 EOM
 chmod 700 /usr/local/bin/registries
 
-tee /etc/systemd/system/k3s-registries.service << EOM
+tee /etc/systemd/system/k3s-registries.service >/dev/null << EOM
 [Unit]
 Description=Generates registries files from k3s api server and publishes to s3 every 11h
 After=network.target
@@ -73,7 +73,7 @@ Restart=no
 WantedBy=multi-user.target
 EOM
 
-tee /etc/systemd/system/k3s-registries.timer << EOM
+tee /etc/systemd/system/k3s-registries.timer >/dev/null << EOM
 [Unit]
 Description=Generates registries files from k3s api server and publishes to s3 every 11h
 [Timer]

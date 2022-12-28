@@ -37,7 +37,7 @@ cp scaledown.sh /usr/local/bin/scaledown.sh
 if [ -f "$K3S_BIN_PATH/$K3S_BIN_FILE" ]; then
     echo "bin exists, skipping"
 else
-    /usr/local/bin/aws --region "$REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_BIN_FILE"-"$ARCH" "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
+    /usr/local/bin/aws --region "$REGION" s3 cp --quiet s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_BIN_FILE"-"$ARCH" "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
     chmod +x "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
 fi
 
@@ -52,14 +52,14 @@ echo "nameserver 169.254.169.253" > /etc/rancher/k3s/resolv.conf
 if [ -f "$K3S_TAR_PATH/$K3S_TAR_FILE".tar ]; then
     echo "tar exists, skipping"
 else
-    /usr/local/bin/aws --region "$REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_TAR_FILE"-"$ARCH".tar "$K3S_TAR_PATH"/"$K3S_TAR_FILE".tar --quiet
+    /usr/local/bin/aws --region "$REGION" s3 cp --quiet s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_TAR_FILE"-"$ARCH".tar "$K3S_TAR_PATH"/"$K3S_TAR_FILE".tar --quiet
 fi
 
 # k3s install
 if [ -f "$K3S_INSTALL_PATH/$K3S_INSTALL_FILE" ]; then
     echo "bin exists, skipping"
 else
-    /usr/local/bin/aws --region "$REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"-private/scripts/"$K3S_INSTALL_FILE" "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE" --quiet
+    /usr/local/bin/aws --region "$REGION" s3 cp --quiet s3://"$PREFIX"-"$SUFFIX"-private/scripts/"$K3S_INSTALL_FILE" "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE" --quiet
     chmod +x "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 fi
 

@@ -71,8 +71,8 @@ nodegroups = {
   generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
-      min = 0
-      max = 0
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 15

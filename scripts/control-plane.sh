@@ -46,7 +46,7 @@ bash charts.sh
 
 # oidc (irsa)
 echo "generating oidc script and systemd service+timer"
-tee /usr/local/bin/oidc << EOM
+tee /usr/local/bin/oidc >/dev/null << EOM
 #!/bin/bash
 
 echo "decoding x509"
@@ -69,7 +69,7 @@ EOM
 
 chmod 700 /usr/local/bin/oidc
 
-tee /etc/systemd/system/k3s-oidc.service << EOM
+tee /etc/systemd/system/k3s-oidc.service >/dev/null << EOM
 [Unit]
 Description=Generates oidc files from k3s api server and publishes to s3 every 23h
 After=network.target
@@ -81,7 +81,7 @@ Restart=no
 WantedBy=multi-user.target
 EOM
 
-tee /etc/systemd/system/k3s-oidc.timer << EOM
+tee /etc/systemd/system/k3s-oidc.timer >/dev/null << EOM
 [Unit]
 Description=Generates oidc files from k3s api server and publishes to s3 every 23h
 [Timer]
@@ -97,7 +97,7 @@ systemctl enable k3s-oidc.service k3s-oidc.timer
 systemctl start k3s-oidc.service k3s-oidc.timer
 
 echo "generating registries script and systemd service+timer"
-tee /usr/local/bin/registries << EOM
+tee /usr/local/bin/registries >/dev/null << EOM
 #!/bin/bash
 
 echo "getting ecr password"
@@ -129,7 +129,7 @@ systemctl restart k3s
 EOM
 chmod 700 /usr/local/bin/registries
 
-tee /etc/systemd/system/k3s-registries.service << EOM
+tee /etc/systemd/system/k3s-registries.service >/dev/null << EOM
 [Unit]
 Description=Generates registries files from k3s api server and publishes to s3 every 11h
 After=network.target
@@ -141,7 +141,7 @@ Restart=no
 WantedBy=multi-user.target
 EOM
 
-tee /etc/systemd/system/k3s-registries.timer << EOM
+tee /etc/systemd/system/k3s-registries.timer >/dev/null << EOM
 [Unit]
 Description=Generates registries files from k3s api server and publishes to s3 every 11h
 [Timer]
