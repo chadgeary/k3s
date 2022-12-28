@@ -58,7 +58,7 @@ resource "aws_ssm_document" "k3s-scaledown" {
      "#!/bin/bash",
      "export LIFECYCLEHOOKNAME='{{ LIFECYCLEHOOKNAME }}'",
      "export ASGNAME='{{ ASGNAME }}'",
-     "export K3S_URL=https://${aws_lb.k3s-private.dns_name}:6443",
+     "export K3S_URL=https://control-plane.${local.prefix}-${local.suffix}.internal:6443",
      "/usr/local/bin/scaledown.sh"
     ]
    }

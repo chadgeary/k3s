@@ -16,8 +16,17 @@ for CHART_ZIP in *.zip; do
 done
 cd ../
 
+# cilium-secret
+until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --namespace kube-system cilium-secret \
+    "$CHARTS_PATH"/cilium-secret
+do
+  echo "Installing chart.."
+  sleep 1
+done
+
 # cilium
-tee "$CHARTS_PATH"/cilium.yaml <<EOM
+tee "$CHARTS_PATH"/cilium.yaml >/dev/null <<EOM
 
 certgen:
   image:
@@ -49,17 +58,18 @@ operator:
     tag: "v1.13.0-rc4"
   replicas: 1
 
-proxy:
-  sidecarImageRegex:
-
 EOM
 
-helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system cilium -f "$CHARTS_PATH"/cilium.yaml \
     "$CHARTS_PATH"/cilium.tgz
+do
+  echo "Installing chart.."
+  sleep 1
+done
 
 # cilium-mgmt
-tee "$CHARTS_PATH"/cilium-mgmt.yaml <<EOM
+tee "$CHARTS_PATH"/cilium-mgmt.yaml >/dev/null <<EOM
 
 vpc_cidr: $VPC_CIDR
 
@@ -75,7 +85,7 @@ do
 done
 
 # aws-cloud-controller-manager
-tee "$CHARTS_PATH"/aws-cloud-controller-manager.yaml <<EOM
+tee "$CHARTS_PATH"/aws-cloud-controller-manager.yaml >/dev/null <<EOM
 
 namespace: "kube-system"
 args:
@@ -200,7 +210,7 @@ helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.y
     "$CHARTS_PATH"/aws-cloud-controller-manager.tgz
 
 # aws-ebs-csi-driver
-tee "$CHARTS_PATH"/aws-ebs-csi-driver.yaml <<EOM
+tee "$CHARTS_PATH"/aws-ebs-csi-driver.yaml >/dev/null <<EOM
 
 image:
   repository: $ECR_URI_PREFIX-ecr/ebs-csi-driver/aws-ebs-csi-driver
@@ -292,7 +302,7 @@ helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.y
     "$CHARTS_PATH"/aws-ebs-csi-driver.tgz
 
 # aws-efs-csi-driver
-tee "$CHARTS_PATH"/aws-efs-csi-driver.yaml <<EOM
+tee "$CHARTS_PATH"/aws-efs-csi-driver.yaml >/dev/null <<EOM
 
 controller:
   tags:
@@ -346,7 +356,7 @@ helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.y
     "$CHARTS_PATH"/aws-efs-csi-driver.tgz
 
 # external-dns
-tee "$CHARTS_PATH"/external-dns.yaml <<EOM
+tee "$CHARTS_PATH"/external-dns.yaml >/dev/null <<EOM
 
 image:
   registry: $ECR_URI_PREFIX-codebuild

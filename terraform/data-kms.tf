@@ -215,7 +215,7 @@ data "aws_iam_policy_document" "k3s-kms" {
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-lambda-getfiles.arn, aws_iam_role.k3s-lambda-oidcprovider.arn]
+        identifiers = [aws_iam_role.k3s-lambda-getfiles.arn, aws_iam_role.k3s-lambda-oidcprovider.arn, aws_iam_role.k3s-lambda-r53updater.arn]
       }
       condition {
         test     = "StringEquals"

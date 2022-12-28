@@ -206,3 +206,65 @@ data "aws_iam_policy_document" "k3s-lambda-scaledown" {
     resources = ["*"]
   }
 }
+
+data "aws_iam_policy" "k3s-lambda-r53updater-managed-1" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+data "aws_iam_policy" "k3s-lambda-r53updater-managed-2" {
+  arn = "arn:${data.aws_partition.k3s.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+data "aws_iam_policy_document" "k3s-lambda-r53updater-trust" {
+  statement {
+    sid = "ForLambdaOnly"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "k3s-lambda-r53updater" {
+
+  statement {
+    sid = "UseKMSLambda"
+    actions = [
+      "kms:Decrypt"
+    ]
+    effect    = "Allow"
+    resources = [aws_kms_key.k3s["lambda"].arn]
+  }
+
+  statement {
+    sid = "ASG"
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "EC2"
+    actions = [
+      "ec2:DescribeInstances"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "R53"
+    actions = [
+      "route53:ChangeResourceRecordSets"
+    ]
+    effect    = "Allow"
+    resources = [aws_route53_zone.k3s.arn]
+  }
+
+}

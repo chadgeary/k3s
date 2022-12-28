@@ -1,6 +1,6 @@
 apiVersion: v2
 name: cilium-mgmt
-description: generates base cilium policies for cluster
+description: generates ipsec secret for cilium
 sources:
 - https://github.com/cilium/cilium
 version: 1.0.0

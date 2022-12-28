@@ -59,8 +59,8 @@ nodegroups = {
   control-plane = {
     ami = "arm64"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 2
+      max = 2
     }
     volume = {
       gb   = 15
@@ -71,8 +71,8 @@ nodegroups = {
   generalpurpose1 = {
     ami = "x86_64"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 2
+      max = 2
     }
     volume = {
       gb   = 15

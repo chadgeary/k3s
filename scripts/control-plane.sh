@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "running installer (control-plane)"
-INSTALL_K3S_EXEC="server --resolv-conf=/etc/rancher/k3s/resolv.conf --kubelet-arg=provider-id=aws:///$AZ/$INSTANCE_ID --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3.$REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3.$REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks --flannel-backend=none --cluster-cidr=$POD_CIDR --service-cidr=$SVC_CIDR --cluster-dns=$KUBEDNS_IP --disable-network-policy --disable=traefik --disable=servicelb --disable-cloud-controller --node-label=node.kubernetes.io/instance-type=$INSTANCE_TYPE --node-taint=node-role.kubernetes.io/control-plane:NoSchedule --node-taint=node.cilium.io/agent-not-ready:NoSchedule --tls-san=$K3S_LB"
+INSTALL_K3S_EXEC="server --resolv-conf=/etc/rancher/k3s/resolv.conf --kubelet-arg=provider-id=aws:///$AZ/$INSTANCE_ID --kube-apiserver-arg=api-audiences=$PREFIX-$SUFFIX --kube-apiserver-arg=service-account-issuer=https://s3.$REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc --kube-apiserver-arg=service-account-jwks-uri=https://s3.$REGION.amazonaws.com/$PREFIX-$SUFFIX-public/oidc/openid/v1/jwks --flannel-backend=none --cluster-cidr=$POD_CIDR --service-cidr=$SVC_CIDR --cluster-dns=$KUBEDNS_IP --disable-network-policy --disable=traefik --disable=servicelb --disable-cloud-controller --node-label=node.kubernetes.io/instance-type=$INSTANCE_TYPE --node-taint=node-role.kubernetes.io/control-plane:NoSchedule --node-taint=node.cilium.io/agent-not-ready:NoSchedule --tls-san=control-plane.$PREFIX-$SUFFIX.internal"
 export INSTALL_K3S_EXEC
 "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 

@@ -98,7 +98,6 @@ resource "aws_autoscaling_group" "k3s" {
     aws_iam_role_policy_attachment.k3s-ec2-nodes,
     aws_iam_role_policy_attachment.k3s-ec2-controlplane-managed,
     aws_iam_role_policy_attachment.k3s-ec2-nodes-managed,
-    aws_lb.k3s-private,
     aws_route53_zone.k3s,
     aws_route53_record.k3s-private,
     aws_s3_bucket_policy.k3s-private,

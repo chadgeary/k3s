@@ -206,6 +206,33 @@ resource "aws_iam_role_policy_attachment" "k3s-lambda-scaledown-managed-2" {
   policy_arn = data.aws_iam_policy.k3s-lambda-scaledown-managed-2.arn
 }
 
+resource "aws_iam_role" "k3s-lambda-r53updater" {
+  name               = "${local.prefix}-${local.suffix}-lambda-r53updater"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.k3s-lambda-r53updater-trust.json
+}
+
+resource "aws_iam_policy" "k3s-lambda-r53updater" {
+  name   = "${local.prefix}-${local.suffix}-lambda-r53updater"
+  path   = "/"
+  policy = data.aws_iam_policy_document.k3s-lambda-r53updater.json
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-r53updater" {
+  role       = aws_iam_role.k3s-lambda-r53updater.name
+  policy_arn = aws_iam_policy.k3s-lambda-r53updater.arn
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-r53updater-managed-1" {
+  role       = aws_iam_role.k3s-lambda-r53updater.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-r53updater-managed-1.arn
+}
+
+resource "aws_iam_role_policy_attachment" "k3s-lambda-r53updater-managed-2" {
+  role       = aws_iam_role.k3s-lambda-r53updater.name
+  policy_arn = data.aws_iam_policy.k3s-lambda-r53updater-managed-2.arn
+}
+
 ## irsa
 resource "aws_iam_role" "k3s-irsa" {
   name               = "${local.prefix}-${local.suffix}-irsa"
