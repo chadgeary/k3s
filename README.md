@@ -1,5 +1,5 @@
 # K3s Cluster on AWS
-Deploys a low-cost, scalable, private K3s cluster on AWS.
+Kubernetes in AWS with k3s deployed via terraform. Save costs (compared to EKS) without compromising scalability or features.
 
 ## Requirements
 * aws account
@@ -19,7 +19,7 @@ terraform apply
 ```
 
 ## Features
-* offline
+* offline or online
   * cluster functions without direct internet access
     * enable egress w/ `var.nat_gateways = true`
     * lambda+ssm bootstrap [k3s' airgap installation](https://docs.k3s.io/installation/airgap)
