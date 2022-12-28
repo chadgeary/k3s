@@ -1,4 +1,4 @@
-# K3s Cluster on AWS
+# cloudk3s
 Kubernetes in AWS with k3s deployed via terraform. Save costs (compared to EKS) without compromising scalability or features.
 
 ## Requirements
