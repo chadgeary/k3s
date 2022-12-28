@@ -13,8 +13,8 @@ unzip -q -o awscli-exe-linux-$ARCH.zip
 AWS_METADATA_TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 AZ=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+INSTANCE_IP=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4)
 INSTANCE_TYPE=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.254.169.254/latest/meta-data/instance-type)
-DB_PASS=$(/usr/local/bin/aws --region "$REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/DB_PASS --query Parameter.Value --output text)
 ECR_URI_PREFIX="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$PREFIX-$SUFFIX"
 K3S_TOKEN=$(/usr/local/bin/aws --region "$REGION" ssm get-parameter --with-decryption --name /"$PREFIX"-"$SUFFIX"/K3S_TOKEN --query Parameter.Value --output text)
 K3S_BIN_PATH="/usr/local/bin"
@@ -25,10 +25,9 @@ K3S_INSTALL_PATH="/usr/local/bin"
 K3S_INSTALL_FILE="install.sh"
 HELM_BIN_FILE="helm"
 CHARTS_PATH="/opt/charts"
-K3S_DATASTORE_ENDPOINT="postgres://$PREFIX$SUFFIX:$DB_PASS@$DB_ENDPOINT/$PREFIX$SUFFIX"
 INSTALL_K3S_SKIP_DOWNLOAD="true"
 
-export ARCH AWS_METADATA_TOKEN AWS_ADDON_URI AZ EBS_KMS_ARN EFS_ID ECR_URI_PREFIX DB_PASS INSTANCE_ID INSTANCE_TYPE K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD HELM_BIN_FILE CHARTS_PATH POD_CIDR SVC_CIDR KUBEDNS_IP NAT_GATEWAYS VPC VPC_CIDR
+export ARCH AWS_METADATA_TOKEN AWS_ADDON_URI AZ EFS_ID ECR_URI_PREFIX INSTANCE_ID INSTANCE_IP INSTANCE_TYPE K3S_TOKEN K3S_BIN_PATH K3S_BIN_FILE K3S_TAR_PATH K3S_TAR_FILE K3S_INSTALL_PATH K3S_INSTALL_FILE K3S_DATASTORE_ENDPOINT INSTALL_K3S_SKIP_DOWNLOAD HELM_BIN_FILE CHARTS_PATH POD_CIDR SVC_CIDR KUBEDNS_IP NAT_GATEWAYS VPC VPC_CIDR
 
 # copy scaledown.sh
 cp scaledown.sh /usr/local/bin/scaledown.sh
@@ -47,6 +46,18 @@ chmod 750 /etc/rancher/k3s /var/lib/rancher/k3s/agent/images
 
 # ec2 vpc r53 nameserver to k3s
 echo "nameserver 169.254.169.253" > /etc/rancher/k3s/resolv.conf
+
+# ec2 ip to /etc/hosts https://github.com/k3s-io/k3s/issues/163#issuecomment-469882207
+grep --quiet $INSTANCE_IP /etc/hosts;
+if [ $? -ne 0 ]; then
+    tee -a /etc/hosts << EOM
+
+# k3s
+$INSTANCE_IP localhost
+$INSTANCE_IP $(hostname)
+
+EOM
+fi
 
 # k3s tar
 if [ -f "$K3S_TAR_PATH/$K3S_TAR_FILE".tar ]; then

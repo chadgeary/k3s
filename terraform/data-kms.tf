@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "k3s-kms" {
-  for_each = toset(["codebuild", "cw", "ec2", "ecr", "efs", "lambda", "rds", "s3", "sns", "ssm"])
+  for_each = toset(["codebuild", "cw", "ec2", "ecr", "efs", "lambda", "s3", "sns", "ssm"])
 
   ## all kms policies statement(s)
   #
@@ -266,6 +266,21 @@ data "aws_iam_policy_document" "k3s-kms" {
       principals {
         type        = "AWS"
         identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-ec2-nodes.arn]
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.value == "ssm" ? [1] : []
+    content {
+      sid = "ControlPlaneEncrypt"
+      actions = [
+        "kms:Encrypt",
+      ]
+      resources = ["*"]
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn]
       }
     }
   }

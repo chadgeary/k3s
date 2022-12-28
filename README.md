@@ -37,7 +37,6 @@ terraform apply
     * instance type
     * architecture (arm, x86, gpu)
     * local storage
-  * datastore (RDS postgres)
   * availability zones
 * IRSA (IAM roles for Service Accounts) support
   * OIDC endpoint enrollment via s3 bucket static page
@@ -48,23 +47,18 @@ terraform apply
   * works with kubectl, helm, k9s, lens, etc.
 * strongly enforced encryption + access management
   * at-rest:
-    * 9 independent kms keys (codebuild, cloudwatch, ec2, ecr, lambda, rds, s3, sns, ssm)
+    * 8 independent kms keys (codebuild, cloudwatch, ec2, ecr, lambda, s3, sns, ssm)
     * tailored kms key, bucket, iam, and trust policies
   * in-transit:
     * IPSec via Cilium
     * Cilium network policies
 * included charts:
-  * aws cloud controller
-  * aws-ebs-csi-controller and aws-efs-csi-controller
-  * cilium cni w/ base network policies
+  * aws-cloud-controller
+  * aws-efs-csi-controller
+  * cilium cni w/ ipsec and base network policies
   * external-dns (req. `var.nat_gateways = true`)
 
 ## Known Bugs + Fixes
-* `aws-ebs-csi-driver`
-  * bug: is incompatible with the k3s CCM (cloud controller manager)
-    * k3s CCM labels nodes with values that are incompatible
-    * especially `node.kubernetes.io/instance-type` used by `aws-ebs-csi-driver`
-    * fix: disabled k3s ccm, replaced with aws ccm
 * `aws-efs-csi-driver`
   * bug: official helm chart does not support passing mounts + envvars
     * mounts + envvars are required for non-eks IRSA, e.g: see `./terraform/templates/irsa.yaml.tftpl`

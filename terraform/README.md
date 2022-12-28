@@ -32,8 +32,6 @@ No modules.
 | [aws_cloudwatch_log_group.k3s-lambda-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_codebuild_project.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codebuild_project) | resource |
 | [aws_codepipeline.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codepipeline) | resource |
-| [aws_db_instance.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance) | resource |
-| [aws_db_subnet_group.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_ecr_pull_through_cache_rule.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_pull_through_cache_rule) | resource |
 | [aws_ecr_repository.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
 | [aws_efs_file_system.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system) | resource |
@@ -126,10 +124,8 @@ No modules.
 | [aws_security_group.k3s-ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.k3s-efs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.k3s-endpoints](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
-| [aws_security_group.k3s-rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group_rule.k3s-ec2-egress-efs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-ec2-egress-endpoints](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
-| [aws_security_group_rule.k3s-ec2-egress-rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-ec2-egress-s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-ec2-egress-self-lb-private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-ec2-egress-self-sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
@@ -139,13 +135,13 @@ No modules.
 | [aws_security_group_rule.k3s-efs-ingress-ec2-sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-endpoints-ingress-ec2-net](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.k3s-endpoints-ingress-ec2-sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
-| [aws_security_group_rule.k3s-rds-ingress-ec2-sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_sns_topic.k3s-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_subscription.k3s-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_ssm_association.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_association) | resource |
 | [aws_ssm_document.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_document) | resource |
 | [aws_ssm_document.k3s-scaledown](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_document) | resource |
 | [aws_ssm_parameter.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
+| [aws_ssm_parameter.k3s-first-instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_subnet.k3s-private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
 | [aws_subnet.k3s-public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
 | [aws_vpc.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
@@ -223,7 +219,6 @@ No modules.
 | <a name="input_nodegroups"></a> [nodegroups](#input\_nodegroups) | Instance configuration | <pre>map(object(<br>    {<br>      ami            = string,<br>      scaling_count  = map(any),<br>      volume         = map(any),<br>      instance_types = list(string)<br>    })<br>  )</pre> | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Short, friendly, and alphanumeric for naming resources | `string` | n/a | yes |
 | <a name="input_profile"></a> [profile](#input\_profile) | The aws profile to deploy the service | `string` | n/a | yes |
-| <a name="input_rds"></a> [rds](#input\_rds) | rds (k3s datastore) | <pre>object({<br>    allocated_storage       = number<br>    backup_retention_period = number<br>    engine                  = string<br>    engine_version          = string<br>    instance_class          = string<br>    storage_type            = string<br>  })</pre> | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | The aws region to deploy the service | `string` | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | A map of secret strings stored encrypted in SSM. Readable by instances | `map(any)` | n/a | yes |
 | <a name="input_suffix"></a> [suffix](#input\_suffix) | Optional short, friendly, and alphanumeric for naming resources. If empty, a random 2 digit suffix is used. | `string` | `""` | no |

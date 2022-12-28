@@ -52,18 +52,6 @@ variable "nodegroups" {
   description = "Instance configuration"
 }
 
-# rds (k3s datastore)
-variable "rds" {
-  type = object({
-    allocated_storage       = number
-    backup_retention_period = number
-    engine                  = string
-    engine_version          = string
-    instance_class          = string
-    storage_type            = string
-  })
-}
-
 # logs (cloudwatch)
 variable "log_retention_in_days" {
   type        = number

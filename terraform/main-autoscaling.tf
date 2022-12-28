@@ -92,7 +92,6 @@ resource "aws_autoscaling_group" "k3s" {
   }
 
   depends_on = [
-    aws_db_instance.k3s,
     aws_iam_user_policy_attachment.k3s-ec2-passrole,
     aws_iam_role_policy_attachment.k3s-ec2-controlplane,
     aws_iam_role_policy_attachment.k3s-ec2-nodes,

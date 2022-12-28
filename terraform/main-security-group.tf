@@ -73,15 +73,6 @@ resource "aws_security_group_rule" "k3s-ec2-egress-endpoints" {
   source_security_group_id = aws_security_group.k3s-endpoints.id
 }
 
-resource "aws_security_group_rule" "k3s-ec2-egress-rds" {
-  type                     = "egress"
-  from_port                = "5432"
-  to_port                  = "5432"
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.k3s-ec2.id
-  source_security_group_id = aws_security_group.k3s-rds.id
-}
-
 resource "aws_security_group_rule" "k3s-ec2-egress-efs" {
   type                     = "egress"
   from_port                = "2049"
@@ -117,25 +108,6 @@ resource "aws_security_group_rule" "k3s-endpoints-ingress-ec2-net" {
   protocol          = "tcp"
   security_group_id = aws_security_group.k3s-endpoints.id
   cidr_blocks       = [for net in aws_subnet.k3s-private : net.cidr_block]
-}
-
-# security group for rds db
-resource "aws_security_group" "k3s-rds" {
-  name_prefix = "${local.prefix}-${local.suffix}-rds"
-  description = "SG for ${local.prefix}-${local.suffix}-rds"
-  vpc_id      = aws_vpc.k3s.id
-  tags = {
-    Name = "${local.prefix}-${local.suffix}-rds"
-  }
-}
-
-resource "aws_security_group_rule" "k3s-rds-ingress-ec2-sg" {
-  type                     = "ingress"
-  from_port                = "5432"
-  to_port                  = "5432"
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.k3s-rds.id
-  source_security_group_id = aws_security_group.k3s-ec2.id
 }
 
 # security group for efs

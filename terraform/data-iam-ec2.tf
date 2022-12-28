@@ -76,11 +76,21 @@ data "aws_iam_policy_document" "k3s-ec2-controlplane" {
   }
 
   statement {
+    sid = "PutSSMParameter"
+    actions = [
+      "ssm:PutParameter",
+    ]
+    effect    = "Allow"
+    resources = ["arn:${data.aws_partition.k3s.partition}:ssm:${var.region}:${data.aws_caller_identity.k3s.account_id}:parameter/${local.prefix}-${local.suffix}/FIRST_INSTANCE_ID"]
+  }
+
+  statement {
     sid = "UseKMS"
     actions = [
       "kms:GenerateDataKey*",
       "kms:Decrypt",
-      "kms:DescribeKey"
+      "kms:DescribeKey",
+      "kms:Encrypt"
     ]
     effect    = "Allow"
     resources = [aws_kms_key.k3s["s3"].arn, aws_kms_key.k3s["ssm"].arn]
