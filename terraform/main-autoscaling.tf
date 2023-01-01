@@ -39,9 +39,9 @@ resource "aws_autoscaling_group" "k3s" {
         version            = "$Latest"
       }
       dynamic "override" {
-        for_each = toset(each.value.instance_types)
+        for_each = each.value.instance_types
         content {
-          instance_type     = override.key
+          instance_type     = override.value
           weighted_capacity = "1"
         }
       }

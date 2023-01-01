@@ -25,8 +25,8 @@ sleep $SLEEP_SECONDS
 
 # notify aws complete
 aws autoscaling complete-lifecycle-action \
-  --lifecycle-hook-name $LIFECYCLEHOOKNAME \
-  --auto-scaling-group-name $ASGNAME \
+  --lifecycle-hook-name "$LIFECYCLEHOOKNAME" \
+  --auto-scaling-group-name "$ASGNAME" \
   --lifecycle-action-result $HOOKRESULT \
-  --instance-id $INSTANCE_ID \
-  --region $REGION
+  --instance-id "$INSTANCE_ID" \
+  --region "$REGION"

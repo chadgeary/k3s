@@ -23,7 +23,12 @@ variable "region" {
 
 # amis
 variable "amis" {
-  type        = map(string)
+  type = map(object(
+    {
+      name                = string,
+      aws_partition_owner = map(string),
+    })
+  )
   description = "AMI key:values for node groups to reference"
 }
 

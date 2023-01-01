@@ -52,13 +52,6 @@ locals {
     us-west-2      = "602401143452.dkr.ecr.us-west-2.amazonaws.com"
   }
 
-  # ubuntu accounts per aws partition
-  aws_partition_ami_owner = {
-    aws        = ["099720109477", "898082745236"]
-    aws-cn     = ["837727238323"]
-    aws-us-gov = ["513442679011"]
-  }
-
   # only available in commercial aws, not cn or gov
   ecr_pull_through_caches = data.aws_partition.k3s.partition == "aws" ? {
     quay = "quay.io"

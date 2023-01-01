@@ -100,7 +100,7 @@ resource "aws_ssm_association" "k3s" {
     s3_key_prefix  = "ssm/${each.key}"
   }
   parameters = {
-    EnvVars         = "AWS_ADDON_URI=${local.aws_addon_uris[var.region]} ACCOUNT=${data.aws_caller_identity.k3s.account_id} REGION=${var.region} PREFIX=${local.prefix} SUFFIX=${local.suffix} K3S_NODEGROUP=${each.key} K3S_URL=https://control-plane.${local.prefix}-${local.suffix}.internal:6443 SECGROUP=${aws_security_group.k3s-ec2.id} VPC=${aws_vpc.k3s.id} POD_CIDR=${local.pod_cidr} SVC_CIDR=${local.svc_cidr} KUBEDNS_IP=${local.kubedns_ip} VPC_CIDR=${var.vpc_cidr} NAT_GATEWAYS=${tostring(var.nat_gateways)} EBS_KMS_ARN='${aws_kms_key.k3s["ec2"].arn}' EFS_ID=${aws_efs_file_system.k3s.id}"
+    EnvVars         = "AWS_ADDON_URI=${local.aws_addon_uris[var.region]} ACCOUNT=${data.aws_caller_identity.k3s.account_id} AMI_TYPE=${each.value.ami} REGION=${var.region} PREFIX=${local.prefix} SUFFIX=${local.suffix} K3S_NODEGROUP=${each.key} POD_CIDR=${local.pod_cidr} SVC_CIDR=${local.svc_cidr} VPC_CIDR=${var.vpc_cidr} KUBEDNS_IP=${local.kubedns_ip} NAT_GATEWAYS=${tostring(var.nat_gateways)} EFS_ID=${aws_efs_file_system.k3s.id}"
     ShellScriptFile = "bootstrap.sh"
     SourceInfo      = "{\"path\":\"https://s3.${var.region}.amazonaws.com/${aws_s3_bucket.k3s-private.id}/scripts/\"}"
     SourceType      = "S3"

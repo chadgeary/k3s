@@ -1,18 +1,16 @@
 #!/bin/bash
-
 # run by control-plane.sh
 
-mkdir -p "$CHARTS_PATH"
-
 # charts from tf -> getk3s lambda -> s3
+mkdir -p "$CHARTS_PATH"
 /usr/local/bin/aws --region "$REGION" s3 sync s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/charts/ "$CHARTS_PATH"/ --quiet
 
 # charts from tf -> ../charts/ -> s3 -> ssm (scripts/charts/*.zip)
-cd charts/
+cd charts/ || exit
 for CHART_ZIP in *.zip; do
-    CHART_NAME=$(echo $CHART_ZIP | awk -F'.' '{print $1}')
-    rm -rf "$CHARTS_PATH"/"$CHART_NAME"
-    unzip $CHART_ZIP -d "$CHARTS_PATH"/"$CHART_NAME"
+    CHART_NAME=$(echo "$CHART_ZIP" | awk -F'.' '{print $1}')
+    rm -rf "${CHARTS_PATH:?}"/"$CHART_NAME"
+    unzip "$CHART_ZIP" -d "$CHARTS_PATH"/"$CHART_NAME"
 done
 cd ../
 
@@ -30,7 +28,7 @@ tee "$CHARTS_PATH"/cilium.yaml >/dev/null <<EOM
 
 certgen:
   image:
-    override: $ECR_URI_PREFIX-quay/cilium/certgen:v0.1.8
+    override: $AWS_ECR_PREFIX-quay/cilium/certgen:v0.1.8
 
 encryption:
   enabled: true
@@ -41,7 +39,7 @@ hubble:
   enabled: false
 
 image:
-  override: $ECR_URI_PREFIX-quay/cilium/cilium:v1.13.0-rc4
+  override: $AWS_ECR_PREFIX-quay/cilium/cilium:v1.13.0-rc4
 
 ipam:
   mode: "cluster-pool"
@@ -52,7 +50,7 @@ ipam:
 operator:
   enabled: true
   image:
-    override: $ECR_URI_PREFIX-quay/cilium/operator-generic:v1.13.0-rc4
+    override: $AWS_ECR_PREFIX-quay/cilium/operator-generic:v1.13.0-rc4
   replicas: 1
 
 EOM
@@ -94,7 +92,7 @@ args:
   - --cluster-name=$PREFIX-$SUFFIX
 
 image:
-    repository: $ECR_URI_PREFIX-codebuild/registry.k8s.io/provider-aws/cloud-controller-manager
+    repository: $AWS_ECR_PREFIX-codebuild/registry.k8s.io/provider-aws/cloud-controller-manager
     tag: v1.25.1
 nameOverride: "aws-cloud-controller-manager"
 nodeSelector:
@@ -220,21 +218,21 @@ controller:
     operator: Exists
 
 image:
-  repository: $ECR_URI_PREFIX-codebuild/amazon/aws-efs-csi-driver
+  repository: $AWS_ECR_PREFIX-codebuild/amazon/aws-efs-csi-driver
   tag: "v1.4.8"
 
 sidecars:
   livenessProbe:
     image:
-      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/livenessprobe
+      repository: $AWS_ECR_PREFIX-ecr/eks-distro/kubernetes-csi/livenessprobe
       tag: "v2.8.0-eks-1-24-5"
   nodeDriverRegistrar:
     image:
-      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/node-driver-registrar
+      repository: $AWS_ECR_PREFIX-ecr/eks-distro/kubernetes-csi/node-driver-registrar
       tag: "v2.6.2-eks-1-24-5"
   csiProvisioner:
     image:
-      repository: $ECR_URI_PREFIX-ecr/eks-distro/kubernetes-csi/external-provisioner
+      repository: $AWS_ECR_PREFIX-ecr/eks-distro/kubernetes-csi/external-provisioner
       tag: "v3.3.0-eks-1-24-5"
 
 replicaCount: 1
@@ -260,11 +258,28 @@ helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.y
     --namespace kube-system aws-efs-csi-driver -f "$CHARTS_PATH"/aws-efs-csi-driver.yaml \
     "$CHARTS_PATH"/aws-efs-csi-driver.tgz
 
+# nvidia-device-plugin
+tee "$CHARTS_PATH"/nvidia-device-plugin.yaml >/dev/null <<EOM
+
+image:
+  registry: $AWS_ECR_PREFIX-codebuild/nvcr.io/nvidia/k8s-device-plugin
+  tag: v0.13.0
+nfd:
+  image:
+    repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/nfd/node-feature-discovery
+    tag: v0.11.0
+
+EOM
+
+helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
+    --namespace kube-system nvidia-device-plugin -f "$CHARTS_PATH"/nvidia-device-plugin.yaml \
+    "$CHARTS_PATH"/nvidia-device-plugin.tgz
+
 # external-dns
 tee "$CHARTS_PATH"/external-dns.yaml >/dev/null <<EOM
 
 image:
-  registry: $ECR_URI_PREFIX-codebuild
+  registry: $AWS_ECR_PREFIX-codebuild
   repository: ghcr.io/zcube/bitnami-compat/external-dns
   tag: 0
 aws:
@@ -287,7 +302,7 @@ nodeSelector:
   node-role.kubernetes.io/control-plane: "true"
 EOM
 
-if [ $NAT_GATEWAYS == "true" ]; then
+if [ "$NAT_GATEWAYS" == "true" ]; then
   helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
       --namespace kube-system external-dns -f "$CHARTS_PATH"/external-dns.yaml \
       "$CHARTS_PATH"/external-dns.tgz

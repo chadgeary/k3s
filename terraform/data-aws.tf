@@ -13,9 +13,9 @@ data "aws_partition" "k3s" {
 data "aws_ami" "k3s" {
   for_each    = var.amis
   most_recent = true
-  owners      = local.aws_partition_ami_owner[data.aws_partition.k3s.partition]
+  owners      = [each.value.aws_partition_owner[data.aws_partition.k3s.partition]]
   filter {
     name   = "name"
-    values = [each.value]
+    values = [each.value.name]
   }
 }

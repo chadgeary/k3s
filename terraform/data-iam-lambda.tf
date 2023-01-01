@@ -259,12 +259,33 @@ data "aws_iam_policy_document" "k3s-lambda-r53updater" {
   }
 
   statement {
+    sid = "SSMKMS"
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt"
+    ]
+    effect    = "Allow"
+    resources = [aws_kms_key.k3s["ssm"].arn]
+  }
+
+  statement {
     sid = "R53"
     actions = [
       "route53:ChangeResourceRecordSets"
     ]
     effect    = "Allow"
     resources = [aws_route53_zone.k3s.arn]
+  }
+
+  statement {
+    sid = "SSM"
+    actions = [
+      "ssm:PutParameter",
+    ]
+    effect    = "Allow"
+    resources = ["arn:${data.aws_partition.k3s.partition}:ssm:${var.region}:${data.aws_caller_identity.k3s.account_id}:parameter/${local.prefix}-${local.suffix}/FIRST_INSTANCE_ID"]
   }
 
 }

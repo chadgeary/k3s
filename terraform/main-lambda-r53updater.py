@@ -27,11 +27,10 @@ def lambda_handler(event, context):
             InstanceIds.append(instance["InstanceId"])
 
     # get private ips of instances
+    ResourceRecords = []
     if InstanceIds:
         print("INFO: InstanceIds " + " ".join(InstanceIds))
         client = boto3.client("ec2")
-
-        ResourceRecords = []
         response = client.describe_instances(InstanceIds=InstanceIds)
         for instance in response["Reservations"][0]["Instances"]:
             # [{Value: IP},]
@@ -39,7 +38,7 @@ def lambda_handler(event, context):
     else:
         print("INFO: No InstanceIds")
 
-    # set a record to ips
+    # set a record to ips or unset FIRST_INSTANCE_ID
     if ResourceRecords:
         client = boto3.client("route53")
         response = client.change_resource_record_sets(
@@ -64,4 +63,16 @@ def lambda_handler(event, context):
             },
         )
     else:
-        print("INFO: No ResourceRecords")
+        print("INFO: No ResourceRecords, clearing SSM FIRST_INSTANCE_ID")
+        client = boto3.client("ssm")
+        response = client.put_parameter(
+            Name="/"
+            + os.environ["PREFIX"]
+            + "-"
+            + os.environ["SUFFIX"]
+            + "/FIRST_INSTANCE_ID",
+            Value="unset",
+            KeyId=os.environ["SSM_KEY_ID"],
+            Type="SecureString",
+            Overwrite=True,
+        )

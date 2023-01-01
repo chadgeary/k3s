@@ -273,14 +273,14 @@ data "aws_iam_policy_document" "k3s-kms" {
   dynamic "statement" {
     for_each = each.value == "ssm" ? [1] : []
     content {
-      sid = "ControlPlaneEncrypt"
+      sid = "AllowEncrypt"
       actions = [
         "kms:Encrypt",
       ]
       resources = ["*"]
       principals {
         type        = "AWS"
-        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn]
+        identifiers = [aws_iam_role.k3s-ec2-controlplane.arn, aws_iam_role.k3s-lambda-r53updater.arn]
       }
     }
   }

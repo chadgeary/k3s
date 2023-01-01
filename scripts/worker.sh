@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "running installer ($K3S_NODEGROUP/agent)"
-INSTALL_K3S_EXEC="agent --server $K3S_URL --kubelet-arg=provider-id=aws:///$AZ/$INSTANCE_ID --resolv-conf=/etc/rancher/k3s/resolv.conf --node-label=node.kubernetes.io/instance-type=$INSTANCE_TYPE --node-taint=node.cilium.io/agent-not-ready:NoSchedule --node-ip $INSTANCE_IP"
+INSTALL_K3S_EXEC="agent --server $K3S_URL --kubelet-arg=provider-id=aws:///$AWS_AZ/$INSTANCE_ID --resolv-conf=/etc/rancher/k3s/resolv.conf --node-label=node.kubernetes.io/instance-type=$INSTANCE_TYPE --node-taint=node.cilium.io/agent-not-ready:NoSchedule --node-ip $INSTANCE_IP"
 export INSTALL_K3S_EXEC
 "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
 echo "copying kube config from s3"
@@ -20,7 +20,7 @@ until /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k
     kubernetes.io/node-group="$K3S_NODEGROUP" \
     node.kubernetes.io/instance-type="$INSTANCE_TYPE" \
     topology.kubernetes.io/region="$REGION" \
-    topology.kubernetes.io/zone="$AZ"
+    topology.kubernetes.io/zone="$AWS_AZ"
 do
     echo "unable to label, retrying"
     sleep 5

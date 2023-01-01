@@ -4,32 +4,32 @@
 tee "$CHARTS_PATH"/aws-ebs-csi-driver.yaml >/dev/null <<EOM
 
 image:
-  repository: $ECR_URI_PREFIX-ecr/ebs-csi-driver/aws-ebs-csi-driver
+  repository: $AWS_ECR_PREFIX-ecr/ebs-csi-driver/aws-ebs-csi-driver
 
 sidecars:
   provisioner:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-provisioner
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-provisioner
       tag: "v3.1.0"
   attacher:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-attacher
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-attacher
       tag: "v3.4.0"
   snapshotter:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-snapshotter
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-snapshotter
       tag: "v6.0.1"
   livenessProbe:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/livenessprobe
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/livenessprobe
       tag: "v2.6.0"
   resizer:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-resizer
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-resizer
       tag: "v1.4.0"
   nodeDriverRegistrar:
     image:
-      repository: $ECR_URI_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-node-driver-registrar
+      repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/sig-storage/csi-node-driver-registrar
       tag: "v2.5.1"
 
 controller:

@@ -19,6 +19,7 @@ resource "aws_lambda_function" "k3s-r53updater" {
       PREFIX         = local.prefix
       SUFFIX         = local.suffix
       HOSTED_ZONE_ID = aws_route53_zone.k3s.id
+      SSM_KEY_ID     = aws_kms_key.k3s["ssm"].key_id
     }
   }
   depends_on = [aws_cloudwatch_log_group.k3s-lambda-r53updater]
