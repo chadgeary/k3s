@@ -1,8 +1,10 @@
 #!/bin/bash
 
+echo "INFO: Installing oidc script"
+
 # oidc (irsa)
 
-echo "generating oidc script and systemd service+timer"
+echo "INFO: generating oidc script and systemd service+timer"
 tee /usr/local/bin/oidc >/dev/null << EOM
 #!/bin/bash
 
@@ -48,7 +50,7 @@ Unit=k3s-oidc.service
 WantedBy=multi-user.target
 EOM
 
-echo "activating oidc script and systemd service+timer"
+echo "INFO: activating oidc script and systemd service+timer"
 systemctl daemon-reload
 systemctl enable k3s-oidc.service k3s-oidc.timer
 systemctl start k3s-oidc.service k3s-oidc.timer

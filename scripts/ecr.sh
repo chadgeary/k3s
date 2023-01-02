@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "INFO: Installing ecr auth script"
+
 # ecr (registries)
 if [ "$K3S_NODEGROUP" == "control-plane" ]; then
   K3S_SYSTEMD_UNIT="k3s.service"
@@ -9,7 +11,7 @@ else
   export K3S_SYSTEMD_UNIT
 fi
 
-echo "generating registries script and systemd service+timer"
+echo "INFO: generating registries script and systemd service+timer"
 tee /usr/local/bin/registries >/dev/null << EOM
 #!/bin/bash
 
@@ -64,7 +66,7 @@ Unit=k3s-registries.service
 WantedBy=multi-user.target
 EOM
 
-echo "activating registries script and systemd service+timer"
+echo "INFO: activating registries script and systemd service+timer"
 systemctl daemon-reload
 systemctl enable k3s-registries.service k3s-registries.timer
 systemctl start k3s-registries.service k3s-registries.timer

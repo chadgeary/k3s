@@ -8,6 +8,7 @@ REGION=$(curl -H "X-aws-ec2-metadata-token: $AWS_METADATA_TOKEN" -s http://169.2
 SLEEP_SECONDS=90
 
 # drain
+echo "INFO: draining"
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     drain "$(hostname -f)" \
     --grace-period=$SLEEP_SECONDS \
@@ -17,13 +18,16 @@ SLEEP_SECONDS=90
 sleep $SLEEP_SECONDS
 
 # k3s killall
+echo "INFO: k3s-killall.sh"
 /usr/local/bin/k3s-killall.sh
 
 # delete node
+echo "INFO: kubectl delete node"
 /usr/local/bin/k3s kubectl --server "$K3S_URL" --kubeconfig /etc/rancher/k3s/k3s.yaml \
     delete node "$(hostname -f)"
 
 # notify aws complete
+echo "INFO: aws autoscaling complete-lifecycle-action"
 aws autoscaling complete-lifecycle-action \
   --lifecycle-hook-name "$LIFECYCLEHOOKNAME" \
   --auto-scaling-group-name "$ASGNAME" \

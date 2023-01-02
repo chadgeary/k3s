@@ -1,6 +1,19 @@
 #!/bin/bash
 # run by control-plane.sh
 
+# helm
+if [ -f "$K3S_BIN_PATH/helm" ]; then
+    echo "INFO: helm exists, skipping"
+else
+    /usr/local/bin/aws --region "$REGION" s3 cp s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/helm-"$ARCH".tar.gz /opt/helm-"$ARCH".tar.gz
+    if [ "$ARCH" == "arm64" ]; then
+        tar -zx -f /opt/helm-"$ARCH".tar.gz --strip-components=1 --directory "$K3S_BIN_PATH" "linux-arm64/helm"
+    else
+        tar -zx -f /opt/helm-"$ARCH".tar.gz --strip-components=1 --directory "$K3S_BIN_PATH" "linux-amd64/helm"
+    fi
+    chmod +x "$K3S_BIN_PATH"/helm
+fi
+
 # charts from tf -> getk3s lambda -> s3
 mkdir -p "$CHARTS_PATH"
 /usr/local/bin/aws --region "$REGION" s3 sync s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/charts/ "$CHARTS_PATH"/ --quiet
@@ -19,7 +32,7 @@ until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s
     --namespace kube-system cilium-secret \
     "$CHARTS_PATH"/cilium-secret
 do
-  echo "Installing chart.."
+  echo "INFO: Installing cilium-secret"
   sleep 1
 done
 
@@ -59,7 +72,7 @@ until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s
     --namespace kube-system cilium -f "$CHARTS_PATH"/cilium.yaml \
     "$CHARTS_PATH"/cilium.tgz
 do
-  echo "Installing chart.."
+  echo "INFO: Installing cilium"
   sleep 1
 done
 
@@ -75,7 +88,7 @@ until helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s
     --namespace kube-system cilium-mgmt -f "$CHARTS_PATH"/cilium-mgmt.yaml \
     "$CHARTS_PATH"/cilium-mgmt
 do
-  echo "Installing chart.."
+  echo "INFO: Installing cilium-mgmt"
   sleep 1
 done
 
@@ -200,6 +213,7 @@ roleName: extension-apiserver-authentication-reader
 
 EOM
 
+echo "INFO: Installing aws-cloud-controller-manager"
 helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system aws-cloud-controller-manager -f "$CHARTS_PATH"/aws-cloud-controller-manager.yaml \
     "$CHARTS_PATH"/aws-cloud-controller-manager.tgz
@@ -254,6 +268,7 @@ storageClasses:
 
 EOM
 
+echo "INFO: Installing aws-efs-csi-driver"
 helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system aws-efs-csi-driver -f "$CHARTS_PATH"/aws-efs-csi-driver.yaml \
     "$CHARTS_PATH"/aws-efs-csi-driver.tgz
@@ -269,6 +284,7 @@ nodeSelector:
 
 EOM
 
+echo "INFO: Installing nvidia-device-plugin"
 helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
     --namespace kube-system nvidia-device-plugin -f "$CHARTS_PATH"/nvidia-device-plugin.yaml \
     "$CHARTS_PATH"/nvidia-device-plugin.tgz
@@ -301,6 +317,7 @@ nodeSelector:
 EOM
 
 if [ "$NAT_GATEWAYS" == "true" ]; then
+  echo "INFO: Installing external-dns"
   helm --kube-apiserver https://localhost:6443 --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --install \
       --namespace kube-system external-dns -f "$CHARTS_PATH"/external-dns.yaml \
       "$CHARTS_PATH"/external-dns.tgz

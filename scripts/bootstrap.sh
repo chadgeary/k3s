@@ -53,7 +53,7 @@ fi
 
 # k3s binary
 if [ -f "$K3S_BIN_PATH/$K3S_BIN_FILE" ]; then
-    echo "bin exists, skipping"
+    echo "INFO: bin exists, skipping"
 else
     /usr/local/bin/aws --region "$REGION" s3 cp --quiet s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_BIN_FILE"-"$ARCH" "$K3S_BIN_PATH"/"$K3S_BIN_FILE" --quiet
     chmod +x "$K3S_BIN_PATH"/"$K3S_BIN_FILE"
@@ -61,14 +61,14 @@ fi
 
 # k3s tar
 if [ -f "$K3S_TAR_PATH/$K3S_TAR_FILE".tar ]; then
-    echo "tar exists, skipping"
+    echo "INFO: tar exists, skipping"
 else
     /usr/local/bin/aws --region "$REGION" s3 cp --quiet s3://"$PREFIX"-"$SUFFIX"-private/data/downloads/k3s/"$K3S_TAR_FILE"-"$ARCH".tar "$K3S_TAR_PATH"/"$K3S_TAR_FILE".tar --quiet
 fi
 
 # k3s install script
 if [ -f "$K3S_INSTALL_PATH/$K3S_INSTALL_FILE" ]; then
-    echo "script exists, skipping"
+    echo "INFO: script exists, skipping"
 else
     mkdir -p "$K3S_INSTALL_PATH"
     cp ./install.sh "$K3S_INSTALL_PATH"/"$K3S_INSTALL_FILE"
@@ -77,7 +77,7 @@ fi
 
 # gpu use nvidia runtime
 if [ "$AMI_TYPE" != "gpu" ]; then
-    echo "AMI_TYPE not gpu, skipping"
+    echo "INFO: AMI_TYPE not gpu, skipping"
 else
     cp ./cuda-config.toml.tmpl /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
 fi
