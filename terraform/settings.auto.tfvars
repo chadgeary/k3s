@@ -98,8 +98,8 @@ nodegroups = {
   gpu1 = {
     ami = "gpu"
     scaling_count = {
-      min = 1
-      max = 1
+      min = 0
+      max = 0
     }
     volume = {
       gb   = 35
