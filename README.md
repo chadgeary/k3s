@@ -35,7 +35,7 @@ terraform apply
   * define the following components per node group, including the control-plane
     * node count (min/max)
     * instance type
-    * architecture (arm, x86, gpu)
+    * arch/accelerated (arm64, x86_64, gpu)
     * local storage
   * availability zones
 * IRSA (IAM roles for Service Accounts) support
@@ -56,6 +56,7 @@ terraform apply
   * aws-cloud-controller
   * aws-efs-csi-controller
   * cilium cni w/ ipsec and base network policies
+  * nvidia-device-plugin for GPU-accelerated instances
   * external-dns (req. `var.nat_gateways = true`)
 
 ## Known Bugs + Fixes
