@@ -28,6 +28,7 @@ until /usr/local/bin/k3s kubectl --server https://localhost:6443 --kubeconfig /e
     kubernetes.io/arch="$ARCH" \
     kubernetes.io/cluster="$PREFIX"-"$SUFFIX" \
     kubernetes.io/node-group="$K3S_NODEGROUP" \
+    node.kubernetes.io/ami-type="$AMI_TYPE" \
     node.kubernetes.io/instance-type="$INSTANCE_TYPE" \
     topology.kubernetes.io/region="$REGION" \
     topology.kubernetes.io/zone="$AWS_AZ"

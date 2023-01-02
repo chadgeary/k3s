@@ -264,10 +264,8 @@ tee "$CHARTS_PATH"/nvidia-device-plugin.yaml >/dev/null <<EOM
 image:
   registry: $AWS_ECR_PREFIX-codebuild/nvcr.io/nvidia/k8s-device-plugin
   tag: v0.13.0
-nfd:
-  image:
-    repository: $AWS_ECR_PREFIX-codebuild/k8s.gcr.io/nfd/node-feature-discovery
-    tag: v0.11.0
+nodeSelector:
+  node.kubernetes.io/ami-type: "gpu"
 
 EOM
 
