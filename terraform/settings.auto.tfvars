@@ -73,8 +73,8 @@ nodegroups = {
   control-plane = {
     ami = "arm64"
     scaling_count = {
-      min = 0
-      max = 0
+      min = 1
+      max = 1
     }
     volume = {
       gb   = 15
@@ -89,7 +89,7 @@ nodegroups = {
       max = 0
     }
     volume = {
-      gb   = 20
+      gb   = 30
       type = "gp3"
     }
     instance_types = ["t3a.medium", "t3.medium"]
@@ -101,7 +101,7 @@ nodegroups = {
       max = 0
     }
     volume = {
-      gb   = 35
+      gb   = 30
       type = "gp3"
     }
     instance_types = ["g4dn.xlarge"]
@@ -186,7 +186,7 @@ lambda_to_s3 = {
     prefix = "data/downloads/charts/nvidia-device-plugin.tgz"
   }
   UNZIP_ARM64 = {
-    url    = "http://us-east-1.ec2.ports.ubuntu.com/ubuntu-ports/pool/main/u/unzip/unzip_6.0-25ubuntu3.1_arm64.deb"
+    url    = "http://us-east-1.ec2.ports.ubuntu.com/ubuntu-ports/pool/main/u/unzip/unzip_6.0-25ubuntu1.1_arm64.deb"
     prefix = "scripts/unzip-arm64.deb"
   }
   UNZIP_X86_64 = {
