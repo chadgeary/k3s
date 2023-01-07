@@ -12,7 +12,7 @@ done
 chmod 600 /etc/rancher/k3s/k3s.yaml
 
 # labels
-bash labels.sh
+bash label.sh
 
 # ecr
 bash ecr.sh

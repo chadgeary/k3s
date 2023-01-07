@@ -28,7 +28,7 @@ for i in {1..120}; do
 done
 
 # labels
-bash labels.sh
+bash label.sh
 
 # oidc
 bash oidc.sh

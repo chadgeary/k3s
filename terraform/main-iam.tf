@@ -269,24 +269,6 @@ resource "aws_iam_role_policy_attachment" "k3s-aws-cloud-controller-manager" {
   policy_arn = aws_iam_policy.k3s-aws-cloud-controller-manager.arn
 }
 
-## aws-ebs-csi-driver
-resource "aws_iam_role" "k3s-aws-ebs-csi-driver" {
-  name               = "${local.prefix}-${local.suffix}-aws-ebs-csi-driver"
-  path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.k3s-aws-ebs-csi-driver-trust.json
-}
-
-resource "aws_iam_policy" "k3s-aws-ebs-csi-driver" {
-  name   = "${local.prefix}-${local.suffix}-aws-ebs-csi-driver"
-  path   = "/"
-  policy = data.aws_iam_policy_document.k3s-aws-ebs-csi-driver.json
-}
-
-resource "aws_iam_role_policy_attachment" "k3s-aws-ebs-csi-driver" {
-  role       = aws_iam_role.k3s-aws-ebs-csi-driver.name
-  policy_arn = aws_iam_policy.k3s-aws-ebs-csi-driver.arn
-}
-
 ## external-dns - only viable if using nat gateway(s)
 resource "aws_iam_role" "k3s-external-dns" {
   for_each           = var.nat_gateways ? { external-dns = true } : {}

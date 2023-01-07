@@ -65,7 +65,6 @@ container_images = [
   "registry.k8s.io/provider-aws/cloud-controller-manager:v1.25.1",
   "ghcr.io/zcube/bitnami-compat/external-dns:0",
   "nvcr.io/nvidia/k8s-device-plugin:v0.13.0",
-  "k8s.gcr.io/nfd/node-feature-discovery:v0.11.0"
 ]
 
 ## Node groups via ASGs
@@ -74,14 +73,14 @@ nodegroups = {
   control-plane = {
     ami = "arm64"
     scaling_count = {
-      min = 2
-      max = 2
+      min = 0
+      max = 0
     }
     volume = {
       gb   = 15
       type = "gp3"
     }
-    instance_types = ["t4g.small", "a1.medium"]
+    instance_types = ["t4g.medium", "a1.large"]
   }
   generalpurpose1 = {
     ami = "x86_64"
@@ -187,11 +186,11 @@ lambda_to_s3 = {
     prefix = "data/downloads/charts/nvidia-device-plugin.tgz"
   }
   UNZIP_ARM64 = {
-    url    = "http://us-east-1.ec2.ports.ubuntu.com/ubuntu-ports/pool/main/u/unzip/unzip_6.0-26ubuntu3.1_arm64.deb"
+    url    = "http://us-east-1.ec2.ports.ubuntu.com/ubuntu-ports/pool/main/u/unzip/unzip_6.0-25ubuntu3.1_arm64.deb"
     prefix = "scripts/unzip-arm64.deb"
   }
   UNZIP_X86_64 = {
-    url    = "http://us-east-1.ec2.archive.ubuntu.com/ubuntu/pool/main/u/unzip/unzip_6.0-26ubuntu3.1_amd64.deb"
+    url    = "http://us-east-1.ec2.archive.ubuntu.com/ubuntu/pool/main/u/unzip/unzip_6.0-25ubuntu1.1_amd64.deb"
     prefix = "scripts/unzip-x86_64.deb"
   }
 }

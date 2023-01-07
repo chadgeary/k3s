@@ -49,10 +49,7 @@ resource "aws_efs_file_system_policy" "k3s" {
             "Sid": "DriverControlPlane",
             "Effect": "Allow",
             "Principal": {
-                "AWS": [
-                  "${aws_iam_role.k3s-ec2-controlplane.arn}",
-                  "${aws_iam_role.k3s-ec2-nodes.arn}"
-                ]
+                "AWS": "${aws_iam_role.k3s-ec2-controlplane.arn}"
             },
             "Resource": "${aws_efs_file_system.k3s.arn}",
             "Action": [
